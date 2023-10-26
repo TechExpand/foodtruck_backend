@@ -35,4 +35,9 @@ app.use("/foodtruck", auth);
 app.use("/foodtruck", index);
 
 
+// app.all('*', isAuthorized);
+// app.use("/foodtruck", auth);
+// app.use("/foodtruck", index);
+
+
 
