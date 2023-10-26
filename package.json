@@ -37,6 +37,7 @@
     "mysql2": "^3.6.1",
     "nodeman": "^1.1.2",
     "nodemon": "^3.0.1",
+    "reflect-metadata": "^0.1.13",
     "sequelize": "^6.33.0",
     "sequelize-typescript": "^2.1.5",
     "stripe": "^13.9.0",
