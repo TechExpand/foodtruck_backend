@@ -48,6 +48,7 @@ const getConfig = (): Config => {
 		REDIS_INSTANCE_URL: process.env.REDIS_INSTANCE_URL,
 		PUBLIC_ROUTES: [
 			"/foodtruck/users/",
+			"/foodtruck/",
 			"/foodtruck/token/login/"
 
 		],
