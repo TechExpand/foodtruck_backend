@@ -15,27 +15,26 @@ export enum ProfileType {
 	PROFESSIONAL = 'PROFESSIONAL',
 }
 
-@Table({ timestamps: true, tableName: 'menu' })
-export class Menu extends Model {
+@Table({ timestamps: true, tableName: 'event' })
+export class Events extends Model {
 	
 	@AllowNull(true)
 	@Column(DataType.STRING)
-	menu_title!: string;
+	event_title!: string;
 
-
-	@AllowNull(true)
-	@Column(DataType.JSON)
-	menu_adon!: any;
+	@AllowNull(false)
+	@Column(DataType.STRING)
+	event_description!: string;
 
 
 	@AllowNull(false)
 	@Column(DataType.STRING)
-	menu_description!: string;
+	event_address!: string;
 
 
-	@AllowNull(false)
+    @AllowNull(false)
 	@Column(DataType.STRING)
-	menu_price!: string;
+	event_date!: string;
 
 
     @AllowNull(false)
@@ -44,10 +43,13 @@ export class Menu extends Model {
 
 
 
-	@ForeignKey(() => LanLog)
 	@AllowNull(false)
-	@Column(DataType.INTEGER)
-    lanlogId!: number;
+	@Column(DataType.DOUBLE)
+	Lan!: string;
+
+	@AllowNull(false)
+	@Column(DataType.DOUBLE)
+	Log!: string;
 
 
     @ForeignKey(() => Users)
@@ -59,8 +61,6 @@ export class Menu extends Model {
 	@BelongsTo(() => Users, { onDelete: 'CASCADE' })
 	user!: Users;
 
-	@BelongsTo(() => LanLog, { onDelete: 'CASCADE' })
-	lanlog!: LanLog;
 
 
 

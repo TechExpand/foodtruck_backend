@@ -11,6 +11,7 @@ import Stripe from 'stripe';
 import { config } from "dotenv";
 import { UserType, Users } from "../models/Users";
 import { Menu } from "../models/Menus";
+import { Events } from "../models/Event";
 const cloudinary = require("cloudinary").v2;
 const stripe = new Stripe('sk_test_51HGpOPE84s4AdL4O3gsrsEu4BXpPqDpWvlRAwPA30reXQ6UKhOzlUluJaYKiDDh6g9A0xYJbeCh9rM0RnlQov2lW00ZyOHxrx1', {
     apiVersion: '2023-08-16',
@@ -247,8 +248,8 @@ export const onlineLanlogVendors = async (req: Request, res: Response)=>{
         const distance =  getDistanceFromLatLonInKm(
 			Number(vendor.Lan), Number(vendor.Log), Number(lan),  Number(log)
 		);
-        console.log(distance)
-        if(distance <= Number(range_value)){
+      
+        if(distance <= Number(5000)){
             if(vendor.dataValues.user.dataValues.type == UserType.VENDOR){
                 distance_list.push({
                     ...vendor.dataValues,
@@ -328,11 +329,18 @@ export const getProfile = async (req: Request, res: Response)=>{
 export const getVendorProfile = async (req: Request, res: Response)=>{
     const { id } = req.user
     console.log(id)
-    const profile =  await Profile.findAll({where: {userId: id},  include: [{ model: Users, 
-        attributes:  [
-        'createdAt', 'updatedAt', "subscription_id"]  }
+    const profile =  await Profile.findOne({where: {userId: id},  include: [
+        { model: Users },
+        { model: LanLog },
+
     ],});
-    return res.status(200).send({message: "Fetched Successfully", profile})
+    const menus = await Menu.findAll({where: {userId:  id}})
+    const events = await Events.findAll({where: {userId:  id}})
+    return res.status(200).send({message: "Fetched Successfully", profile: {
+        menus, 
+        events,
+        profile: profile
+    } })
 }
 
 
@@ -436,9 +444,11 @@ export const deleteMenu = async (req: Request, res: Response)=>{
 
 
 
+
+
 export const createMenu = async (req: Request, res: Response)=>{
     const {id} = req.user
-    const {menu_title, menu_description, menu_price} = req.body
+    const {menu_title, menu_description, menu_price, menu_adon} = req.body
     const user =  await Users.findOne({where:{id}})
     const lanlog =  await LanLog.findOne({where:{userId: user?.id}})
     if(req.file){
@@ -446,6 +456,7 @@ export const createMenu = async (req: Request, res: Response)=>{
          const menu = await Menu.create(
             {
                 menu_title, menu_description, menu_price,
+                menu_adon: {adon: menu_adon},
                 lanlogId: lanlog?.id,
                 userId: user?.id,
                 menu_picture: result.secure_url
@@ -500,3 +511,58 @@ export const updateMenu = async (req: Request, res: Response)=>{
 }
 
 // Menu
+
+
+
+
+//Events
+
+
+
+export const getEvent = async (req: Request, res: Response)=>{
+    const {id} = req.user
+    const user =  await Users.findOne({where:{id}})
+    console.log(user?.subscription_id)
+    const events =  await Events.findAll({where:{userId: id}})
+    return res.status(200).send({message: "Fetched Successfully", events})
+}
+
+
+
+
+
+
+export const deleteEvent = async (req: Request, res: Response)=>{
+    const {id} = req.params
+    const events =  await Events.findOne({where:{ id }})
+    await events?.destroy()
+    return res.status(200).send({message: "Deleted Successfully", events})
+}
+
+
+
+
+
+
+
+export const createEvent = async (req: Request, res: Response)=>{
+    const {id} = req.user
+    const {event_title, event_description, event_price, menu_adon} = req.body
+    const user =  await Users.findOne({where:{id}})
+    if(req.file){
+        const result = await cloudinary.uploader.upload(req.file.path.replace(/ /g,"_"))
+         const menu = await Menu.create(
+            {
+                menu_title, menu_description, menu_price,
+                menu_adon: {adon: menu_adon},
+                lanlogId: lanlog?.id,
+                userId: user?.id,
+                menu_picture: result.secure_url
+            }
+        );
+        return res.status(200).send({message: "Created Successfully", menu})
+    }else{
+        return res.status(400).send({message: "Image is Required"})
+    }
+  
+}
