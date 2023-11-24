@@ -239,6 +239,9 @@ export const onlineLanlogVendors = async (req: Request, res: Response)=>{
     let distance_list:any[] = []
     const lanlog =  await LanLog.findAll({
         include: [{ model: Users, 
+            where: {
+                type: UserType.VENDOR
+            },
             attributes:  [
 			'createdAt', 'updatedAt', "email", 'type']  }
 		],
@@ -279,6 +282,9 @@ export const onlineLanlogUser = async (req: Request, res: Response)=>{
         let distance_list:any[] = []
         const lanlog =  await LanLog.findAll({
             include: [{ model: Users, 
+                where: {
+                    type: UserType.USER
+                },
                 attributes:  [
                 'createdAt', 'updatedAt', "email", "type"]  }
             ],
