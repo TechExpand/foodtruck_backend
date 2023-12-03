@@ -236,10 +236,10 @@ export const register = async (req: Request, res: Response)=>{
 
 
 let transporter = nodemailer.createTransport({
-  host: "foodtruck.express",
+  host: "smtp.foodtruck.express",
   port: 465,
   auth: {
-    user: "support@foodtruck.express",
+    user: "support@smtp.foodtruck.express",
     pass: "9Ak79j9%b"
   }
   });
@@ -247,7 +247,7 @@ let transporter = nodemailer.createTransport({
 
 export const register2 = async (req: Request, res: Response)=>{
   let mailOptions = {
-    from: "support@foodtruck.express",
+    from: "support@smtp.foodtruck.express",
     to: req.params.email,
     subject: 'Welcome to Foodtruck.Express',
     html: 
