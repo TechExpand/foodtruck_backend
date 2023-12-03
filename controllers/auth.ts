@@ -237,7 +237,7 @@ export const register = async (req: Request, res: Response)=>{
 
 let transporter = nodemailer.createTransport({
   host: "foodtruck.express",
-  port: 25,
+  port: 465,
   auth: {
     user: "support@foodtruck.express",
     pass: "9Ak79j9%b"
