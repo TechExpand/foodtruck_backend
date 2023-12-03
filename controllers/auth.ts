@@ -8,8 +8,7 @@ const TOKEN_SECRET = "222hwhdhnnjduru838272@@$henncndbdhsjj333n33brnfn";
 const saltRounds = 10;
 import {compare, hash} from "bcryptjs";
 import {sign} from "jsonwebtoken";
-import { upload_cloud } from "../helpers/upload";
-import { Profile } from "../models/Profile";
+const nodemailer =  require("nodemailer")
 // import { Professional } from "../models/Professional";
 
 
@@ -232,6 +231,40 @@ export const register = async (req: Request, res: Response)=>{
          let token = sign({ id: user.id, email: user.email }, TOKEN_SECRET);
          return res.status(200).send({token})
     });
+}
+
+
+
+let transporter = nodemailer.createTransport({
+  host: "smtp.foodtruck.express",
+  port: 25,
+  auth: {
+    user: "support@foodtruck.express",
+    pass: "9Ak79j9%b"
+  }
+  });
+
+
+export const register2 = async (req: Request, res: Response)=>{
+  let mailOptions = {
+    from: "support@foodtruck.express",
+    to: req.params.email,
+    subject: 'Welcome to Foodtruck.Express',
+    html: 
+    `Just a test`
+  };
+
+
+
+transporter.sendMail(mailOptions, function(err:any, data:any) {
+    if (err) {
+      console.log("Error " + err);
+      res.send({message: err})
+    } else {
+      console.log("Email sent successfully");
+      res.send({message: "message sent"})
+    }
+  });
 }
 
 

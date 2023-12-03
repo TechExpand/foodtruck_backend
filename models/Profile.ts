@@ -1,4 +1,4 @@
-import { Table, Model, Column, DataType, HasOne, BelongsToMany, HasMany, AllowNull, Unique, Default, Index, BelongsTo, ForeignKey } from 'sequelize-typescript';
+import { Table, Model, Column, DataType, HasOne, BelongsToMany, HasMany, AllowNull, Unique, Default, Index, BelongsTo, ForeignKey, BeforeUpdate, BeforeCreate } from 'sequelize-typescript';
 import { Users } from './Users';
 // import { Professional } from './Professional';
 import { LanLog } from './LanLog';
@@ -17,10 +17,21 @@ export enum ProfileType {
 
 @Table({ timestamps: true, tableName: 'profile' })
 export class Profile extends Model {
-	
+
 	@AllowNull(true)
 	@Column(DataType.STRING)
 	business_name!: string;
+
+
+	@AllowNull(true)
+	@Column(DataType.STRING)
+	tag!: string;
+
+
+	@BeforeCreate
+	static capitalizeName(instance: Profile) {
+		instance.tag = instance.tag.toLowerCase();
+	}
 
 	@AllowNull(false)
 	@Column(DataType.STRING)
@@ -32,7 +43,7 @@ export class Profile extends Model {
 	detail!: string;
 
 
-    @AllowNull(false)
+	@AllowNull(false)
 	@Column(DataType.STRING)
 	phone!: string;
 
@@ -40,7 +51,7 @@ export class Profile extends Model {
 	@ForeignKey(() => LanLog)
 	@AllowNull(false)
 	@Column(DataType.INTEGER)
-    lanlogId!: number;
+	lanlogId!: number;
 
 
 
@@ -80,7 +91,7 @@ export class Profile extends Model {
 	@ForeignKey(() => Users)
 	@AllowNull(false)
 	@Column(DataType.INTEGER)
-    userId!: number;
+	userId!: number;
 
 
 	@BelongsTo(() => Users, { onDelete: 'CASCADE' })

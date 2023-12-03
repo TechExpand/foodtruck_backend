@@ -12,6 +12,8 @@ import { config } from "dotenv";
 import { UserType, Users } from "../models/Users";
 import { Menu } from "../models/Menus";
 import { Events } from "../models/Event";
+import { PopularVendor } from "../models/Popular";
+import { Tag } from "../models/Tag";
 const cloudinary = require("cloudinary").v2;
 const stripe = new Stripe('sk_test_51HGpOPE84s4AdL4O3gsrsEu4BXpPqDpWvlRAwPA30reXQ6UKhOzlUluJaYKiDDh6g9A0xYJbeCh9rM0RnlQov2lW00ZyOHxrx1', {
     apiVersion: '2023-08-16',
@@ -330,6 +332,41 @@ export const getProfile = async (req: Request, res: Response)=>{
     const profile =  await Profile.findAll({where: {lanlogId: id}});
     return res.status(200).send({message: "Fetched Successfully", profile})
 }
+
+
+
+
+export const getFirstFiveEvents = async (req: Request, res: Response)=>{
+    const event =  await Events.findAll({ limit: 10});
+    return res.status(200).send({message: "Fetched Successfully", event})
+}
+
+
+
+export const filterVendorBytag = async (req: Request, res: Response)=>{
+    const {tag} =  req.query;
+    const profile =  await Profile.findAll({ where: {tag:tag?.toString().toLowerCase()}, include:[
+        {model: Users}, {model: LanLog}
+    ]});
+    return res.status(200).send({message: "Fetched Successfully", profile})
+}
+
+
+
+
+export const getFirstFivePorpular = async (req: Request, res: Response)=>{
+    const popular =  await PopularVendor.findAll({ limit: 10});
+    return res.status(200).send({message: "Fetched Successfully", popular})
+}
+
+
+
+
+export const getTags = async (req: Request, res: Response)=>{
+    const tags =  await Tag.findAll({ });
+    return res.status(200).send({message: "Fetched Successfully", tags})
+}
+
 
 
 

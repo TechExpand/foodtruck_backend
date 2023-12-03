@@ -11,6 +11,7 @@ import { Profile } from '../models/Profile';
 import { Menu } from '../models/Menus';
 import { LanLog } from '../models/LanLog';
 import { Events } from '../models/Event';
+import { Tag } from '../models/Tag';
 // import { Sector } from '../models/Sector';
 
 // // Import models
@@ -35,6 +36,7 @@ const sequelize = new Sequelize(config.DBNAME, config.DBUSERNAME, config.DBPASSW
 		LanLog,
 		Events,
 		Profile,
+		Tag,
 		
 	],
 });
