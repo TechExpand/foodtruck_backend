@@ -1,0 +1,473 @@
+"use strict";
+// @ts-nocheck comment
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.createEvent = exports.deleteEvent = exports.getEvent = exports.updateMenu = exports.createMenu = exports.deleteMenu = exports.getMenu = exports.vendorMenu = exports.rateProfile = exports.updateLanLog = exports.getLanLog = exports.getSubscription = exports.getVendorProfile = exports.getTags = exports.getFirstFivePorpular = exports.filterVendorBytag = exports.getFirstFiveEvents = exports.getProfile = exports.onlineLanlogUser = exports.onlineLanlogVendors = exports.addNewCard = exports.reactivateSubscription = exports.cancelSubscription = exports.createSubscription = exports.updateProfile = exports.createProfile = exports.createLocation = exports.apiIndex = void 0;
+const utility_1 = require("../helpers/utility");
+const LanLog_1 = require("../models/LanLog");
+const Profile_1 = require("../models/Profile");
+const stripe_1 = __importDefault(require("stripe"));
+const Users_1 = require("../models/Users");
+const Menus_1 = require("../models/Menus");
+const Event_1 = require("../models/Event");
+const Popular_1 = require("../models/Popular");
+const Tag_1 = require("../models/Tag");
+const cloudinary = require("cloudinary").v2;
+const stripe = new stripe_1.default('sk_test_51HGpOPE84s4AdL4O3gsrsEu4BXpPqDpWvlRAwPA30reXQ6UKhOzlUluJaYKiDDh6g9A0xYJbeCh9rM0RnlQov2lW00ZyOHxrx1', {
+    apiVersion: '2023-08-16',
+});
+const apiIndex = (req, res) => __awaiter(void 0, void 0, void 0, function* () { return (0, utility_1.successResponse)(res, 'API Working!'); });
+exports.apiIndex = apiIndex;
+const createLocation = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let { Lan, Log, online } = req.body;
+    let { id } = req.user;
+    const user = yield Users_1.Users.findOne({ where: { id } });
+    if (user)
+        return res.status(200).send({ message: "Created Successfully", status: true });
+    const location = yield LanLog_1.LanLog.create({ Lan, Log, online, userId: id });
+    return res.status(200).send({ message: "Created Successfully", status: true });
+});
+exports.createLocation = createLocation;
+const createProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let { business_name, unique_detail, detail, phone } = req.body;
+    let { id } = req.user;
+    if (req.file) {
+        const result = yield cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"));
+        const user = yield Users_1.Users.findOne({ where: { id } });
+        const location = yield LanLog_1.LanLog.findOne({ where: { userId: id } });
+        // const customer = await stripe.customers.create({
+        //     email: user?.email
+        // })
+        const profile = yield Profile_1.Profile.create({
+            business_name, unique_detail, detail,
+            phone, lanlogId: location.id, userId: id,
+            pro_pic: result.secure_url
+        });
+        //  await user?.update({custom er_id:  customer.id})
+        return res.status(200).send({ message: "Created Successfully", status: true });
+    }
+    return res.status(400).send({ message: "File is required", status: false });
+});
+exports.createProfile = createProfile;
+const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let { business_name, unique_detail, detail, phone } = req.body;
+    let { id } = req.user;
+    if (req.file) {
+        const result = yield cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"));
+        const location = yield LanLog_1.LanLog.findOne({ where: { userId: id } });
+        const profile = yield Profile_1.Profile.findOne({ where: { userId: id } });
+        yield (profile === null || profile === void 0 ? void 0 : profile.update({
+            business_name: business_name !== null && business_name !== void 0 ? business_name : profile.business_name,
+            unique_detail: unique_detail !== null && unique_detail !== void 0 ? unique_detail : profile.unique_detail, detail: detail !== null && detail !== void 0 ? detail : profile.detail,
+            phone: phone !== null && phone !== void 0 ? phone : profile.phone, lanlogId: location.id, userId: id,
+            pro_pic: result.secure_url
+        }));
+        return res.status(200).send({ message: "Updated Successfully", status: true });
+    }
+    else {
+        const location = yield LanLog_1.LanLog.findOne({ where: { userId: id } });
+        const profile = yield Profile_1.Profile.findOne({ where: { userId: id } });
+        yield (profile === null || profile === void 0 ? void 0 : profile.update({
+            business_name: business_name !== null && business_name !== void 0 ? business_name : profile.business_name,
+            unique_detail: unique_detail !== null && unique_detail !== void 0 ? unique_detail : profile.unique_detail, detail: detail !== null && detail !== void 0 ? detail : profile.detail,
+            phone: phone !== null && phone !== void 0 ? phone : profile.phone, lanlogId: location.id, userId: id,
+            pro_pic: profile.pro_pic
+        }));
+        return res.status(200).send({ message: "Updated Successfully", status: true });
+    }
+});
+exports.updateProfile = updateProfile;
+const createSubscription = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let { paymentMethod } = req.query;
+    // console.log(`${card_number}, ${exp_month}, ${exp_year}, ${cvc}`)
+    let { id } = req.user;
+    try {
+        const user = yield Users_1.Users.findOne({ where: { id } });
+        const profile = yield Profile_1.Profile.findOne({ where: { userId: user === null || user === void 0 ? void 0 : user.id } });
+        // const token = await  stripe.tokens.create({
+        //     card: {
+        //         number: String(card_number),
+        //         exp_month: exp_month,
+        //         exp_year: exp_year,
+        //         cvc: String(cvc),
+        //     } })
+        //     const paymentMethod = await stripe.paymentMethods.create({
+        //   type: 'card',
+        //   card: {
+        //     number: String(card_number),
+        //     exp_month: exp_month,
+        //     exp_year: exp_year,
+        //     cvc: String(cvc),
+        //   },
+        // });
+        // await stripe.paymentMethods.attach(
+        //   paymentMethod.id,
+        //   {customer: user!.customer_id}
+        // );
+        const customer = yield stripe.customers.create({
+            email: user.email,
+            payment_method: paymentMethod,
+            invoice_settings: {
+                default_payment_method: paymentMethod,
+            }
+        });
+        const subscription = yield stripe.subscriptions.create({
+            customer: String(customer.id),
+            items: [
+                {
+                    'price': 'price_1HHR0XE84s4AdL4OfNPppTRM',
+                    'quantity': 1,
+                },
+            ],
+            default_payment_method: paymentMethod,
+            payment_settings: {
+                payment_method_options: {
+                    card: {
+                        request_three_d_secure: 'any',
+                    },
+                },
+                payment_method_types: ['card'],
+                save_default_payment_method: 'on_subscription',
+            },
+            expand: ['latest_invoice.payment_intent'],
+            trial_period_days: 1
+        });
+        console.log(subscription);
+        yield (user === null || user === void 0 ? void 0 : user.update({
+            customer_id: customer.id,
+            // token_id:token.id, card_id:token.card?.id, 
+            subscription_id: subscription.id
+        }));
+        yield (profile === null || profile === void 0 ? void 0 : profile.update({ subscription_id: subscription.id }));
+        if (subscription.latest_invoice.payment_intent) {
+            return res.status(200).send({
+                message: "Created Successfully",
+                clientSecret: subscription.latest_invoice.payment_intent.client_secret,
+                subscriptionId: subscription.id,
+                status: true
+            });
+        }
+        else {
+            return res.status(200).send({
+                message: "Created Successfully",
+                subscriptionId: subscription.id,
+                status: true
+            });
+        }
+    }
+    catch (e) {
+        console.log(e);
+    }
+});
+exports.createSubscription = createSubscription;
+const cancelSubscription = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let { id } = req.user;
+    const user = yield Users_1.Users.findOne({ where: { id } });
+    const subscription = yield stripe.subscriptions.cancel(user.subscription_id);
+    const status = yield stripe.subscriptions.retrieve(user.subscription_id);
+    return res.status(200).send({ message: "Canceled Successfully", status: status.status });
+});
+exports.cancelSubscription = cancelSubscription;
+const reactivateSubscription = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let { id } = req.user;
+    const user = yield Users_1.Users.findOne({ where: { id } });
+    const subscription = yield stripe.subscriptions.resume(user.subscription_id);
+    return res.status(200).send({ message: "You have subscribe to foodtruck.express plan", status: true });
+});
+exports.reactivateSubscription = reactivateSubscription;
+const addNewCard = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    let { card_number, expiry_month, expiry_year, cvc } = req.query;
+    let { id } = req.user;
+    const user = yield Users_1.Users.findOne({ where: { id } });
+    const profile = yield Profile_1.Profile.findOne({ where: { userId: user === null || user === void 0 ? void 0 : user.id } });
+    // const token = await  stripe.tokens.create({
+    //     card: {
+    //         number: String(card_number),
+    //         exp_month: expiry_month,
+    //         exp_year: expiry_year,
+    //         cvc: String(cvc),
+    //     } })
+    // await stripe.customers.update(user!.customer_id, {
+    //     source:  token.id
+    // })
+    const paymentMethod = yield stripe.paymentMethods.create({
+        type: 'card',
+        card: {
+            number: String(card_number),
+            exp_month: exp_month,
+            exp_year: exp_year,
+            cvc: String(cvc),
+        },
+    });
+    yield stripe.paymentMethods.attach(paymentMethod.id, { customer: user.customer_id });
+    yield (user === null || user === void 0 ? void 0 : user.update({ token_id: token.id, card_id: (_a = token.card) === null || _a === void 0 ? void 0 : _a.id }));
+    return res.status(200).send({ message: "Created Successfully", status: true });
+});
+exports.addNewCard = addNewCard;
+const onlineLanlogVendors = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { lan, log, range_value } = req.query;
+    let distance_list = [];
+    const lanlog = yield LanLog_1.LanLog.findAll({
+        include: [{ model: Users_1.Users,
+                where: {
+                    type: Users_1.UserType.VENDOR
+                },
+                attributes: [
+                    'createdAt', 'updatedAt', "email", 'type'
+                ] }
+        ],
+    });
+    for (let vendor of lanlog) {
+        const distance = (0, utility_1.getDistanceFromLatLonInKm)(Number(vendor.Lan), Number(vendor.Log), Number(lan), Number(log));
+        if (distance <= Number(5000)) {
+            if (vendor.dataValues.user.dataValues.type == Users_1.UserType.VENDOR) {
+                distance_list.push(Object.assign(Object.assign({}, vendor.dataValues), { user: vendor.dataValues.user.dataValues, distance }));
+                distance_list.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+            }
+        }
+    }
+    return res.status(200).send({ message: "Fetched Successfully", vendors: distance_list });
+});
+exports.onlineLanlogVendors = onlineLanlogVendors;
+const onlineLanlogUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { lan, log, range_value } = req.query;
+    const { id } = req.user;
+    const user = yield Users_1.Users.findOne({ where: { id } });
+    const subscription = yield stripe.subscriptions.retrieve(user === null || user === void 0 ? void 0 : user.subscription_id);
+    if (subscription.status == 'active' || subscription.status == 'trialing') {
+        let distance_list = [];
+        const lanlog = yield LanLog_1.LanLog.findAll({
+            include: [{ model: Users_1.Users,
+                    where: {
+                        type: Users_1.UserType.USER
+                    },
+                    attributes: [
+                        'createdAt', 'updatedAt', "email", "type"
+                    ] }
+            ],
+        });
+        for (let vendor of lanlog) {
+            const distance = (0, utility_1.getDistanceFromLatLonInKm)(Number(vendor.Lan), Number(vendor.Log), Number(lan), Number(log));
+            if (distance <= Number(range_value)) {
+                console.log(vendor.dataValues.user.dataValues.type);
+                if (vendor.dataValues.user.dataValues.type == Users_1.UserType.USER) {
+                    distance_list.push(Object.assign(Object.assign({}, vendor.dataValues), { user: vendor.dataValues.user.dataValues, distance }));
+                    distance_list.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+                }
+            }
+        }
+        return res.status(200).send({ message: "Fetched Successfully", users: distance_list });
+    }
+    else {
+        return res.status(200).send({ message: "Fetched Successfully", users: "Subscribe to get online Users and Display your Menu" });
+    }
+});
+exports.onlineLanlogUser = onlineLanlogUser;
+const getProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.query;
+    const profile = yield Profile_1.Profile.findAll({ where: { lanlogId: id } });
+    return res.status(200).send({ message: "Fetched Successfully", profile });
+});
+exports.getProfile = getProfile;
+const getFirstFiveEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const event = yield Event_1.Events.findAll({ limit: 10 });
+    return res.status(200).send({ message: "Fetched Successfully", event });
+});
+exports.getFirstFiveEvents = getFirstFiveEvents;
+const filterVendorBytag = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { tag } = req.query;
+    const profile = yield Profile_1.Profile.findAll({ where: { tag: tag === null || tag === void 0 ? void 0 : tag.toString().toLowerCase() }, include: [
+            { model: Users_1.Users }, { model: LanLog_1.LanLog }
+        ] });
+    return res.status(200).send({ message: "Fetched Successfully", profile });
+});
+exports.filterVendorBytag = filterVendorBytag;
+const getFirstFivePorpular = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const popular = yield Popular_1.PopularVendor.findAll({ limit: 10 });
+    return res.status(200).send({ message: "Fetched Successfully", popular });
+});
+exports.getFirstFivePorpular = getFirstFivePorpular;
+const getTags = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const tags = yield Tag_1.Tag.findAll({});
+    return res.status(200).send({ message: "Fetched Successfully", tags });
+});
+exports.getTags = getTags;
+const getVendorProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.user;
+    console.log(id);
+    const profile = yield Profile_1.Profile.findOne({ where: { userId: id }, include: [
+            { model: Users_1.Users },
+            { model: LanLog_1.LanLog },
+        ], });
+    const menus = yield Menus_1.Menu.findAll({ where: { userId: id } });
+    const events = yield Event_1.Events.findAll({ where: { userId: id } });
+    return res.status(200).send({ message: "Fetched Successfully", profile: {
+            menus,
+            events,
+            profile: profile
+        } });
+});
+exports.getVendorProfile = getVendorProfile;
+const getSubscription = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.user;
+    console.log(id);
+    const user = yield Users_1.Users.findOne({ where: { id } });
+    const subscription = yield stripe.subscriptions.retrieve(user === null || user === void 0 ? void 0 : user.subscription_id);
+    return res.status(200).send({ message: "Fetched Successfully", status: subscription.status });
+});
+exports.getSubscription = getSubscription;
+const getLanLog = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.user;
+    const lanlog = yield LanLog_1.LanLog.findAll({ where: { userId: id }, include: [{ model: Users_1.Users,
+                attributes: [
+                    'createdAt', 'updatedAt', "subscription_id"
+                ] }
+        ], });
+    return res.status(200).send({ message: "Fetched Successfully", lanlog });
+});
+exports.getLanLog = getLanLog;
+const updateLanLog = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id, online } = req.body;
+    const lanlog = yield LanLog_1.LanLog.findOne({ where: { id } });
+    yield (lanlog === null || lanlog === void 0 ? void 0 : lanlog.update({ online }));
+    return res.status(200).send({ message: "Fetched Successfully", lanlog });
+});
+exports.updateLanLog = updateLanLog;
+const rateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id, rate } = req.body;
+    const profile = yield Profile_1.Profile.findOne({ where: { lanlogId: id } });
+    yield (profile === null || profile === void 0 ? void 0 : profile.update({ totalRate: profile.totalRate + 1, meanRate: profile.meanRate + Number(rate), rate: ((profile.meanRate + Number(rate)) / (profile.totalRate + 1)) }));
+    return res.status(200).send({ message: "Fetched Successfully", profile });
+});
+exports.rateProfile = rateProfile;
+const vendorMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.query;
+    const user = yield Users_1.Users.findOne({ where: { id } });
+    console.log(user === null || user === void 0 ? void 0 : user.subscription_id);
+    const subscription_status = yield stripe.subscriptions.retrieve(user === null || user === void 0 ? void 0 : user.subscription_id);
+    if (subscription_status.status == 'active' || subscription_status.status == 'trialing') {
+        const menu = yield Menus_1.Menu.findAll({ where: { userId: id } });
+        return res.status(200).send({ message: "Fetched Successfully", menu });
+    }
+    else {
+        return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false });
+    }
+});
+exports.vendorMenu = vendorMenu;
+const getMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.user;
+    const user = yield Users_1.Users.findOne({ where: { id } });
+    console.log(user === null || user === void 0 ? void 0 : user.subscription_id);
+    const menu = yield Menus_1.Menu.findAll({ where: { userId: id } });
+    return res.status(200).send({ message: "Fetched Successfully", menu });
+});
+exports.getMenu = getMenu;
+const deleteMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const menu = yield Menus_1.Menu.findOne({ where: { id } });
+    yield (menu === null || menu === void 0 ? void 0 : menu.destroy());
+    return res.status(200).send({ message: "Deleted Successfully", menu });
+});
+exports.deleteMenu = deleteMenu;
+const createMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.user;
+    const { menu_title, menu_description, menu_price, menu_adon } = req.body;
+    const user = yield Users_1.Users.findOne({ where: { id } });
+    const lanlog = yield LanLog_1.LanLog.findOne({ where: { userId: user === null || user === void 0 ? void 0 : user.id } });
+    if (req.file) {
+        const result = yield cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"));
+        const menu = yield Menus_1.Menu.create({
+            menu_title, menu_description, menu_price,
+            menu_adon: { adon: menu_adon },
+            lanlogId: lanlog === null || lanlog === void 0 ? void 0 : lanlog.id,
+            userId: user === null || user === void 0 ? void 0 : user.id,
+            menu_picture: result.secure_url
+        });
+        return res.status(200).send({ message: "Created Successfully", menu });
+    }
+    else {
+        return res.status(400).send({ message: "Image is Required" });
+    }
+});
+exports.createMenu = createMenu;
+const updateMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    // console.log(userId);
+    const { menu_title, menu_description, menu_price } = req.body;
+    const user = yield Users_1.Users.findOne({ where: { id: req.user.id } });
+    const lanlog = yield LanLog_1.LanLog.findOne({ where: { userId: user === null || user === void 0 ? void 0 : user.id } });
+    if (req.file) {
+        const result = yield cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"));
+        const menu = yield Menus_1.Menu.findOne({ where: { id } });
+        yield menu.update({
+            menu_title: menu_title !== null && menu_title !== void 0 ? menu_title : menu === null || menu === void 0 ? void 0 : menu.menu_title, menu_description: menu_description !== null && menu_description !== void 0 ? menu_description : menu === null || menu === void 0 ? void 0 : menu.menu_description,
+            menu_price: menu_price !== null && menu_price !== void 0 ? menu_price : menu === null || menu === void 0 ? void 0 : menu.menu_price,
+            lanlogId: lanlog === null || lanlog === void 0 ? void 0 : lanlog.id,
+            userId: user === null || user === void 0 ? void 0 : user.id,
+            menu_picture: result.secure_url
+        });
+        return res.status(200).send({ message: "Updated Successfully", menu });
+    }
+    else {
+        const menu = yield Menus_1.Menu.findOne({ where: { id } });
+        yield menu.update({
+            menu_title: menu_title !== null && menu_title !== void 0 ? menu_title : menu === null || menu === void 0 ? void 0 : menu.menu_title, menu_description: menu_description !== null && menu_description !== void 0 ? menu_description : menu === null || menu === void 0 ? void 0 : menu.menu_description,
+            menu_price: menu_price !== null && menu_price !== void 0 ? menu_price : menu === null || menu === void 0 ? void 0 : menu.menu_price,
+            lanlogId: lanlog === null || lanlog === void 0 ? void 0 : lanlog.id,
+            userId: user === null || user === void 0 ? void 0 : user.id,
+            menu_picture: menu.menu_picture
+        });
+        return res.status(200).send({ message: "Updated Successfully", menu });
+    }
+});
+exports.updateMenu = updateMenu;
+// Menu
+//Events
+const getEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.user;
+    const user = yield Users_1.Users.findOne({ where: { id } });
+    console.log(user === null || user === void 0 ? void 0 : user.subscription_id);
+    const events = yield Event_1.Events.findAll({ where: { userId: id } });
+    return res.status(200).send({ message: "Fetched Successfully", events });
+});
+exports.getEvent = getEvent;
+const deleteEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const events = yield Event_1.Events.findOne({ where: { id } });
+    yield (events === null || events === void 0 ? void 0 : events.destroy());
+    return res.status(200).send({ message: "Deleted Successfully", events });
+});
+exports.deleteEvent = deleteEvent;
+const createEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.user;
+    const { event_title, event_description, event_price, menu_adon } = req.body;
+    const user = yield Users_1.Users.findOne({ where: { id } });
+    if (req.file) {
+        const result = yield cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"));
+        const menu = yield Menus_1.Menu.create({
+            menu_title, menu_description, menu_price,
+            menu_adon: { adon: menu_adon },
+            lanlogId: lanlog === null || lanlog === void 0 ? void 0 : lanlog.id,
+            userId: user === null || user === void 0 ? void 0 : user.id,
+            menu_picture: result.secure_url
+        });
+        return res.status(200).send({ message: "Created Successfully", menu });
+    }
+    else {
+        return res.status(400).send({ message: "Image is Required" });
+    }
+});
+exports.createEvent = createEvent;
+//# sourceMappingURL=index.js.map
