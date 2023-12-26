@@ -96,8 +96,7 @@ const verifyOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 });
             }
             else {
-                console.log(verifyEmail.code);
-                console.log(emailCode);
+              
                 (0, utility_1.errorResponse)(res, "Failed", {
                     message: "Invalid Code",
                     status: false
@@ -105,8 +104,7 @@ const verifyOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             }
         }
         else {
-            console.log(verifyEmail);
-            console.log(verifySms);
+          
             (0, utility_1.errorResponse)(res, "Failed", {
                 message: "Code Already Used",
                 status: false
@@ -241,11 +239,11 @@ const register2 = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     };
     transporter.sendMail(mailOptions, function (err, data) {
         if (err) {
-            console.log("Error " + err);
+          
             res.send({ message: err });
         }
         else {
-            console.log("Email sent successfully");
+           
             res.send({ message: "message sent" });
         }
     });

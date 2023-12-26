@@ -12,6 +12,12 @@ import { Menu } from '../models/Menus';
 import { LanLog } from '../models/LanLog';
 import { Events } from '../models/Event';
 import { Tag } from '../models/Tag';
+import { PopularVendor } from '../models/Popular';
+import { HomeTag } from '../models/HomeTag';
+import { Favourite } from '../models/Favourite';
+import { AllTag } from '../models/Alltags';
+import { Order } from '../models/Order';
+import { Extra } from '../models/Extras';
 // import { Sector } from '../models/Sector';
 
 // // Import models
@@ -31,8 +37,14 @@ const sequelize = new Sequelize(config.DBNAME, config.DBUSERNAME, config.DBPASSW
 	},
 	models: [
 		Users,
+		AllTag,
 		Verify,
+		Favourite,
 		Menu,
+		HomeTag,
+		Extra,
+		Order,
+		PopularVendor,
 		LanLog,
 		Events,
 		Profile,

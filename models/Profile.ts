@@ -1,7 +1,8 @@
-import { Table, Model, Column, DataType, HasOne, BelongsToMany, HasMany, AllowNull, Unique, Default, Index, BelongsTo, ForeignKey, BeforeUpdate, BeforeCreate } from 'sequelize-typescript';
+import { Table, Model, Column, DataType, HasOne, BelongsToMany, HasMany, AllowNull, Unique, Default, Index, BelongsTo, ForeignKey, BeforeUpdate, BeforeCreate, BeforeFind, BeforeFindAfterExpandIncludeAll } from 'sequelize-typescript';
 import { Users } from './Users';
 // import { Professional } from './Professional';
 import { LanLog } from './LanLog';
+import { DataTypes } from 'sequelize';
 
 
 // export enum UserGender {
@@ -25,7 +26,18 @@ export class Profile extends Model {
 
 	@AllowNull(true)
 	@Column(DataType.STRING)
-	tag!: string;
+	tag!: any;
+	// @BeforeCreate
+	// static setvalue(instance: Profile) {
+	// 	const stringValue = instance.tag
+	// 	return stringValue ? stringValue.split(',') : null;
+	// }
+	// @BeforeFindAfterExpandIncludeAll
+	// static getValue(instance: Profile) {
+	// 	const arrayValue = instance.tag ? instance.tag.join(',') : '';
+	// 	return arrayValue;
+	// 	// this.setDataValue('studentIds', arrayValue);
+	// }
 
 
 	@BeforeCreate

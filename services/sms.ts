@@ -1,4 +1,6 @@
 const axios = require("axios");
+import { Resend } from 'resend';
+import config from '../config/configSetup';
 
 
 export const sendSMS = async (phone: number, code: string)=>{
@@ -34,6 +36,16 @@ export const sendSMS = async (phone: number, code: string)=>{
 }
 
 
+
+const resend = new Resend(config.RESEND);
+export const sendEmailResend = async (email: String, subject: String, template: String)=>{
+  resend.emails.send({
+    from: 'app@foodtruck.express',
+    to: `${email}`,
+    subject: `${subject}`,
+    html: `${template}`
+  });
+}
 
 
 

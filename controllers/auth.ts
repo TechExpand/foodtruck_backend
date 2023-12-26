@@ -1,7 +1,7 @@
 import { createRandomRef, errorResponse, randomId, successResponse, validateEmail } from "../helpers/utility";
 import { Request, Response } from 'express';
 import { VerificationType, Verify } from "../models/Verify";
-import { sendEmail, sendSMS } from "../services/sms";
+import { sendEmail, sendEmailResend, sendSMS } from "../services/sms";
 import { Op, where } from "sequelize";
 import { Users } from "../models/Users";
 const TOKEN_SECRET = "222hwhdhnnjduru838272@@$henncndbdhsjj333n33brnfn";
@@ -235,36 +235,31 @@ export const register = async (req: Request, res: Response)=>{
 
 
 
-let transporter = nodemailer.createTransport({
-  host: "smtp.foodtruck.express",
-  port: 465,
-  auth: {
-    user: "support@smtp.foodtruck.express",
-    pass: "9Ak79j9%b"
-  }
-  });
+// let transporter = nodemailer.createTransport({
+//   host: "wingudigital.com",
+//   port:  465,
+//   // 587
+//   auth: {
+//     user: "app@wingudigital.com",
+//     pass: "o30cnK68_"
+//   }
+//   });
 
 
 export const register2 = async (req: Request, res: Response)=>{
-  let mailOptions = {
-    from: "support@smtp.foodtruck.express",
-    to: req.params.email,
-    subject: 'Welcome to Foodtruck.Express',
-    html: 
-    `Just a test`
-  };
-
-
-
-transporter.sendMail(mailOptions, function(err:any, data:any) {
-    if (err) {
-      console.log("Error " + err);
-      res.send({message: err})
-    } else {
-      console.log("Email sent successfully");
-      res.send({message: "message sent"})
-    }
-  });
+const {email} = req.query;
+console.log(email)
+ await sendEmailResend(email!.toString(), 'Welcome to Foodtruck.Express', `<p>Just a test</p>`);
+ res.send({message: "message sent"})
+// transporter.sendMail(mailOptions, function(err:any, data:any) {
+//     if (err) {
+//       console.log("Error " + err);
+//       res.send({message: err})
+//     } else {
+//       console.log("Email sent successfully");
+//       res.send({message: "message sent"})
+//     }
+//   });
 }
 
 

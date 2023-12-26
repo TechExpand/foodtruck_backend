@@ -27,12 +27,12 @@ export class Events extends Model {
 	event_description!: string;
 
 
-	@AllowNull(false)
+	@AllowNull(true)
 	@Column(DataType.STRING)
 	event_address!: string;
 
 
-    @AllowNull(false)
+    @AllowNull(true)
 	@Column(DataType.STRING)
 	event_date!: string;
 
@@ -43,11 +43,11 @@ export class Events extends Model {
 
 
 
-	@AllowNull(false)
+	@AllowNull(true)
 	@Column(DataType.DOUBLE)
 	Lan!: string;
 
-	@AllowNull(false)
+	@AllowNull(true)
 	@Column(DataType.DOUBLE)
 	Log!: string;
 

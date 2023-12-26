@@ -10,6 +10,7 @@ type Config = {
 	DBNAME: any;
 	DBUSERNAME: any | undefined;
 	DBPASSWORD: string | undefined;
+	RESEND: string | undefined;
 	DBHOST: string | undefined;
 	DBPORT: number | undefined;
 	DBDIALECT: string | undefined;
@@ -37,6 +38,7 @@ const getConfig = (): Config => {
 		DBPASSWORD: process.env.DBPASSWORD,
 		DBHOST: process.env.DBHOST,
 		DBPORT: Number(process.env.DBPORT),
+		RESEND: process.env.RESEND,
 		DBDIALECT: process.env.DBDIALECT,
 		MAIL_FROM: process.env.MAIL_FROM,
 		SUPPORT_MAIL: process.env.SUPPORT_MAIL,
@@ -49,11 +51,14 @@ const getConfig = (): Config => {
 		PUBLIC_ROUTES: [
 			"/foodtruck/users/",
 			"/foodtruck/",
+			'/foodtruck/alltags',
+			"/foodtruck/email/",
+			// '/foodtruck/lanlog',
 			"/foodtruck/token/login/"
 
 		],
 		BUSINESS_PUBLIC_ROUTES: [
-			
+
 		],
 	};
 };

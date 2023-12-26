@@ -2,6 +2,7 @@ import { Table, Model, Column, DataType, HasOne, BelongsToMany, HasMany, AllowNu
 import { Users } from './Users';
 // import { Professional } from './Professional';
 import { LanLog } from './LanLog';
+import { Extra } from './Extras';
 
 
 // export enum UserGender {
@@ -56,11 +57,22 @@ export class Menu extends Model {
     userId!: number;
 
 
+	@AllowNull(true)
+	@Default(null)
+	@Column(DataType.JSON)
+	extras!: any;
+
+
 	@BelongsTo(() => Users, { onDelete: 'CASCADE' })
 	user!: Users;
 
 	@BelongsTo(() => LanLog, { onDelete: 'CASCADE' })
 	lanlog!: LanLog;
+
+
+
+	@HasMany(() => Extra, { onDelete: 'CASCADE' })
+	extra!: Extra;
 
 
 

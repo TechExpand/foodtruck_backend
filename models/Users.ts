@@ -44,6 +44,11 @@ export class Users extends Model {
 
 
 
+	@AllowNull(true)
+	@Column(DataType.STRING)
+	fcmToken!: string;
+
+	
 
 	@AllowNull(true)
 	@Column(DataType.STRING)
