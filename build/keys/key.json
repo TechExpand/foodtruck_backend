@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "foodtruck-e30f3",
+  "private_key_id": "0794fd623f970667a9a0645b32029bd99d53e3db",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDl6r/iIcDJmvCb\nrswBLDaX3y1FlRkzu3IhY03jCcZpVRLgJJLBv9vpLk3dDvf0RfJXioiiRuhtpmvr\n7Ohq6xSKAz8IccrKDsOaY9PgP9e+iw3izYpFE2rY9QRMIo5YSTYchem0PgayYM47\nHmF4v6fHlf65fJJhxnv732ARI35Pw/yGJL8y/jkWF+PjzjlhrYJ5S2XvIuhP29vf\nnn3cEMtEm/1TQqG1RhqdPpNuT+nnZnPSM+5jf2wipDRjpQH0AyfnGuBIsTe/xV69\n2qyyMMA8qt4GrAZ04TonfSdEccFixqdWO+WfFVknpqJegftdyQu7cXMWYt4msLtS\nHo5ZNm5DAgMBAAECggEACEeD0WjVwGzL7U9GGWS2MpHe13qfBbXiTkF9NIfNlU1y\n+I9YmZGHIcaBF0zKsQkzyOM8OFvFUu2DRWOqmu8MNkwXoP44Bz6w3IZrws+JvVrU\njS5JpGMmndl05ij4Z0V7pVtNJyh0pUfHJWnaqLZ+HDnSimtp+gtju5Y3p2ZXzhd3\nK1VQRu9ztHLpZmKSbZl+7hbZd/z0SnPdWnF2bkrTBSFJ6FAXogyNqzgCejO5hrIZ\nkvi0PANyghWJY9qs5aVILPzcvyotyaFAlloGLZdgf6qzZRC/antnkKaMf8sybmgP\n6ET6Y/hLo2Yu2WLgpPAEDnH6MjzK2iXan4iAbTcTgQKBgQD9LX4VF+vfYbDfEQvk\noCLGJNIbK6LLMygmLVmA18cJGCPkbApqVQ8Bw26gS/vnt2NYn5YNDlQ8eYRaw8n5\njX0t0jpajZHWbGkkdPKP/0JTZVcUQA3jen0SmjvBGsNqrZSs6eawlQqiZqrVPejt\nyXKsKVjqS4v8GUDjKs+mm2uraQKBgQDoeuBqS7KbO+3CuuXSkWMxhwv/ZDbBMKT6\nb5Pc71MpcksThc84AugofvILMUaWUXZ+cbgAD8eMyFw4EDposOrgq1PATeWRglNP\nJ6WrDy7Za1+a8LC99p00/yQ0AqnCJACyXC68UArBomnEfwAZv6fWoDGhgFGO2+VY\n3vEwBCMyywKBgQDh5Hc8hs1z0Awp22HLKX4dYLj+eR6VQx2tgoT7SotR9/H+Ws+o\nNCBhqGfKKkGma5/+cNVG7OQH2TxYZ5yMRsvL2GksZmga8zuUxauvA0fAdQkPDl/V\n+XIi6O4ry59UTW/8H+4u26xTXltKTCTKFRV1uqaU1bcexcF5brc7piyZEQKBgD6B\n01chNUuhyGLER8jfCHGnouUvN72n66PeXj5YJt8M+PytzLJ9rZg90ayKujTugFKt\nFtEFbR0APjNgwaOmdfCkgCdDioceKHIu8c9VjL4urY0GTC83YLuAImbNlIE7luhd\n+r7tMocvuQp5Lzi9HE6L0exfiQ5FN5w2jVjgs+oTAoGAA+puuufyaYda1sRjlt9U\nagNhFE+rzZqnPPf/sefhxsRqJ9BMytF1OvvMJYVYOSxlWUKuwz2UQidIXlWJTF7w\nMRycGzV254MwciUOnyOkDNW9CEMGPqWQy4E7YeVd7epEhzFrcxnuA99ehfhFW5c/\nZ6fFRxzHscuTWFIkKmMlSHo=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-cbyzd@foodtruck-e30f3.iam.gserviceaccount.com",
+  "client_id": "102469275805542614960",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-cbyzd%40foodtruck-e30f3.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
