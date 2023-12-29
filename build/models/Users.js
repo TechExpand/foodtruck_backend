@@ -53,6 +53,11 @@ __decorate([
     (0, sequelize_typescript_1.AllowNull)(true),
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
     __metadata("design:type", String)
+], Users.prototype, "fcmToken", void 0);
+__decorate([
+    (0, sequelize_typescript_1.AllowNull)(true),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
+    __metadata("design:type", String)
 ], Users.prototype, "subscription_id", void 0);
 __decorate([
     (0, sequelize_typescript_1.AllowNull)(true),

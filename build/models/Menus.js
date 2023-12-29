@@ -14,6 +14,7 @@ const sequelize_typescript_1 = require("sequelize-typescript");
 const Users_1 = require("./Users");
 // import { Professional } from './Professional';
 const LanLog_1 = require("./LanLog");
+const Extras_1 = require("./Extras");
 // export enum UserGender {
 // 	MALE = 'MALE',
 // 	FEMALE = 'FEMALE',
@@ -65,6 +66,12 @@ __decorate([
     __metadata("design:type", Number)
 ], Menu.prototype, "userId", void 0);
 __decorate([
+    (0, sequelize_typescript_1.AllowNull)(true),
+    (0, sequelize_typescript_1.Default)(null),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.JSON),
+    __metadata("design:type", Object)
+], Menu.prototype, "extras", void 0);
+__decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => Users_1.Users, { onDelete: 'CASCADE' }),
     __metadata("design:type", Users_1.Users)
 ], Menu.prototype, "user", void 0);
@@ -72,6 +79,10 @@ __decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => LanLog_1.LanLog, { onDelete: 'CASCADE' }),
     __metadata("design:type", LanLog_1.LanLog)
 ], Menu.prototype, "lanlog", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasMany)(() => Extras_1.Extra, { onDelete: 'CASCADE' }),
+    __metadata("design:type", Extras_1.Extra)
+], Menu.prototype, "extra", void 0);
 exports.Menu = Menu = __decorate([
     (0, sequelize_typescript_1.Table)({ timestamps: true, tableName: 'menu' })
 ], Menu);

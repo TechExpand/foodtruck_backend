@@ -96,7 +96,8 @@ const verifyOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 });
             }
             else {
-              
+                console.log(verifyEmail.code);
+                console.log(emailCode);
                 (0, utility_1.errorResponse)(res, "Failed", {
                     message: "Invalid Code",
                     status: false
@@ -104,7 +105,8 @@ const verifyOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             }
         }
         else {
-          
+            console.log(verifyEmail);
+            console.log(verifySms);
             (0, utility_1.errorResponse)(res, "Failed", {
                 message: "Code Already Used",
                 status: false
@@ -222,31 +224,29 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     });
 });
 exports.register = register;
-let transporter = nodemailer.createTransport({
-    host: "smtp.foodtruck.express",
-    port: 465,
-    auth: {
-        user: "support@smtp.foodtruck.express",
-        pass: "9Ak79j9%b"
-    }
-});
+// let transporter = nodemailer.createTransport({
+//   host: "wingudigital.com",
+//   port:  465,
+//   // 587
+//   auth: {
+//     user: "app@wingudigital.com",
+//     pass: "o30cnK68_"
+//   }
+//   });
 const register2 = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let mailOptions = {
-        from: "support@smtp.foodtruck.express",
-        to: req.params.email,
-        subject: 'Welcome to Foodtruck.Express',
-        html: `Just a test`
-    };
-    transporter.sendMail(mailOptions, function (err, data) {
-        if (err) {
-          
-            res.send({ message: err });
-        }
-        else {
-           
-            res.send({ message: "message sent" });
-        }
-    });
+    const { email } = req.query;
+    console.log(email);
+    yield (0, sms_1.sendEmailResend)(email.toString(), 'Welcome to Foodtruck.Express', `<p>Just a test</p>`);
+    res.send({ message: "message sent" });
+    // transporter.sendMail(mailOptions, function(err:any, data:any) {
+    //     if (err) {
+    //       console.log("Error " + err);
+    //       res.send({message: err})
+    //     } else {
+    //       console.log("Email sent successfully");
+    //       res.send({message: "message sent"})
+    //     }
+    //   });
 });
 exports.register2 = register2;
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {

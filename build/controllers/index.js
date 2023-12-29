@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createEvent = exports.deleteEvent = exports.getEvent = exports.updateMenu = exports.createMenu = exports.deleteMenu = exports.getMenu = exports.vendorMenu = exports.rateProfile = exports.updateLanLog = exports.getLanLog = exports.getSubscription = exports.getVendorProfile = exports.getTags = exports.getFirstFivePorpular = exports.filterVendorBytag = exports.getFirstFiveEvents = exports.getProfile = exports.onlineLanlogUser = exports.onlineLanlogVendors = exports.addNewCard = exports.reactivateSubscription = exports.cancelSubscription = exports.createSubscription = exports.updateProfile = exports.createProfile = exports.createLocation = exports.apiIndex = void 0;
+exports.createEvent = exports.deleteEvent = exports.getEvent = exports.updateEvent = exports.updateMenu = exports.createMenu = exports.deleteMenu = exports.getHomeDetails = exports.getMenu = exports.vendorEvent = exports.vendorMenu = exports.rateProfile = exports.updateLanLog = exports.getLanLog = exports.getSubscription = exports.getVendorProfile = exports.getAllTags = exports.getUser = exports.getTags = exports.getFirstFivePorpular = exports.filterVendorBytag = exports.getVendorEvent = exports.getFirstFiveEvents = exports.getProfile = exports.onlineLanlogUser = exports.onlineLanlogVendors = exports.addNewCard = exports.reactivateSubscription = exports.cancelSubscription = exports.createSubscription = exports.updateProfile = exports.updateToken = exports.createProfile = exports.createLocation = exports.apiIndex = void 0;
 const utility_1 = require("../helpers/utility");
 const LanLog_1 = require("../models/LanLog");
 const Profile_1 = require("../models/Profile");
@@ -23,6 +23,11 @@ const Menus_1 = require("../models/Menus");
 const Event_1 = require("../models/Event");
 const Popular_1 = require("../models/Popular");
 const Tag_1 = require("../models/Tag");
+const HomeTag_1 = require("../models/HomeTag");
+const Alltags_1 = require("../models/Alltags");
+const sequelize_1 = require("sequelize");
+const Order_1 = require("../models/Order");
+const Extras_1 = require("../models/Extras");
 const cloudinary = require("cloudinary").v2;
 const stripe = new stripe_1.default('sk_test_51HGpOPE84s4AdL4O3gsrsEu4BXpPqDpWvlRAwPA30reXQ6UKhOzlUluJaYKiDDh6g9A0xYJbeCh9rM0RnlQov2lW00ZyOHxrx1', {
     apiVersion: '2023-08-16',
@@ -33,14 +38,14 @@ const createLocation = (req, res) => __awaiter(void 0, void 0, void 0, function*
     let { Lan, Log, online } = req.body;
     let { id } = req.user;
     const user = yield Users_1.Users.findOne({ where: { id } });
-    if (user)
+    if (!user)
         return res.status(200).send({ message: "Created Successfully", status: true });
     const location = yield LanLog_1.LanLog.create({ Lan, Log, online, userId: id });
     return res.status(200).send({ message: "Created Successfully", status: true });
 });
 exports.createLocation = createLocation;
 const createProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let { business_name, unique_detail, detail, phone } = req.body;
+    let { business_name, unique_detail, detail, phone, tag } = req.body;
     let { id } = req.user;
     if (req.file) {
         const result = yield cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"));
@@ -52,7 +57,7 @@ const createProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         const profile = yield Profile_1.Profile.create({
             business_name, unique_detail, detail,
             phone, lanlogId: location.id, userId: id,
-            pro_pic: result.secure_url
+            pro_pic: result.secure_url, tag,
         });
         //  await user?.update({custom er_id:  customer.id})
         return res.status(200).send({ message: "Created Successfully", status: true });
@@ -60,8 +65,16 @@ const createProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     return res.status(400).send({ message: "File is required", status: false });
 });
 exports.createProfile = createProfile;
+const updateToken = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let { id } = req.user;
+    let { fcmToken } = req.body;
+    const user = yield Users_1.Users.findOne({ where: { id } });
+    yield (user === null || user === void 0 ? void 0 : user.update({ fcmToken }));
+    return res.status(200).send({ message: "Updated Successfully", status: true });
+});
+exports.updateToken = updateToken;
 const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let { business_name, unique_detail, detail, phone } = req.body;
+    let { business_name, unique_detail, detail, phone, tag } = req.body;
     let { id } = req.user;
     if (req.file) {
         const result = yield cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"));
@@ -71,7 +84,8 @@ const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             business_name: business_name !== null && business_name !== void 0 ? business_name : profile.business_name,
             unique_detail: unique_detail !== null && unique_detail !== void 0 ? unique_detail : profile.unique_detail, detail: detail !== null && detail !== void 0 ? detail : profile.detail,
             phone: phone !== null && phone !== void 0 ? phone : profile.phone, lanlogId: location.id, userId: id,
-            pro_pic: result.secure_url
+            pro_pic: result.secure_url,
+            tag: tag !== null && tag !== void 0 ? tag : profile.tag
         }));
         return res.status(200).send({ message: "Updated Successfully", status: true });
     }
@@ -82,7 +96,8 @@ const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             business_name: business_name !== null && business_name !== void 0 ? business_name : profile.business_name,
             unique_detail: unique_detail !== null && unique_detail !== void 0 ? unique_detail : profile.unique_detail, detail: detail !== null && detail !== void 0 ? detail : profile.detail,
             phone: phone !== null && phone !== void 0 ? phone : profile.phone, lanlogId: location.id, userId: id,
-            pro_pic: profile.pro_pic
+            pro_pic: profile.pro_pic,
+            tag: tag !== null && tag !== void 0 ? tag : profile.tag
         }));
         return res.status(200).send({ message: "Updated Successfully", status: true });
     }
@@ -220,13 +235,15 @@ const onlineLanlogVendors = (req, res) => __awaiter(void 0, void 0, void 0, func
     const { lan, log, range_value } = req.query;
     let distance_list = [];
     const lanlog = yield LanLog_1.LanLog.findAll({
-        include: [{ model: Users_1.Users,
+        include: [{
+                model: Users_1.Users,
                 where: {
                     type: Users_1.UserType.VENDOR
                 },
                 attributes: [
                     'createdAt', 'updatedAt', "email", 'type'
-                ] }
+                ]
+            }
         ],
     });
     for (let vendor of lanlog) {
@@ -249,19 +266,20 @@ const onlineLanlogUser = (req, res) => __awaiter(void 0, void 0, void 0, functio
     if (subscription.status == 'active' || subscription.status == 'trialing') {
         let distance_list = [];
         const lanlog = yield LanLog_1.LanLog.findAll({
-            include: [{ model: Users_1.Users,
+            include: [{
+                    model: Users_1.Users,
                     where: {
                         type: Users_1.UserType.USER
                     },
                     attributes: [
                         'createdAt', 'updatedAt', "email", "type"
-                    ] }
+                    ]
+                }
             ],
         });
         for (let vendor of lanlog) {
             const distance = (0, utility_1.getDistanceFromLatLonInKm)(Number(vendor.Lan), Number(vendor.Log), Number(lan), Number(log));
             if (distance <= Number(range_value)) {
-                console.log(vendor.dataValues.user.dataValues.type);
                 if (vendor.dataValues.user.dataValues.type == Users_1.UserType.USER) {
                     distance_list.push(Object.assign(Object.assign({}, vendor.dataValues), { user: vendor.dataValues.user.dataValues, distance }));
                     distance_list.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
@@ -286,11 +304,23 @@ const getFirstFiveEvents = (req, res) => __awaiter(void 0, void 0, void 0, funct
     return res.status(200).send({ message: "Fetched Successfully", event });
 });
 exports.getFirstFiveEvents = getFirstFiveEvents;
+const getVendorEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.user;
+    const event = yield Event_1.Events.findAll({
+        where: {
+            userId: id
+        }
+    });
+    return res.status(200).send({ message: "Fetched Successfully", event });
+});
+exports.getVendorEvent = getVendorEvent;
 const filterVendorBytag = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { tag } = req.query;
-    const profile = yield Profile_1.Profile.findAll({ where: { tag: tag === null || tag === void 0 ? void 0 : tag.toString().toLowerCase() }, include: [
+    const profile = yield Profile_1.Profile.findAll({
+        where: { tag: tag === null || tag === void 0 ? void 0 : tag.toString().toLowerCase() }, include: [
             { model: Users_1.Users }, { model: LanLog_1.LanLog }
-        ] });
+        ]
+    });
     return res.status(200).send({ message: "Fetched Successfully", profile });
 });
 exports.filterVendorBytag = filterVendorBytag;
@@ -304,20 +334,54 @@ const getTags = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     return res.status(200).send({ message: "Fetched Successfully", tags });
 });
 exports.getTags = getTags;
+const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.user;
+    const user = yield Users_1.Users.findAll({
+        where: { id }
+    });
+    return res.status(200).send({
+        message: "Fetched Successfully", user
+    });
+});
+exports.getUser = getUser;
+const getAllTags = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const tags = yield Alltags_1.AllTag.findAll({
+        where: {}
+    });
+    return res.status(200).send({
+        message: "Fetched Successfully", tags
+    });
+});
+exports.getAllTags = getAllTags;
 const getVendorProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.user;
     console.log(id);
-    const profile = yield Profile_1.Profile.findOne({ where: { userId: id }, include: [
+    const profile = yield Profile_1.Profile.findOne({
+        where: { userId: id }, include: [
             { model: Users_1.Users },
             { model: LanLog_1.LanLog },
-        ], });
-    const menus = yield Menus_1.Menu.findAll({ where: { userId: id } });
+        ],
+    });
+    const menus = yield Menus_1.Menu.findAll({
+        where: { userId: id }, include: [
+            { model: Extras_1.Extra }
+        ]
+    });
     const events = yield Event_1.Events.findAll({ where: { userId: id } });
-    return res.status(200).send({ message: "Fetched Successfully", profile: {
+    const order = yield Order_1.Order.findAll({
+        where: { profileId: profile === null || profile === void 0 ? void 0 : profile.id }, include: [
+            { model: Menus_1.Menu },
+            { model: Users_1.Users },
+        ],
+    });
+    return res.status(200).send({
+        message: "Fetched Successfully", profile: {
             menus,
             events,
+            order,
             profile: profile
-        } });
+        }
+    });
 });
 exports.getVendorProfile = getVendorProfile;
 const getSubscription = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -330,11 +394,15 @@ const getSubscription = (req, res) => __awaiter(void 0, void 0, void 0, function
 exports.getSubscription = getSubscription;
 const getLanLog = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.user;
-    const lanlog = yield LanLog_1.LanLog.findAll({ where: { userId: id }, include: [{ model: Users_1.Users,
+    const lanlog = yield LanLog_1.LanLog.findAll({
+        where: { userId: id }, include: [{
+                model: Users_1.Users,
                 attributes: [
                     'createdAt', 'updatedAt', "subscription_id"
-                ] }
-        ], });
+                ]
+            }
+        ],
+    });
     return res.status(200).send({ message: "Fetched Successfully", lanlog });
 });
 exports.getLanLog = getLanLog;
@@ -355,10 +423,9 @@ exports.rateProfile = rateProfile;
 const vendorMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.query;
     const user = yield Users_1.Users.findOne({ where: { id } });
-    console.log(user === null || user === void 0 ? void 0 : user.subscription_id);
     const subscription_status = yield stripe.subscriptions.retrieve(user === null || user === void 0 ? void 0 : user.subscription_id);
     if (subscription_status.status == 'active' || subscription_status.status == 'trialing') {
-        const menu = yield Menus_1.Menu.findAll({ where: { userId: id } });
+        const menu = yield Menus_1.Menu.findAll({ where: { userId: id }, include: [{ model: Extras_1.Extra }] });
         return res.status(200).send({ message: "Fetched Successfully", menu });
     }
     else {
@@ -366,6 +433,20 @@ const vendorMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.vendorMenu = vendorMenu;
+const vendorEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.query;
+    const user = yield Users_1.Users.findOne({ where: { id } });
+    console.log(user === null || user === void 0 ? void 0 : user.subscription_id);
+    const subscription_status = yield stripe.subscriptions.retrieve(user === null || user === void 0 ? void 0 : user.subscription_id);
+    if (subscription_status.status == 'active' || subscription_status.status == 'trialing') {
+        const event = yield Event_1.Events.findAll({ where: { userId: id } });
+        return res.status(200).send({ message: "Fetched Successfully", event });
+    }
+    else {
+        return res.status(200).send({ message: "VENDOR EVENT IS UNAVAILABLE", status: false });
+    }
+});
+exports.vendorEvent = vendorEvent;
 const getMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.user;
     const user = yield Users_1.Users.findOne({ where: { id } });
@@ -374,6 +455,71 @@ const getMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     return res.status(200).send({ message: "Fetched Successfully", menu });
 });
 exports.getMenu = getMenu;
+const getHomeDetails = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _b, _c;
+    const tags = yield HomeTag_1.HomeTag.findAll({ include: [{ model: Tag_1.Tag }] });
+    //     const query = `
+    //     SELECT *
+    //     FROM profile
+    //     WHERE JSON_CONTAINS(tag, searchValue);
+    //   `;
+    //   const results = await sequelize.query(query, { 
+    //     replacements: { searchValue: JSON.stringify(['pizza']) },
+    //     type: Sequelize.QueryTypes.SELECT ,
+    // });
+    //   console.log(results)  
+    const profileSecondTag = yield Profile_1.Profile.findAll({
+        where: {
+            [sequelize_1.Op.or]: [
+                { 'tag': { [sequelize_1.Op.like]: '%' + `${(_b = tags[0].dataValues.tag.title) === null || _b === void 0 ? void 0 : _b.toString().toLowerCase()}` + '%' } },
+            ]
+        }, include: [
+            { model: Users_1.Users }, { model: LanLog_1.LanLog }
+        ]
+    });
+    const profileFirstTag = yield Profile_1.Profile.findAll({
+        where: {
+            [sequelize_1.Op.or]: [
+                { 'tag': { [sequelize_1.Op.like]: '%' + `${(_c = tags[1].dataValues.tag.title) === null || _c === void 0 ? void 0 : _c.toString().toLowerCase()}` + '%' } },
+            ]
+        },
+        // [tags[0].dataValues.tag.title?.toString().toLowerCase()] 
+        include: [
+            { model: Users_1.Users }, { model: LanLog_1.LanLog }
+        ]
+    });
+    console.log(profileFirstTag);
+    console.log(profileSecondTag);
+    const event = yield Event_1.Events.findAll({});
+    const popular = yield Popular_1.PopularVendor.findAll({
+        limit: 10,
+        include: [
+            {
+                model: Profile_1.Profile, include: [
+                    { model: Users_1.Users }, { model: LanLog_1.LanLog }
+                ]
+            }
+        ]
+    });
+    // Manipulate the data to add a custom field
+    const modifiedData = profileFirstTag.map(item => {
+        // Add a custom field to each item in the list
+        return Object.assign(Object.assign({}, item.get()), { number: 1 });
+    });
+    // Manipulate the data to add a custom field
+    const modifiedData2 = profileSecondTag.map(item => {
+        // Add a custom field to each item in the list
+        return Object.assign(Object.assign({}, item.get()), { number: 2 });
+    });
+    return res.status(200).send({
+        vendors: modifiedData.concat(modifiedData2),
+        message: "Fetched Successfully",
+        event,
+        popular,
+        tags
+    });
+});
+exports.getHomeDetails = getHomeDetails;
 const deleteMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const menu = yield Menus_1.Menu.findOne({ where: { id } });
@@ -383,18 +529,33 @@ const deleteMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.deleteMenu = deleteMenu;
 const createMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.user;
-    const { menu_title, menu_description, menu_price, menu_adon } = req.body;
+    const { menu_title, menu_description, menu_price, extra } = req.body;
     const user = yield Users_1.Users.findOne({ where: { id } });
     const lanlog = yield LanLog_1.LanLog.findOne({ where: { userId: user === null || user === void 0 ? void 0 : user.id } });
     if (req.file) {
         const result = yield cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"));
-        const menu = yield Menus_1.Menu.create({
+        console.log({
             menu_title, menu_description, menu_price,
-            menu_adon: { adon: menu_adon },
             lanlogId: lanlog === null || lanlog === void 0 ? void 0 : lanlog.id,
             userId: user === null || user === void 0 ? void 0 : user.id,
             menu_picture: result.secure_url
         });
+        const menu = yield Menus_1.Menu.create({
+            menu_title, menu_description, menu_price,
+            lanlogId: lanlog === null || lanlog === void 0 ? void 0 : lanlog.id,
+            userId: user === null || user === void 0 ? void 0 : user.id,
+            menu_picture: result.secure_url
+        });
+        let valueExtra = [];
+        for (let value of extra) {
+            valueExtra.push({
+                extra_title: value.extra_title,
+                extra_description: value.extra_description,
+                extra_price: value.extra_price,
+                menuId: menu.id
+            });
+        }
+        yield Extras_1.Extra.bulkCreate(valueExtra);
         return res.status(200).send({ message: "Created Successfully", menu });
     }
     else {
@@ -403,14 +564,20 @@ const createMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 exports.createMenu = createMenu;
 const updateMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.params;
+    const { id } = req.query;
     // console.log(userId);
-    const { menu_title, menu_description, menu_price } = req.body;
+    const { menu_title, menu_description, menu_price, extra } = req.body;
     const user = yield Users_1.Users.findOne({ where: { id: req.user.id } });
     const lanlog = yield LanLog_1.LanLog.findOne({ where: { userId: user === null || user === void 0 ? void 0 : user.id } });
     if (req.file) {
         const result = yield cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"));
         const menu = yield Menus_1.Menu.findOne({ where: { id } });
+        const extras = yield Extras_1.Extra.findAll({ menuId: id });
+        let ids = [];
+        for (let value of extras) {
+            ids.push(value.id);
+        }
+        yield Extras_1.Extra.destroy({ where: { id: ids } });
         yield menu.update({
             menu_title: menu_title !== null && menu_title !== void 0 ? menu_title : menu === null || menu === void 0 ? void 0 : menu.menu_title, menu_description: menu_description !== null && menu_description !== void 0 ? menu_description : menu === null || menu === void 0 ? void 0 : menu.menu_description,
             menu_price: menu_price !== null && menu_price !== void 0 ? menu_price : menu === null || menu === void 0 ? void 0 : menu.menu_price,
@@ -418,10 +585,26 @@ const updateMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             userId: user === null || user === void 0 ? void 0 : user.id,
             menu_picture: result.secure_url
         });
+        let valueExtra = [];
+        for (let value of extra) {
+            valueExtra.push({
+                extra_title: value.extra_title,
+                extra_description: value.extra_description,
+                extra_price: value.extra_price,
+                menuId: menu.id
+            });
+        }
+        yield Extras_1.Extra.bulkCreate(valueExtra);
         return res.status(200).send({ message: "Updated Successfully", menu });
     }
     else {
         const menu = yield Menus_1.Menu.findOne({ where: { id } });
+        const extras = yield Extras_1.Extra.findAll({ menuId: id });
+        let ids = [];
+        for (let value of extras) {
+            ids.push(value.id);
+        }
+        yield Extras_1.Extra.destroy({ where: { id: ids } });
         yield menu.update({
             menu_title: menu_title !== null && menu_title !== void 0 ? menu_title : menu === null || menu === void 0 ? void 0 : menu.menu_title, menu_description: menu_description !== null && menu_description !== void 0 ? menu_description : menu === null || menu === void 0 ? void 0 : menu.menu_description,
             menu_price: menu_price !== null && menu_price !== void 0 ? menu_price : menu === null || menu === void 0 ? void 0 : menu.menu_price,
@@ -429,10 +612,50 @@ const updateMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             userId: user === null || user === void 0 ? void 0 : user.id,
             menu_picture: menu.menu_picture
         });
+        let valueExtra = [];
+        for (let value of extra) {
+            valueExtra.push({
+                extra_title: value.extra_title,
+                extra_description: value.extra_description,
+                extra_price: value.extra_price,
+                menuId: menu.id
+            });
+        }
+        yield Extras_1.Extra.bulkCreate(valueExtra);
         return res.status(200).send({ message: "Updated Successfully", menu });
     }
 });
 exports.updateMenu = updateMenu;
+const updateEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.query;
+    // console.log(userId);
+    const { event_title, event_description, event_date, event_address } = req.body;
+    const user = yield Users_1.Users.findOne({ where: { id: req.user.id } });
+    if (req.file) {
+        const result = yield cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"));
+        const event = yield Event_1.Events.findOne({ where: { id } });
+        yield event.update({
+            event_title: event_title !== null && event_title !== void 0 ? event_title : event === null || event === void 0 ? void 0 : event.event_title,
+            event_description: event_description !== null && event_description !== void 0 ? event_description : event === null || event === void 0 ? void 0 : event.event_description,
+            event_date: event_date !== null && event_date !== void 0 ? event_date : event === null || event === void 0 ? void 0 : event.event_date,
+            event_address: event_address !== null && event_address !== void 0 ? event_address : event === null || event === void 0 ? void 0 : event.event_address,
+            menu_picture: result.secure_url
+        });
+        return res.status(200).send({ message: "Updated Successfully", event });
+    }
+    else {
+        const menu = yield Menus_1.Menu.findOne({ where: { id } });
+        const event = yield Event_1.Events.findOne({ where: { id } });
+        yield menu.update({
+            event_title: event_title !== null && event_title !== void 0 ? event_title : event === null || event === void 0 ? void 0 : event.event_title,
+            event_description: event_description !== null && event_description !== void 0 ? event_description : event === null || event === void 0 ? void 0 : event.event_description,
+            event_date: event_date !== null && event_date !== void 0 ? event_date : event === null || event === void 0 ? void 0 : event.event_date,
+            event_address: event_address !== null && event_address !== void 0 ? event_address : event === null || event === void 0 ? void 0 : event.event_address,
+        });
+        return res.status(200).send({ message: "Updated Successfully", event });
+    }
+});
+exports.updateEvent = updateEvent;
 // Menu
 //Events
 const getEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -452,18 +675,19 @@ const deleteEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 exports.deleteEvent = deleteEvent;
 const createEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.user;
-    const { event_title, event_description, event_price, menu_adon } = req.body;
+    const { event_title, event_description, event_date, event_address } = req.body;
     const user = yield Users_1.Users.findOne({ where: { id } });
     if (req.file) {
         const result = yield cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"));
-        const menu = yield Menus_1.Menu.create({
-            menu_title, menu_description, menu_price,
-            menu_adon: { adon: menu_adon },
-            lanlogId: lanlog === null || lanlog === void 0 ? void 0 : lanlog.id,
+        const event = yield Event_1.Events.create({
+            event_title,
+            event_description,
+            event_address,
+            event_date,
             userId: user === null || user === void 0 ? void 0 : user.id,
             menu_picture: result.secure_url
         });
-        return res.status(200).send({ message: "Created Successfully", menu });
+        return res.status(200).send({ message: "Created Successfully", event });
     }
     else {
         return res.status(400).send({ message: "Image is Required" });

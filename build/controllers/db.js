@@ -26,6 +26,12 @@ const Menus_1 = require("../models/Menus");
 const LanLog_1 = require("../models/LanLog");
 const Event_1 = require("../models/Event");
 const Tag_1 = require("../models/Tag");
+const Popular_1 = require("../models/Popular");
+const HomeTag_1 = require("../models/HomeTag");
+const Favourite_1 = require("../models/Favourite");
+const Alltags_1 = require("../models/Alltags");
+const Order_1 = require("../models/Order");
+const Extras_1 = require("../models/Extras");
 // import { Sector } from '../models/Sector';
 // // Import models
 // import {
@@ -40,8 +46,14 @@ const sequelize = new sequelize_typescript_1.Sequelize(configSetup_1.default.DBN
     },
     models: [
         Users_1.Users,
+        Alltags_1.AllTag,
         Verify_1.Verify,
+        Favourite_1.Favourite,
         Menus_1.Menu,
+        HomeTag_1.HomeTag,
+        Extras_1.Extra,
+        Order_1.Order,
+        Popular_1.PopularVendor,
         LanLog_1.LanLog,
         Event_1.Events,
         Profile_1.Profile,

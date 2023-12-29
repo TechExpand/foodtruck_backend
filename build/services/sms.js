@@ -8,9 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendEmail = exports.sendSMS = void 0;
+exports.sendEmail = exports.sendEmailResend = exports.sendSMS = void 0;
 const axios = require("axios");
+const resend_1 = require("resend");
+const configSetup_1 = __importDefault(require("../config/configSetup"));
 const sendSMS = (phone, code) => __awaiter(void 0, void 0, void 0, function* () {
     const response = yield axios.post(
     // `https://account.kudisms.net/api/?username=anthony@martlines.ng&password=sirador@101&message=${code} is your Martline access. Do not share this with anyone.&sender=Martline&mobiles=${req.params.phone}`,
@@ -40,6 +45,16 @@ const sendSMS = (phone, code) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.sendSMS = sendSMS;
+const resend = new resend_1.Resend(configSetup_1.default.RESEND);
+const sendEmailResend = (email, subject, template) => __awaiter(void 0, void 0, void 0, function* () {
+    resend.emails.send({
+        from: 'app@foodtruck.express',
+        to: `${email}`,
+        subject: `${subject}`,
+        html: `${template}`
+    });
+});
+exports.sendEmailResend = sendEmailResend;
 const sendEmail = (email, code) => __awaiter(void 0, void 0, void 0, function* () {
     const response = yield axios.post(
     // `https://account.kudisms.net/api/?username=anthony@martlines.ng&password=sirador@101&message=${code} is your Martline access. Do not share this with anyone.&sender=Martline&mobiles=${req.params.phone}`,

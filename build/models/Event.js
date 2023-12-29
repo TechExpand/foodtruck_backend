@@ -36,12 +36,12 @@ __decorate([
     __metadata("design:type", String)
 ], Events.prototype, "event_description", void 0);
 __decorate([
-    (0, sequelize_typescript_1.AllowNull)(false),
+    (0, sequelize_typescript_1.AllowNull)(true),
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
     __metadata("design:type", String)
 ], Events.prototype, "event_address", void 0);
 __decorate([
-    (0, sequelize_typescript_1.AllowNull)(false),
+    (0, sequelize_typescript_1.AllowNull)(true),
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
     __metadata("design:type", String)
 ], Events.prototype, "event_date", void 0);
@@ -51,12 +51,12 @@ __decorate([
     __metadata("design:type", String)
 ], Events.prototype, "menu_picture", void 0);
 __decorate([
-    (0, sequelize_typescript_1.AllowNull)(false),
+    (0, sequelize_typescript_1.AllowNull)(true),
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.DOUBLE),
     __metadata("design:type", String)
 ], Events.prototype, "Lan", void 0);
 __decorate([
-    (0, sequelize_typescript_1.AllowNull)(false),
+    (0, sequelize_typescript_1.AllowNull)(true),
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.DOUBLE),
     __metadata("design:type", String)
 ], Events.prototype, "Log", void 0);
