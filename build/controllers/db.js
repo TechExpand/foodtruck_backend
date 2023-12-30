@@ -33,16 +33,14 @@ const Alltags_1 = require("../models/Alltags");
 const Order_1 = require("../models/Order");
 const Extras_1 = require("../models/Extras");
 // import { Sector } from '../models/Sector';
-// // Import models
-// import {
-// } from './models';
 const sequelize = new sequelize_typescript_1.Sequelize(configSetup_1.default.DBNAME, configSetup_1.default.DBUSERNAME, configSetup_1.default.DBPASSWORD, {
     host: configSetup_1.default.DBHOST,
     port: configSetup_1.default.DBPORT,
     dialect: 'mysql',
     logging: false,
     dialectOptions: {
-        ssl: { require: true, rejectUnauthorized: false },
+        // ssl: { require: true, rejectUnauthorized: false },
+        ssl: false
     },
     models: [
         Users_1.Users,
@@ -57,7 +55,7 @@ const sequelize = new sequelize_typescript_1.Sequelize(configSetup_1.default.DBN
         LanLog_1.LanLog,
         Event_1.Events,
         Profile_1.Profile,
-        Tag_1.Tag,
+        Tag_1.Tag
     ],
 });
 exports.sequelize = sequelize;
