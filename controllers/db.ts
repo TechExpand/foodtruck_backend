@@ -20,11 +20,6 @@ import { Order } from '../models/Order';
 import { Extra } from '../models/Extras';
 // import { Sector } from '../models/Sector';
 
-// // Import models
-// import {
-	
-
-// } from './models';
 
 
 const sequelize = new Sequelize(config.DBNAME, config.DBUSERNAME, config.DBPASSWORD, {
@@ -33,7 +28,8 @@ const sequelize = new Sequelize(config.DBNAME, config.DBUSERNAME, config.DBPASSW
 	dialect: 'mysql',
 	logging: false,
 	dialectOptions: {
-		ssl: { require: true, rejectUnauthorized: false },
+		// ssl: { require: true, rejectUnauthorized: false },
+		ssl: false
 	},
 	models: [
 		Users,
@@ -48,8 +44,7 @@ const sequelize = new Sequelize(config.DBNAME, config.DBUSERNAME, config.DBPASSW
 		LanLog,
 		Events,
 		Profile,
-		Tag,
-		
+		Tag
 	],
 });
 

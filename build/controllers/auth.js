@@ -66,7 +66,7 @@ const sendOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.sendOtp = sendOtp;
 const verifyOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { serviceId, smsCode, emailCode, type } = req.body;
+    const { serviceId, emailCode } = req.body;
     if (type == Verify_1.VerificationType.BOTH) {
         const verifySms = yield Verify_1.Verify.findOne({
             where: {
