@@ -158,7 +158,7 @@ export const login = async (req: Request, res: Response) => {
   const match = await compare(password, user.password)
   if (!match) return errorResponse(res, "Failed", { status: false, message: "Invalid Credentials" })
   let token = sign({ id: user.id, email: user.email }, TOKEN_SECRET);
-  return res.status(200).send({ token })
+  return res.status(200).send({ token , type: user.type})
 }
 
 

@@ -96,7 +96,6 @@ export const updateProfile = async (req: Request, res: Response) => {
         })
         return res.status(200).send({ message: "Updated Successfully", status: true })
     } else {
-
         const location = await LanLog.findOne({ where: { userId: id } })
         const profile = await Profile.findOne({ where: { userId: id } })
         await profile?.update({
@@ -330,7 +329,7 @@ export const onlineLanlogUser = async (req: Request, res: Response) => {
             );
 
             if (distance <= Number(range_value)) {
-               
+
                 if (vendor.dataValues.user.dataValues.type == UserType.USER) {
 
                     distance_list.push({
@@ -366,8 +365,14 @@ export const getProfile = async (req: Request, res: Response) => {
 
 
 export const getFirstFiveEvents = async (req: Request, res: Response) => {
-
-    const event = await Events.findAll({ limit: 10 });
+    const currentDate = new Date();
+    const event = await Events.findAll({
+        where: {
+            formated_date: {
+                [Sequelize.Op.gt]: currentDate,
+            },
+        },
+    });
     return res.status(200).send({ message: "Fetched Successfully", event })
 }
 
@@ -543,11 +548,11 @@ export const rateProfile = async (req: Request, res: Response) => {
 export const vendorMenu = async (req: Request, res: Response) => {
     const { id } = req.query
     const user = await Users.findOne({ where: { id } })
-  
+
     const subscription_status = await stripe.subscriptions.retrieve(user?.subscription_id)
     if (subscription_status.status == 'active' || subscription_status.status == 'trialing') {
         const menu = await Menu.findAll({ where: { userId: id }, include: [{ model: Extra }] })
-       
+
         return res.status(200).send({ message: "Fetched Successfully", menu })
     } else {
         return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
@@ -590,16 +595,6 @@ export const getMenu = async (req: Request, res: Response) => {
 
 export const getHomeDetails = async (req: Request, res: Response) => {
     const tags = await HomeTag.findAll({ include: [{ model: Tag }] });
-    //     const query = `
-    //     SELECT *
-    //     FROM profile
-    //     WHERE JSON_CONTAINS(tag, searchValue);
-    //   `;
-    //   const results = await sequelize.query(query, { 
-    //     replacements: { searchValue: JSON.stringify(['pizza']) },
-    //     type: Sequelize.QueryTypes.SELECT ,
-    // });
-    //   console.log(results)  
     const profileSecondTag = await Profile.findAll({
         where: {
             [Op.or]: [
@@ -615,14 +610,19 @@ export const getHomeDetails = async (req: Request, res: Response) => {
                 { 'tag': { [Op.like]: '%' + `${tags[1].dataValues.tag.title?.toString().toLowerCase()}` + '%' } },
             ]
         },
-        // [tags[0].dataValues.tag.title?.toString().toLowerCase()] 
         include: [
             { model: Users }, { model: LanLog }
         ]
     });
-    console.log(profileFirstTag);
-    console.log(profileSecondTag);
-    const event = await Events.findAll({})
+    const currentDate = new Date();
+    console.log(currentDate)
+    const event = await Events.findAll({
+        where: {
+            formated_date: {
+                [Sequelize.Op.gte]: currentDate,
+            },
+        },
+    });
     const popular = await PopularVendor.findAll({
         limit: 10,
         include: [
@@ -731,7 +731,7 @@ export const updateMenu = async (req: Request, res: Response) => {
     const { id } = req.query
     // console.log(userId);
     const { menu_title, menu_description, menu_price, extra } = req.body
-    
+
     const user = await Users.findOne({ where: { id: req.user.id } })
     const lanlog = await LanLog.findOne({ where: { userId: user?.id } })
     if (req.file) {
@@ -739,11 +739,11 @@ export const updateMenu = async (req: Request, res: Response) => {
         const menu = await Menu.findOne({ where: { id } })
         const extras = await Extra.findAll({ menuId: id })
         let ids = []
-        for(let value of extras){
+        for (let value of extras) {
             ids.push(value.id)
         }
-       
-        await Extra.destroy({where: {id: ids}})
+
+        await Extra.destroy({ where: { id: ids } })
         await menu.update(
             {
                 menu_title: menu_title ?? menu?.menu_title, menu_description: menu_description ?? menu?.menu_description,
@@ -765,14 +765,14 @@ export const updateMenu = async (req: Request, res: Response) => {
         await Extra.bulkCreate(valueExtra)
         return res.status(200).send({ message: "Updated Successfully", menu })
     } else {
-      
+
         const menu = await Menu.findOne({ where: { id } })
-        const extras =await Extra.findAll({ menuId: id })
+        const extras = await Extra.findAll({ menuId: id })
         let ids = []
-        for(let value of extras){
+        for (let value of extras) {
             ids.push(value.id)
         }
-        await Extra.destroy({where: {id: ids}})
+        await Extra.destroy({ where: { id: ids } })
         await menu.update(
             {
                 menu_title: menu_title ?? menu?.menu_title, menu_description: menu_description ?? menu?.menu_description,
@@ -807,35 +807,39 @@ export const updateEvent = async (req: Request, res: Response) => {
     // console.log(userId);
     const { event_title, event_description, event_date, event_address } = req.body
     const user = await Users.findOne({ where: { id: req.user.id } })
+    const [day, month, year] = event_date.split("-");
+    const formattedDate = new Date(`${year}-${month}-${day + 1}`);
     if (req.file) {
         const result = await cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"))
         const event = await Events.findOne({ where: { id } })
-     
+
         await event.update(
             {
                 event_title: event_title ?? event?.event_title,
                 event_description: event_description ?? event?.event_description,
                 event_date: event_date ?? event?.event_date,
+                formated_date: event_date == null ? event?.formated_date : formattedDate,
                 event_address: event_address ?? event?.event_address,
                 menu_picture: result.secure_url
             }
         );
-        
+
         return res.status(200).send({ message: "Updated Successfully", event })
     } else {
-      
+
         const menu = await Menu.findOne({ where: { id } })
         const event = await Events.findOne({ where: { id } })
-    
+
         await menu.update(
             {
                 event_title: event_title ?? event?.event_title,
                 event_description: event_description ?? event?.event_description,
                 event_date: event_date ?? event?.event_date,
+                formated_date: formattedDate ?? event?.formated_date,
                 event_address: event_address ?? event?.event_address,
             }
         );
-       
+
         return res.status(200).send({ message: "Updated Successfully", event })
     }
 
@@ -877,24 +881,31 @@ export const deleteEvent = async (req: Request, res: Response) => {
 
 
 export const createEvent = async (req: Request, res: Response) => {
-    const { id } = req.user
-    const { event_title, event_description, event_date, event_address } = req.body
-    const user = await Users.findOne({ where: { id } })
-    if (req.file) {
-        const result = await cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"))
-        const event = await Events.create(
-            {
-                event_title,
-                event_description,
-                event_address,
-                event_date,
-                userId: user?.id,
-                menu_picture: result.secure_url
-            }
-        );
-        return res.status(200).send({ message: "Created Successfully", event })
-    } else {
-        return res.status(400).send({ message: "Image is Required" })
+    try {
+        const { id } = req.user
+        const { event_title, event_description, event_date, event_address } = req.body
+        const user = await Users.findOne({ where: { id } })
+        if (req.file) {
+            const result = await cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"))
+            const [day, month, year] = event_date.split("-");
+            const formattedDate = new Date(`${year}-${month}-${day + 1}`);
+            const event = await Events.create(
+                {
+                    event_title,
+                    event_description,
+                    event_address,
+                    event_date,
+                    formated_date: formattedDate,
+                    userId: user?.id,
+                    menu_picture: result.secure_url
+                }
+            );
+            return res.status(200).send({ message: "Created Successfully", event })
+        } else {
+            return res.status(400).send({ message: "Image is Required" })
+        }
+    } catch (e) {
+        console.log(e);
+        return res.status(400).send({ message: "Failed" })
     }
-
 }

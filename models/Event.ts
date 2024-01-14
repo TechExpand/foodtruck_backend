@@ -17,7 +17,7 @@ export enum ProfileType {
 
 @Table({ timestamps: true, tableName: 'event' })
 export class Events extends Model {
-	
+
 	@AllowNull(true)
 	@Column(DataType.STRING)
 	event_title!: string;
@@ -32,12 +32,18 @@ export class Events extends Model {
 	event_address!: string;
 
 
-    @AllowNull(true)
+	@AllowNull(true)
 	@Column(DataType.STRING)
 	event_date!: string;
 
 
-    @AllowNull(false)
+	@Default(new Date())
+	@AllowNull(true)
+	@Column(DataType.DATE)
+	formated_date!: string;
+
+
+	@AllowNull(false)
 	@Column(DataType.STRING)
 	menu_picture!: string;
 
@@ -52,10 +58,10 @@ export class Events extends Model {
 	Log!: string;
 
 
-    @ForeignKey(() => Users)
+	@ForeignKey(() => Users)
 	@AllowNull(false)
 	@Column(DataType.INTEGER)
-    userId!: number;
+	userId!: number;
 
 
 	@BelongsTo(() => Users, { onDelete: 'CASCADE' })
