@@ -52,6 +52,10 @@ const getConfig = () => {
             "/foodtruck/",
             '/foodtruck/alltags',
             "/foodtruck/email/",
+            "/foodtruck/users/validate/",
+            '/foodtruck/verify-otp',
+            '/foodtruck/send-otp',
+            '/foodtruck/change-password',
             // '/foodtruck/lanlog',
             "/foodtruck/token/login/"
         ],

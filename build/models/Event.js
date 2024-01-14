@@ -46,6 +46,12 @@ __decorate([
     __metadata("design:type", String)
 ], Events.prototype, "event_date", void 0);
 __decorate([
+    (0, sequelize_typescript_1.Default)(new Date()),
+    (0, sequelize_typescript_1.AllowNull)(true),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.DATE),
+    __metadata("design:type", String)
+], Events.prototype, "formated_date", void 0);
+__decorate([
     (0, sequelize_typescript_1.AllowNull)(false),
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
     __metadata("design:type", String)

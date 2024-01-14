@@ -300,7 +300,14 @@ const getProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 exports.getProfile = getProfile;
 const getFirstFiveEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const event = yield Event_1.Events.findAll({ limit: 10 });
+    const currentDate = new Date();
+    const event = yield Event_1.Events.findAll({
+        where: {
+            formated_date: {
+                [sequelize_1.Sequelize.Op.gt]: currentDate,
+            },
+        },
+    });
     return res.status(200).send({ message: "Fetched Successfully", event });
 });
 exports.getFirstFiveEvents = getFirstFiveEvents;
@@ -458,16 +465,6 @@ exports.getMenu = getMenu;
 const getHomeDetails = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _b, _c;
     const tags = yield HomeTag_1.HomeTag.findAll({ include: [{ model: Tag_1.Tag }] });
-    //     const query = `
-    //     SELECT *
-    //     FROM profile
-    //     WHERE JSON_CONTAINS(tag, searchValue);
-    //   `;
-    //   const results = await sequelize.query(query, { 
-    //     replacements: { searchValue: JSON.stringify(['pizza']) },
-    //     type: Sequelize.QueryTypes.SELECT ,
-    // });
-    //   console.log(results)  
     const profileSecondTag = yield Profile_1.Profile.findAll({
         where: {
             [sequelize_1.Op.or]: [
@@ -483,14 +480,19 @@ const getHomeDetails = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 { 'tag': { [sequelize_1.Op.like]: '%' + `${(_c = tags[1].dataValues.tag.title) === null || _c === void 0 ? void 0 : _c.toString().toLowerCase()}` + '%' } },
             ]
         },
-        // [tags[0].dataValues.tag.title?.toString().toLowerCase()] 
         include: [
             { model: Users_1.Users }, { model: LanLog_1.LanLog }
         ]
     });
-    console.log(profileFirstTag);
-    console.log(profileSecondTag);
-    const event = yield Event_1.Events.findAll({});
+    const currentDate = new Date();
+    console.log(currentDate);
+    const event = yield Event_1.Events.findAll({
+        where: {
+            formated_date: {
+                [sequelize_1.Sequelize.Op.gte]: currentDate,
+            },
+        },
+    });
     const popular = yield Popular_1.PopularVendor.findAll({
         limit: 10,
         include: [
@@ -631,6 +633,8 @@ const updateEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     // console.log(userId);
     const { event_title, event_description, event_date, event_address } = req.body;
     const user = yield Users_1.Users.findOne({ where: { id: req.user.id } });
+    const [day, month, year] = event_date.split("-");
+    const formattedDate = new Date(`${year}-${month}-${day + 1}`);
     if (req.file) {
         const result = yield cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"));
         const event = yield Event_1.Events.findOne({ where: { id } });
@@ -638,6 +642,7 @@ const updateEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             event_title: event_title !== null && event_title !== void 0 ? event_title : event === null || event === void 0 ? void 0 : event.event_title,
             event_description: event_description !== null && event_description !== void 0 ? event_description : event === null || event === void 0 ? void 0 : event.event_description,
             event_date: event_date !== null && event_date !== void 0 ? event_date : event === null || event === void 0 ? void 0 : event.event_date,
+            formated_date: event_date == null ? event === null || event === void 0 ? void 0 : event.formated_date : formattedDate,
             event_address: event_address !== null && event_address !== void 0 ? event_address : event === null || event === void 0 ? void 0 : event.event_address,
             menu_picture: result.secure_url
         });
@@ -650,6 +655,7 @@ const updateEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             event_title: event_title !== null && event_title !== void 0 ? event_title : event === null || event === void 0 ? void 0 : event.event_title,
             event_description: event_description !== null && event_description !== void 0 ? event_description : event === null || event === void 0 ? void 0 : event.event_description,
             event_date: event_date !== null && event_date !== void 0 ? event_date : event === null || event === void 0 ? void 0 : event.event_date,
+            formated_date: formattedDate !== null && formattedDate !== void 0 ? formattedDate : event === null || event === void 0 ? void 0 : event.formated_date,
             event_address: event_address !== null && event_address !== void 0 ? event_address : event === null || event === void 0 ? void 0 : event.event_address,
         });
         return res.status(200).send({ message: "Updated Successfully", event });
@@ -674,23 +680,32 @@ const deleteEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 });
 exports.deleteEvent = deleteEvent;
 const createEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.user;
-    const { event_title, event_description, event_date, event_address } = req.body;
-    const user = yield Users_1.Users.findOne({ where: { id } });
-    if (req.file) {
-        const result = yield cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"));
-        const event = yield Event_1.Events.create({
-            event_title,
-            event_description,
-            event_address,
-            event_date,
-            userId: user === null || user === void 0 ? void 0 : user.id,
-            menu_picture: result.secure_url
-        });
-        return res.status(200).send({ message: "Created Successfully", event });
+    try {
+        const { id } = req.user;
+        const { event_title, event_description, event_date, event_address } = req.body;
+        const user = yield Users_1.Users.findOne({ where: { id } });
+        if (req.file) {
+            const result = yield cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"));
+            const [day, month, year] = event_date.split("-");
+            const formattedDate = new Date(`${year}-${month}-${day + 1}`);
+            const event = yield Event_1.Events.create({
+                event_title,
+                event_description,
+                event_address,
+                event_date,
+                formated_date: formattedDate,
+                userId: user === null || user === void 0 ? void 0 : user.id,
+                menu_picture: result.secure_url
+            });
+            return res.status(200).send({ message: "Created Successfully", event });
+        }
+        else {
+            return res.status(400).send({ message: "Image is Required" });
+        }
     }
-    else {
-        return res.status(400).send({ message: "Image is Required" });
+    catch (e) {
+        console.log(e);
+        return res.status(400).send({ message: "Failed" });
     }
 });
 exports.createEvent = createEvent;
