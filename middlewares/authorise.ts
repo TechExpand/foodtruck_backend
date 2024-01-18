@@ -16,21 +16,14 @@ export const isAuthorized = async (req: Request, res: Response, next: NextFuncti
 	if (publicRoutes.includes(route) || (publicRoutes.includes(`/${route.split('/')[1]}`) && !isNaN(route.split('/')[3]))) return next();
 
 	let token: any = req.headers.authorization;
-	console.log(token)
-	console.log("ddddd")
+
 	if (!token) return handleResponse(res, 401, false, `Access Denied / Unauthorized request`);
 		token = token.split(' ')[1]; // Remove Bearer from string
 		
 		if (token === 'null' || !token) return handleResponse(res, 401, false, `Unauthorized request`);
 		let verified: any = verify(token, TOKEN_SECRET);
 		if (!verified) return handleResponse(res, 401, false, `Unauthorized request`);
-		// if (!businessPublicRoutes.includes(route) && !verified.businessId)
-		// 	return handleResponse(res, 401, false, 'Unauthorized access to business resource');
-		// if (verified.type === AuthIdentity.ADMIN) {
-		// 	req.admin = verified;
-		// } else {
-		// 	req.user = verified;
-		// }
+	
         req.user = verified;
 		next();
 

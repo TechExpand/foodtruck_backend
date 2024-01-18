@@ -25,8 +25,6 @@ const isAuthorized = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     if (publicRoutes.includes(route) || (publicRoutes.includes(`/${route.split('/')[1]}`) && !isNaN(route.split('/')[3])))
         return next();
     let token = req.headers.authorization;
-    console.log(token);
-    console.log("ddddd");
     if (!token)
         return (0, utility_1.handleResponse)(res, 401, false, `Access Denied / Unauthorized request`);
     token = token.split(' ')[1]; // Remove Bearer from string
@@ -35,13 +33,6 @@ const isAuthorized = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     let verified = (0, jsonwebtoken_1.verify)(token, TOKEN_SECRET);
     if (!verified)
         return (0, utility_1.handleResponse)(res, 401, false, `Unauthorized request`);
-    // if (!businessPublicRoutes.includes(route) && !verified.businessId)
-    // 	return handleResponse(res, 401, false, 'Unauthorized access to business resource');
-    // if (verified.type === AuthIdentity.ADMIN) {
-    // 	req.admin = verified;
-    // } else {
-    // 	req.user = verified;
-    // }
     req.user = verified;
     next();
 });
