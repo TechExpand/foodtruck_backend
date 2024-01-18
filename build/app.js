@@ -21,8 +21,8 @@ app.use(express_1.default.urlencoded({ extended: true }));
 // ENABLE CORS AND START SERVER
 app.use((0, cors_1.default)({ origin: true }));
 (0, db_1.initDB)();
-app.listen(configSetup_1.default.PORT, () => {
-    console.log(`Server started on port ${configSetup_1.default.PORT}`);
+app.listen(configSetup_1.default.PORT || 8000, () => {
+    console.log(`Server started on port ${configSetup_1.default.PORT || 8000}`);
 });
 // Routes
 app.all('*', authorise_1.isAuthorized);
