@@ -686,8 +686,11 @@ const createEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         const user = yield Users_1.Users.findOne({ where: { id } });
         if (req.file) {
             const result = yield cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"));
-            const [day, month, year] = event_date.split("-");
-            const formattedDate = new Date(`${year}-${month}-${day + 1}`);
+            let [day, month, year] = event_date.split("-");
+            day = Number(day) + 1;
+            console.log(event_date);
+            console.log(`${year}-${month}-${(day)}`);
+            const formattedDate = new Date(`${year}-${month}-${(day)}`);
             const event = yield Event_1.Events.create({
                 event_title,
                 event_description,

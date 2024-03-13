@@ -887,8 +887,12 @@ export const createEvent = async (req: Request, res: Response) => {
         const user = await Users.findOne({ where: { id } })
         if (req.file) {
             const result = await cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"))
-            const [day, month, year] = event_date.split("-");
-            const formattedDate = new Date(`${year}-${month}-${day + 1}`);
+            let [day, month, year] = event_date.split("-");
+             day = Number(day)+1;
+            console.log(event_date)
+            console.log(`${year}-${month}-${(day)}`)
+            const formattedDate = new Date(`${year}-${month}-${(day)}`);
+
             const event = await Events.create(
                 {
                     event_title,
