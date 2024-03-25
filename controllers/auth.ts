@@ -1,7 +1,7 @@
 import { createRandomRef, errorResponse, randomId, successResponse, validateEmail } from "../helpers/utility";
 import { Request, Response } from 'express';
 import { VerificationType, Verify } from "../models/Verify";
-import { sendEmail, sendEmailResend, sendSMS } from "../services/sms";
+import {  sendEmailResend, sendSMS } from "../services/sms";
 import { Op, where } from "sequelize";
 import { Users } from "../models/Users";
 const TOKEN_SECRET = "222hwhdhnnjduru838272@@$henncndbdhsjj333n33brnfn";

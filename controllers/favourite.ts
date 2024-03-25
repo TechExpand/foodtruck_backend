@@ -19,6 +19,7 @@ import { Op } from "sequelize";
 import { Order } from "../models/Order";
 import { sendToken } from "../services/notification";
 import { sendEmailResend } from "../services/sms";
+import { templateEmail } from "../config/template";
 const cloudinary = require("cloudinary").v2;
 const stripe = new Stripe('sk_test_51HGpOPE84s4AdL4O3gsrsEu4BXpPqDpWvlRAwPA30reXQ6UKhOzlUluJaYKiDDh6g9A0xYJbeCh9rM0RnlQov2lW00ZyOHxrx1', {
     apiVersion: '2023-08-16',
@@ -72,7 +73,7 @@ export const notifyOrder = async (req: Request, res: Response) => {
         );
         await sendEmailResend(`${order.user.dataValues.email}`,
             `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
-            `<p>pick up your meal at ${order.profile.dataValues.business_name}</p>`
+            templateEmail(`${order.user.dataValues.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`)
         )
         return res.status(200).send({ message: "Fetched Successfully", order })
     } else {
@@ -81,7 +82,7 @@ export const notifyOrder = async (req: Request, res: Response) => {
         );
         await sendEmailResend(`${order.user.dataValues.email}`,
             `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
-            `<p>pick up your meal at ${order.profile.dataValues.business_name}</p>`
+            templateEmail(`${order.user.dataValues.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`)
         )
         return res.status(200).send({ message: "Fetched Successfully", order })
     }
