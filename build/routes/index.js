@@ -49,5 +49,6 @@ routes.get("/cancelsubscription", controllers_1.cancelSubscription);
 routes.get('/activesubscription', controllers_1.createSubscription);
 routes.put("/lanlog", controllers_1.updateLanLog);
 routes.post("/token", controllers_1.updateToken);
+routes.post('/sendTest', controllers_1.sendTestEmailCon);
 exports.default = routes;
 //# sourceMappingURL=index.js.map

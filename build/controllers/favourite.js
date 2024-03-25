@@ -25,6 +25,7 @@ const sequelize_1 = require("sequelize");
 const Order_1 = require("../models/Order");
 const notification_1 = require("../services/notification");
 const sms_1 = require("../services/sms");
+const template_1 = require("../config/template");
 const cloudinary = require("cloudinary").v2;
 const stripe = new stripe_1.default('sk_test_51HGpOPE84s4AdL4O3gsrsEu4BXpPqDpWvlRAwPA30reXQ6UKhOzlUluJaYKiDDh6g9A0xYJbeCh9rM0RnlQov2lW00ZyOHxrx1', {
     apiVersion: '2023-08-16',
@@ -67,12 +68,12 @@ const notifyOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     if (status == "PENDING") {
         yield order.update({ status: "COMPLETED" });
         yield (0, notification_1.sendToken)(order.userId, `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), `pick up your meal at ${order.profile.dataValues.business_name}`);
-        yield (0, sms_1.sendEmailResend)(`${order.user.dataValues.email}`, `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), `<p>pick up your meal at ${order.profile.dataValues.business_name}</p>`);
+        yield (0, sms_1.sendEmailResend)(`${order.user.dataValues.email}`, `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), (0, template_1.templateEmail)(`${order.user.dataValues.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`));
         return res.status(200).send({ message: "Fetched Successfully", order });
     }
     else {
         yield (0, notification_1.sendToken)(order.userId, `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), `pick up your meal at ${order.profile.dataValues.business_name}`);
-        yield (0, sms_1.sendEmailResend)(`${order.user.dataValues.email}`, `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), `<p>pick up your meal at ${order.profile.dataValues.business_name}</p>`);
+        yield (0, sms_1.sendEmailResend)(`${order.user.dataValues.email}`, `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), (0, template_1.templateEmail)(`${order.user.dataValues.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`));
         return res.status(200).send({ message: "Fetched Successfully", order });
     }
 });

@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createEvent = exports.deleteEvent = exports.getEvent = exports.updateEvent = exports.updateMenu = exports.createMenu = exports.deleteMenu = exports.getHomeDetails = exports.getMenu = exports.vendorEvent = exports.vendorMenu = exports.rateProfile = exports.updateLanLog = exports.getLanLog = exports.getSubscription = exports.getVendorProfile = exports.getAllTags = exports.getUser = exports.getTags = exports.getFirstFivePorpular = exports.filterVendorBytag = exports.getVendorEvent = exports.getFirstFiveEvents = exports.getProfile = exports.onlineLanlogUser = exports.onlineLanlogVendors = exports.addNewCard = exports.reactivateSubscription = exports.cancelSubscription = exports.createSubscription = exports.updateProfile = exports.updateToken = exports.createProfile = exports.createLocation = exports.apiIndex = void 0;
+exports.createEvent = exports.sendTestEmailCon = exports.deleteEvent = exports.getEvent = exports.updateEvent = exports.updateMenu = exports.createMenu = exports.deleteMenu = exports.getHomeDetails = exports.getMenu = exports.vendorEvent = exports.vendorMenu = exports.rateProfile = exports.updateLanLog = exports.getLanLog = exports.getSubscription = exports.getVendorProfile = exports.getAllTags = exports.getUser = exports.getTags = exports.getFirstFivePorpular = exports.filterVendorBytag = exports.getVendorEvent = exports.getFirstFiveEvents = exports.getProfile = exports.onlineLanlogUser = exports.onlineLanlogVendors = exports.addNewCard = exports.reactivateSubscription = exports.cancelSubscription = exports.createSubscription = exports.updateProfile = exports.updateToken = exports.createProfile = exports.createLocation = exports.apiIndex = void 0;
 const utility_1 = require("../helpers/utility");
 const LanLog_1 = require("../models/LanLog");
 const Profile_1 = require("../models/Profile");
@@ -28,6 +28,8 @@ const Alltags_1 = require("../models/Alltags");
 const sequelize_1 = require("sequelize");
 const Order_1 = require("../models/Order");
 const Extras_1 = require("../models/Extras");
+const sms_1 = require("../services/sms");
+const template_1 = require("../config/template");
 const cloudinary = require("cloudinary").v2;
 const stripe = new stripe_1.default('sk_test_51HGpOPE84s4AdL4O3gsrsEu4BXpPqDpWvlRAwPA30reXQ6UKhOzlUluJaYKiDDh6g9A0xYJbeCh9rM0RnlQov2lW00ZyOHxrx1', {
     apiVersion: '2023-08-16',
@@ -679,6 +681,11 @@ const deleteEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     return res.status(200).send({ message: "Deleted Successfully", events });
 });
 exports.deleteEvent = deleteEvent;
+const sendTestEmailCon = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const send = yield (0, sms_1.sendEmailResend)("dailydevo9@gmail.com", "TEST", (0, template_1.templateEmail)("TEST", "dailydevo9@gmail.com".toString()));
+    return res.status(200).send({ message: "Successfully", send });
+});
+exports.sendTestEmailCon = sendTestEmailCon;
 const createEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.user;
