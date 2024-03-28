@@ -432,28 +432,59 @@ exports.rateProfile = rateProfile;
 const vendorMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.query;
     const user = yield Users_1.Users.findOne({ where: { id } });
-    const subscription_status = yield stripe.subscriptions.retrieve(user === null || user === void 0 ? void 0 : user.subscription_id);
-    if (subscription_status.status == 'active' || subscription_status.status == 'trialing') {
-        const menu = yield Menus_1.Menu.findAll({ where: { userId: id }, include: [{ model: Extras_1.Extra }] });
-        return res.status(200).send({ message: "Fetched Successfully", menu });
-    }
-    else {
-        return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false });
-    }
+    stripe.subscriptions.retrieve(user === null || user === void 0 ? void 0 : user.subscription_id).then(function (subscription_status) {
+        if (subscription_status.status == 'active' || subscription_status.status == 'trialing') {
+            // const menu = await Menu.findAll({ where: { userId: id }, include: [{ model: Extra }] })
+            return res.status(200).send({
+                message: "Fetched Successfully",
+                // menu
+            });
+        }
+        else {
+            return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false });
+        }
+    }, function (err) {
+        if (err instanceof stripe_1.default.errors.StripeError) {
+            // Break down err based on err.type
+            console.log(err.type);
+            return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false });
+        }
+        else {
+            // ...
+            console.log(err);
+            return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false });
+        }
+    });
 });
 exports.vendorMenu = vendorMenu;
 const vendorEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.query;
     const user = yield Users_1.Users.findOne({ where: { id } });
     console.log(user === null || user === void 0 ? void 0 : user.subscription_id);
-    const subscription_status = yield stripe.subscriptions.retrieve(user === null || user === void 0 ? void 0 : user.subscription_id);
-    if (subscription_status.status == 'active' || subscription_status.status == 'trialing') {
-        const event = yield Event_1.Events.findAll({ where: { userId: id } });
-        return res.status(200).send({ message: "Fetched Successfully", event });
-    }
-    else {
-        return res.status(200).send({ message: "VENDOR EVENT IS UNAVAILABLE", status: false });
-    }
+    const subscription_status = yield stripe.subscriptions.retrieve(user === null || user === void 0 ? void 0 : user.subscription_id).then(function (subscription_status) {
+        if (subscription_status.status == 'active' || subscription_status.status == 'trialing') {
+            // const menu = await Menu.findAll({ where: { userId: id }, include: [{ model: Extra }] })
+            // const event = await Events.findAll({ where: { userId: id } })
+            return res.status(200).send({
+                message: "Fetched Successfully",
+                //  event
+            });
+        }
+        else {
+            return res.status(200).send({ message: "VENDOR EVENT IS UNAVAILABLE", status: false });
+        }
+    }, function (err) {
+        if (err instanceof stripe_1.default.errors.StripeError) {
+            // Break down err based on err.type
+            console.log(err.type);
+            return res.status(200).send({ message: "VENDOR EVENT IS UNAVAILABLE", status: false });
+        }
+        else {
+            // ...
+            console.log(err);
+            return res.status(200).send({ message: "VENDOR EVENT IS UNAVAILABLE", status: false });
+        }
+    });
 });
 exports.vendorEvent = vendorEvent;
 const getMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
