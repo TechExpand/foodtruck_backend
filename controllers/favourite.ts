@@ -98,7 +98,9 @@ export const postFavourite = async (req: Request, res: Response) => {
     let { profileId } = req.body;
     let { id } = req.user;
     const user = await Users.findOne({ where: { id } })
-    const favourite = await Favourite.create({ profileId: profileId, userId: id })
+    const fav = await Favourite.findOne({where:{profileId, userId: id}})
+    if(fav) return res.status(200).send({ message: "Vendor Added Successfully", status: true })
+    const favourite = await Favourite.create({ profileId, userId: id })
     return res.status(200).send({ message: "Vendor Added Successfully", favourite, status: true })
 }
 

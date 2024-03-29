@@ -2,7 +2,6 @@
 import { Router } from 'express';
 import { apiIndex, cancelSubscription, createEvent, createMenu, createSubscription, deleteMenu, getAllTags, getFirstFiveEvents, getFirstFivePorpular, getHomeDetails, getLanLog, getMenu, getProfile, getSubscription, getTags, getUser, getVendorEvent, getVendorProfile, onlineLanlogUser, onlineLanlogVendors, rateProfile, sendTestEmailCon, updateEvent, updateLanLog, updateMenu, updateProfile, updateToken, vendorEvent, vendorMenu } from '../controllers';
 import { uploads } from '../helpers/upload';
-import { register2 } from '../controllers/auth';
 import { deleteFavourite, getFavourite, getOrder, getp, notifyOrder, postFavourite, postOrder, search } from '../controllers/favourite';
 
 
@@ -20,7 +19,7 @@ routes.get('/currentuserlanlog', onlineLanlogUser);
 routes.get('/user', getUser);
 routes.get('/alltags', getAllTags);
 routes.get('/profile', getVendorProfile);
-routes.get('/email', register2);
+// routes.get('/email', register2);
 routes.put('/profile', uploads.single("pro_pic"), updateProfile)
 routes.get('/locationprofile', getProfile);
 routes.get('/locationmenu', vendorMenu);

@@ -9,4 +9,9 @@ export class AllTag extends Model {
 	@Column(DataType.STRING)
 	title!: string;
 
+
+	@AllowNull(true)
+	@Column(DataType.STRING)
+	icon!: string;
+
 }

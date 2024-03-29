@@ -284,7 +284,7 @@ export const onlineLanlogVendors = async (req: Request, res: Response) => {
             Number(vendor.Lan), Number(vendor.Log), Number(lan), Number(log)
         );
 
-        if (distance <= Number(5000)) {
+        if (distance <= Number(500)) {
             if (vendor.dataValues.user.dataValues.type == UserType.VENDOR) {
                 distance_list.push({
                     ...vendor.dataValues,
@@ -374,6 +374,7 @@ export const getFirstFiveEvents = async (req: Request, res: Response) => {
                 [Sequelize.Op.gt]: currentDate,
             },
         },
+        include: [{ model: Users, include: [{ model: Profile }] }]
     });
     return res.status(200).send({ message: "Fetched Successfully", event })
 }
@@ -660,6 +661,7 @@ export const getHomeDetails = async (req: Request, res: Response) => {
                 [Sequelize.Op.gte]: currentDate,
             },
         },
+        include: [{ model: Users, include: [{ model: Profile }] }]
     });
     const popular = await PopularVendor.findAll({
         limit: 10,

@@ -68,5 +68,7 @@ export class Users extends Model {
 
 
 // relationships
+@HasOne(() => Profile, { onDelete: 'CASCADE' })
+profile!: Profile;
 
 }

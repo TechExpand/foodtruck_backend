@@ -1,7 +1,7 @@
 import { createRandomRef, errorResponse, randomId, successResponse, validateEmail } from "../helpers/utility";
 import { Request, Response } from 'express';
 import { VerificationType, Verify } from "../models/Verify";
-import {  sendEmailResend, sendSMS } from "../services/sms";
+import { sendEmailResend, sendSMS } from "../services/sms";
 import { Op, where } from "sequelize";
 import { Users } from "../models/Users";
 const TOKEN_SECRET = "222hwhdhnnjduru838272@@$henncndbdhsjj333n33brnfn";
@@ -50,6 +50,19 @@ export const verifyOtp = async (req: Request, res: Response) => {
 
       const verifyEmailResult = await Verify.findOne({ where: { id: verifyEmail.id } })
       await verifyEmailResult?.destroy()
+      await sendEmailResend(verifyEmail.client!.toString(), "'Welcome to Foodtruck.Express'",
+        templateEmail('Welcome to Foodtruck.Express', `Dear User,\n\n
+
+      Welcome to [Foodtruck.Express! We're thrilled to have you join our community.\n
+      
+      Thank you for registering with us. Your account has been successfully created, and you are now part of a vibrant community.\n
+      
+      If you have any questions or need assistance, feel free to reach out to our support team at [support email or contact details]. We're here to help!\n
+      
+      Once again, welcome aboard, and thank you for choosing Foodtruck.Express. We look forward to providing you with a fantastic experience.\n
+      
+      Best regards,\n
+      Tminter`));
       return successResponse(res, "Successful", {
         message: "successful",
         status: true
@@ -110,39 +123,11 @@ export const validateReg = async (req: Request, res: Response) => {
   })
   const emailResult = await sendEmailResend(email, "Foodtruck otp code", templateEmail("OTP CODE", codeEmail.toString()));
   // return successResponse(res, "Successful", { serviceId })
-  return res.status(200).send({ message: true , serviceId})
+  return res.status(200).send({ message: true, serviceId })
 }
 
 
 
-
-
-// let transporter = nodemailer.createTransport({
-//   host: "wingudigital.com",
-//   port:  465,
-//   // 587
-//   auth: {
-//     user: "app@wingudigital.com",
-//     pass: "o30cnK68_"
-//   }
-//   });
-
-
-export const register2 = async (req: Request, res: Response) => {
-  const { email } = req.query;
-  console.log(email)
-  await sendEmailResend(email!.toString(), 'Welcome to Foodtruck.Express', `<p>Just a test</p>`);
-  res.send({ message: "message sent" })
-  // transporter.sendMail(mailOptions, function(err:any, data:any) {
-  //     if (err) {
-  //       console.log("Error " + err);
-  //       res.send({message: err})
-  //     } else {
-  //       console.log("Email sent successfully");
-  //       res.send({message: "message sent"})
-  //     }
-  //   });
-}
 
 
 
@@ -158,7 +143,7 @@ export const login = async (req: Request, res: Response) => {
   const match = await compare(password, user.password)
   if (!match) return errorResponse(res, "Failed", { status: false, message: "Invalid Credentials" })
   let token = sign({ id: user.id, email: user.email }, TOKEN_SECRET);
-  return res.status(200).send({ token , type: user.type})
+  return res.status(200).send({ token, type: user.type })
 }
 
 
@@ -189,7 +174,7 @@ export const login = async (req: Request, res: Response) => {
 
 
 export const passwordChange = async (req: Request, res: Response) => {
-  let {  newPassword, email } = req.body;
+  let { newPassword, email } = req.body;
   const user = await Users.findOne({ where: { email } })
   if (!user) return errorResponse(res, "Failed", { status: false, message: "User does not exist" })
 
