@@ -250,7 +250,7 @@ const onlineLanlogVendors = (req, res) => __awaiter(void 0, void 0, void 0, func
     });
     for (let vendor of lanlog) {
         const distance = (0, utility_1.getDistanceFromLatLonInKm)(Number(vendor.Lan), Number(vendor.Log), Number(lan), Number(log));
-        if (distance <= Number(5000)) {
+        if (distance <= Number(500)) {
             if (vendor.dataValues.user.dataValues.type == Users_1.UserType.VENDOR) {
                 distance_list.push(Object.assign(Object.assign({}, vendor.dataValues), { user: vendor.dataValues.user.dataValues, distance }));
                 distance_list.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
@@ -309,6 +309,7 @@ const getFirstFiveEvents = (req, res) => __awaiter(void 0, void 0, void 0, funct
                 [sequelize_1.Sequelize.Op.gt]: currentDate,
             },
         },
+        include: [{ model: Users_1.Users, include: [{ model: Profile_1.Profile }] }]
     });
     return res.status(200).send({ message: "Fetched Successfully", event });
 });
@@ -525,6 +526,7 @@ const getHomeDetails = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 [sequelize_1.Sequelize.Op.gte]: currentDate,
             },
         },
+        include: [{ model: Users_1.Users, include: [{ model: Profile_1.Profile }] }]
     });
     const popular = yield Popular_1.PopularVendor.findAll({
         limit: 10,

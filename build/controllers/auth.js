@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.passwordChange = exports.login = exports.register2 = exports.validateReg = exports.register = exports.verifyOtp = exports.sendOtp = void 0;
+exports.passwordChange = exports.login = exports.validateReg = exports.register = exports.verifyOtp = exports.sendOtp = void 0;
 const utility_1 = require("../helpers/utility");
 const Verify_1 = require("../models/Verify");
 const sms_1 = require("../services/sms");
@@ -46,6 +46,18 @@ const verifyOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         if (verifyEmail.code === emailCode) {
             const verifyEmailResult = yield Verify_1.Verify.findOne({ where: { id: verifyEmail.id } });
             yield (verifyEmailResult === null || verifyEmailResult === void 0 ? void 0 : verifyEmailResult.destroy());
+            yield (0, sms_1.sendEmailResend)(verifyEmail.client.toString(), "'Welcome to Foodtruck.Express'", (0, template_1.templateEmail)('Welcome to Foodtruck.Express', `Dear User,\n\n
+
+      Welcome to [Foodtruck.Express! We're thrilled to have you join our community.\n
+      
+      Thank you for registering with us. Your account has been successfully created, and you are now part of a vibrant community.\n
+      
+      If you have any questions or need assistance, feel free to reach out to our support team at [support email or contact details]. We're here to help!\n
+      
+      Once again, welcome aboard, and thank you for choosing Foodtruck.Express. We look forward to providing you with a fantastic experience.\n
+      
+      Best regards,\n
+      Tminter`));
             return (0, utility_1.successResponse)(res, "Successful", {
                 message: "successful",
                 status: true
@@ -109,31 +121,6 @@ const validateReg = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     return res.status(200).send({ message: true, serviceId });
 });
 exports.validateReg = validateReg;
-// let transporter = nodemailer.createTransport({
-//   host: "wingudigital.com",
-//   port:  465,
-//   // 587
-//   auth: {
-//     user: "app@wingudigital.com",
-//     pass: "o30cnK68_"
-//   }
-//   });
-const register2 = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { email } = req.query;
-    console.log(email);
-    yield (0, sms_1.sendEmailResend)(email.toString(), 'Welcome to Foodtruck.Express', `<p>Just a test</p>`);
-    res.send({ message: "message sent" });
-    // transporter.sendMail(mailOptions, function(err:any, data:any) {
-    //     if (err) {
-    //       console.log("Error " + err);
-    //       res.send({message: err})
-    //     } else {
-    //       console.log("Email sent successfully");
-    //       res.send({message: "message sent"})
-    //     }
-    //   });
-});
-exports.register2 = register2;
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let { email, password } = req.body;
     console.log(email);

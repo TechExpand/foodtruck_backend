@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Users = exports.UserType = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
+const Profile_1 = require("./Profile");
 // export enum UserGender {
 // 	MALE = 'MALE',
 // 	FEMALE = 'FEMALE',
@@ -64,6 +65,10 @@ __decorate([
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
     __metadata("design:type", String)
 ], Users.prototype, "customer_id", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasOne)(() => Profile_1.Profile, { onDelete: 'CASCADE' }),
+    __metadata("design:type", Profile_1.Profile)
+], Users.prototype, "profile", void 0);
 exports.Users = Users = __decorate([
     (0, sequelize_typescript_1.Table)({ timestamps: true, tableName: 'users' })
 ], Users);

@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const controllers_1 = require("../controllers");
 const upload_1 = require("../helpers/upload");
-const auth_1 = require("../controllers/auth");
 const favourite_1 = require("../controllers/favourite");
 const routes = (0, express_1.Router)();
 /*************************************************************************
@@ -18,7 +17,7 @@ routes.get('/currentuserlanlog', controllers_1.onlineLanlogUser);
 routes.get('/user', controllers_1.getUser);
 routes.get('/alltags', controllers_1.getAllTags);
 routes.get('/profile', controllers_1.getVendorProfile);
-routes.get('/email', auth_1.register2);
+// routes.get('/email', register2);
 routes.put('/profile', upload_1.uploads.single("pro_pic"), controllers_1.updateProfile);
 routes.get('/locationprofile', controllers_1.getProfile);
 routes.get('/locationmenu', controllers_1.vendorMenu);

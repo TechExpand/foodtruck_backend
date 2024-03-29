@@ -82,7 +82,10 @@ const postFavourite = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     let { profileId } = req.body;
     let { id } = req.user;
     const user = yield Users_1.Users.findOne({ where: { id } });
-    const favourite = yield Favourite_1.Favourite.create({ profileId: profileId, userId: id });
+    const fav = yield Favourite_1.Favourite.findOne({ where: { profileId, userId: id } });
+    if (fav)
+        return res.status(200).send({ message: "Vendor Added Successfully", status: true });
+    const favourite = yield Favourite_1.Favourite.create({ profileId, userId: id });
     return res.status(200).send({ message: "Vendor Added Successfully", favourite, status: true });
 });
 exports.postFavourite = postFavourite;
