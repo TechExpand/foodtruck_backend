@@ -39,11 +39,15 @@ exports.apiIndex = apiIndex;
 const createLocation = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let { Lan, Log, online } = req.body;
     let { id } = req.user;
-    const user = yield Users_1.Users.findOne({ where: { id } });
-    if (!user)
+    const lanlog = yield LanLog_1.LanLog.findOne({ where: { userId: id } });
+    if (lanlog) {
+        yield lanlog.update({ Lan, Log });
         return res.status(200).send({ message: "Created Successfully", status: true });
-    const location = yield LanLog_1.LanLog.create({ Lan, Log, online, userId: id });
-    return res.status(200).send({ message: "Created Successfully", status: true });
+    }
+    else {
+        const location = yield LanLog_1.LanLog.create({ Lan, Log, online, userId: id });
+        return res.status(200).send({ message: "Created Successfully", status: true });
+    }
 });
 exports.createLocation = createLocation;
 const createProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -442,6 +446,8 @@ const vendorMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             });
         }
         else {
+            yield sendToken(user === null || user === void 0 ? void 0 : user.id, `Foodtruck.express`.toUpperCase(), `Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`);
+            yield (0, sms_1.sendEmailResend)(`${user === null || user === void 0 ? void 0 : user.email}`, `Foodtruck.express`.toUpperCase(), (0, template_1.templateEmail)(`${user === null || user === void 0 ? void 0 : user.email}`, `Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`));
             return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false });
         }
     }, function (err) {

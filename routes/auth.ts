@@ -25,7 +25,7 @@ routes.post('/verify-otp', verifyOtp);
 routes.post('/token/login/', login);
 routes.post('/users/', register);
 routes.post('/users/validate/', validateReg)
-routes.post('/lanlog/', createLocation);
+routes.post('/lanlog', createLocation);
 routes.post('/createprofile/', uploads.single("pro_pic"), createProfile)
 
 export default routes;
