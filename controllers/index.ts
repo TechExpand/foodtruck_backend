@@ -23,6 +23,7 @@ import { Order } from "../models/Order";
 import { Extra } from "../models/Extras";
 import { sendEmailResend, sendTestEmail } from "../services/sms";
 import { templateEmail } from "../config/template";
+import { sendToken } from "../services/notification";
 const cloudinary = require("cloudinary").v2;
 const stripe = new Stripe('sk_test_51HGpOPE84s4AdL4O3gsrsEu4BXpPqDpWvlRAwPA30reXQ6UKhOzlUluJaYKiDDh6g9A0xYJbeCh9rM0RnlQov2lW00ZyOHxrx1', {
     apiVersion: '2023-08-16',
@@ -564,12 +565,12 @@ export const vendorMenu = async (req: Request, res: Response) => {
                     // menu
                 })
             } else {
-                await sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
-                    `Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`
+                sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
+                    "Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer."
                 );
-                await sendEmailResend(`${user?.email}`,
-                    `Foodtruck.express`.toUpperCase(),
-                    templateEmail(`${user?.email}`, `Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`))
+                sendEmailResend(`${user?.email}`,
+                    "Foodtruck.express".toUpperCase(),
+                    templateEmail(`${user?.email}`, "Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer."))
                 return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
             }
         },

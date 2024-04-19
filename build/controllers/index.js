@@ -30,6 +30,7 @@ const Order_1 = require("../models/Order");
 const Extras_1 = require("../models/Extras");
 const sms_1 = require("../services/sms");
 const template_1 = require("../config/template");
+const notification_1 = require("../services/notification");
 const cloudinary = require("cloudinary").v2;
 const stripe = new stripe_1.default('sk_test_51HGpOPE84s4AdL4O3gsrsEu4BXpPqDpWvlRAwPA30reXQ6UKhOzlUluJaYKiDDh6g9A0xYJbeCh9rM0RnlQov2lW00ZyOHxrx1', {
     apiVersion: '2023-08-16',
@@ -446,8 +447,8 @@ const vendorMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             });
         }
         else {
-            yield sendToken(user === null || user === void 0 ? void 0 : user.id, `Foodtruck.express`.toUpperCase(), `Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`);
-            yield (0, sms_1.sendEmailResend)(`${user === null || user === void 0 ? void 0 : user.email}`, `Foodtruck.express`.toUpperCase(), (0, template_1.templateEmail)(`${user === null || user === void 0 ? void 0 : user.email}`, `Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`));
+            (0, notification_1.sendToken)(user === null || user === void 0 ? void 0 : user.id, `Foodtruck.express`.toUpperCase(), "Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.");
+            (0, sms_1.sendEmailResend)(`${user === null || user === void 0 ? void 0 : user.email}`, "Foodtruck.express".toUpperCase(), (0, template_1.templateEmail)(`${user === null || user === void 0 ? void 0 : user.email}`, "Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer."));
             return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false });
         }
     }, function (err) {
