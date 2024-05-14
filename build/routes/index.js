@@ -40,6 +40,7 @@ routes.post('/event', upload_1.uploads.single("menu_picture1"), controllers_1.cr
 routes.put('/menu', upload_1.uploads.single("menu_picture1"), controllers_1.updateMenu);
 routes.put('/event', upload_1.uploads.single("menu_picture1"), controllers_1.updateEvent);
 routes.post("/rating", controllers_1.rateProfile);
+routes.get("/rating", controllers_1.fetchRate);
 routes.get("/lanlog", controllers_1.getLanLog);
 routes.get("/search", favourite_1.search);
 routes.get("/getp", favourite_1.getp);

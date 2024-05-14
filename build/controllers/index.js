@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createEvent = exports.sendTestEmailCon = exports.deleteEvent = exports.getEvent = exports.updateEvent = exports.updateMenu = exports.createMenu = exports.deleteMenu = exports.getHomeDetails = exports.getMenu = exports.vendorEvent = exports.vendorMenu = exports.rateProfile = exports.updateLanLog = exports.getLanLog = exports.getSubscription = exports.getVendorProfile = exports.getAllTags = exports.getUser = exports.getTags = exports.getFirstFivePorpular = exports.filterVendorBytag = exports.getVendorEvent = exports.getFirstFiveEvents = exports.getProfile = exports.onlineLanlogUser = exports.onlineLanlogVendors = exports.addNewCard = exports.reactivateSubscription = exports.cancelSubscription = exports.createSubscription = exports.updateProfile = exports.updateToken = exports.createProfile = exports.createLocation = exports.apiIndex = void 0;
+exports.createEvent = exports.sendTestEmailCon = exports.deleteEvent = exports.getEvent = exports.updateEvent = exports.updateMenu = exports.createMenu = exports.deleteMenu = exports.getHomeDetails = exports.getMenu = exports.vendorEvent = exports.vendorMenu = exports.fetchRate = exports.rateProfile = exports.updateLanLog = exports.getLanLog = exports.getSubscription = exports.getVendorProfile = exports.getAllTags = exports.getUser = exports.getTags = exports.getFirstFivePorpular = exports.filterVendorBytag = exports.getVendorEvent = exports.getFirstFiveEvents = exports.getProfile = exports.onlineLanlogUser = exports.onlineLanlogVendors = exports.addNewCard = exports.reactivateSubscription = exports.cancelSubscription = exports.createSubscription = exports.updateProfile = exports.updateToken = exports.createProfile = exports.createLocation = exports.apiIndex = void 0;
 const utility_1 = require("../helpers/utility");
 const LanLog_1 = require("../models/LanLog");
 const Profile_1 = require("../models/Profile");
@@ -31,6 +31,7 @@ const Extras_1 = require("../models/Extras");
 const sms_1 = require("../services/sms");
 const template_1 = require("../config/template");
 const notification_1 = require("../services/notification");
+const Rate_1 = require("../models/Rate");
 const cloudinary = require("cloudinary").v2;
 const stripe = new stripe_1.default('sk_test_51HGpOPE84s4AdL4O3gsrsEu4BXpPqDpWvlRAwPA30reXQ6UKhOzlUluJaYKiDDh6g9A0xYJbeCh9rM0RnlQov2lW00ZyOHxrx1', {
     apiVersion: '2023-08-16',
@@ -256,7 +257,7 @@ const onlineLanlogVendors = (req, res) => __awaiter(void 0, void 0, void 0, func
     for (let vendor of lanlog) {
         const distance = (0, utility_1.getDistanceFromLatLonInKm)(Number(vendor.Lan), Number(vendor.Log), Number(lan), Number(log));
         // 500
-        if (distance <= Number(500)) {
+        if (distance <= Number(50000)) {
             if (vendor.dataValues.user.dataValues.type == Users_1.UserType.VENDOR) {
                 distance_list.push(Object.assign(Object.assign({}, vendor.dataValues), { user: vendor.dataValues.user.dataValues, distance }));
                 distance_list.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
@@ -431,37 +432,54 @@ const updateLanLog = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.updateLanLog = updateLanLog;
 const rateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id, rate } = req.body;
-    const profile = yield Profile_1.Profile.findOne({ where: { lanlogId: id } });
+    const profile = yield Profile_1.Profile.findOne({ where: { id } });
+    const truckUser = yield Users_1.Users.findOne({ where: { id: profile.userId } });
+    yield Rate_1.Rating.create({
+        profileId: profile === null || profile === void 0 ? void 0 : profile.id, rate, truckId: truckUser === null || truckUser === void 0 ? void 0 : truckUser.id, userId: req.user.id
+    });
     yield (profile === null || profile === void 0 ? void 0 : profile.update({ totalRate: profile.totalRate + 1, meanRate: profile.meanRate + Number(rate), rate: ((profile.meanRate + Number(rate)) / (profile.totalRate + 1)) }));
     return res.status(200).send({ message: "Fetched Successfully", profile });
 });
 exports.rateProfile = rateProfile;
+const fetchRate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.query;
+    const rate = yield Rate_1.Rating.findAll({ where: { userId: req.user.id, profileId: id } });
+    return res.status(200).send({ message: "Fetched Successfully", rate });
+});
+exports.fetchRate = fetchRate;
 const vendorMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.query;
     const user = yield Users_1.Users.findOne({ where: { id } });
+    const profile = yield Profile_1.Profile.findOne({ where: { userId: user === null || user === void 0 ? void 0 : user.id } });
+    const menu = yield Menus_1.Menu.findAll({
+        where: { userId: id }, include: [{ model: Extras_1.Extra }]
+    });
     stripe.subscriptions.retrieve(user === null || user === void 0 ? void 0 : user.subscription_id).then(function (subscription_status) {
         if (subscription_status.status == 'active' || subscription_status.status == 'trialing') {
-            const menu = yield Menus_1.Menu.findAll({ where: { userId: id },
-                // include: [{ model: Extra }]
-            });
             return res.status(200).send({
                 message: "Fetched Successfully",
                 menu
             });
         }
         else {
-            (0, notification_1.sendToken)(user === null || user === void 0 ? void 0 : user.id, `Foodtruck.express`.toUpperCase(), "Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.");
-            (0, sms_1.sendEmailResend)(`${user === null || user === void 0 ? void 0 : user.email}`, "Foodtruck.express".toUpperCase(), (0, template_1.templateEmail)(`${user === null || user === void 0 ? void 0 : user.email}`, "Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer."));
+            console.log("meeeeeeeee");
+            console.log("youuuuuuuu");
+            (0, notification_1.sendToken)(user === null || user === void 0 ? void 0 : user.id, `Foodtruck.express`.toUpperCase(), `Hey ${profile === null || profile === void 0 ? void 0 : profile.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`);
+            (0, sms_1.sendEmailResend)(`${user === null || user === void 0 ? void 0 : user.email}`, "Foodtruck.express".toUpperCase(), (0, template_1.templateEmail)(`${user === null || user === void 0 ? void 0 : user.email}`, `Hey ${profile === null || profile === void 0 ? void 0 : profile.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`));
             return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false });
         }
     }, function (err) {
         if (err instanceof stripe_1.default.errors.StripeError) {
             // Break down err based on err.type
+            (0, notification_1.sendToken)(user === null || user === void 0 ? void 0 : user.id, `Foodtruck.express`.toUpperCase(), `Hey ${profile === null || profile === void 0 ? void 0 : profile.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`);
+            (0, sms_1.sendEmailResend)(`${user === null || user === void 0 ? void 0 : user.email}`, "Foodtruck.express".toUpperCase(), (0, template_1.templateEmail)(`${user === null || user === void 0 ? void 0 : user.email}`, `Hey ${profile === null || profile === void 0 ? void 0 : profile.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`));
             console.log(err.type);
             return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false });
         }
         else {
             // ...
+            (0, notification_1.sendToken)(user === null || user === void 0 ? void 0 : user.id, `Foodtruck.express`.toUpperCase(), `Hey ${profile === null || profile === void 0 ? void 0 : profile.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`);
+            (0, sms_1.sendEmailResend)(`${user === null || user === void 0 ? void 0 : user.email}`, "Foodtruck.express".toUpperCase(), (0, template_1.templateEmail)(`${user === null || user === void 0 ? void 0 : user.email}`, `Hey ${profile === null || profile === void 0 ? void 0 : profile.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`));
             console.log(err);
             return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false });
         }
@@ -471,11 +489,15 @@ exports.vendorMenu = vendorMenu;
 const vendorEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.query;
     const user = yield Users_1.Users.findOne({ where: { id } });
+    const event = yield Event_1.Events.findAll({
+        where: { userId: id }, include: [
+            { model: Users_1.Users, include: [{ model: Profile_1.Profile }] }
+        ]
+    });
     console.log(user === null || user === void 0 ? void 0 : user.subscription_id);
     const subscription_status = yield stripe.subscriptions.retrieve(user === null || user === void 0 ? void 0 : user.subscription_id).then(function (subscription_status) {
         if (subscription_status.status == 'active' || subscription_status.status == 'trialing') {
             // const menu = await Menu.findAll({ where: { userId: id }, include: [{ model: Extra }] })
-            const event = yield Event_1.Events.findAll({ where: { userId: id } });
             return res.status(200).send({
                 message: "Fetched Successfully",
                 event
