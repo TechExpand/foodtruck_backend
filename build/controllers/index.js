@@ -256,7 +256,7 @@ const onlineLanlogVendors = (req, res) => __awaiter(void 0, void 0, void 0, func
     for (let vendor of lanlog) {
         const distance = (0, utility_1.getDistanceFromLatLonInKm)(Number(vendor.Lan), Number(vendor.Log), Number(lan), Number(log));
         // 500
-        if (distance <= Number(50000)) {
+        if (distance <= Number(500)) {
             if (vendor.dataValues.user.dataValues.type == Users_1.UserType.VENDOR) {
                 distance_list.push(Object.assign(Object.assign({}, vendor.dataValues), { user: vendor.dataValues.user.dataValues, distance }));
                 distance_list.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));

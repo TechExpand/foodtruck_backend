@@ -180,7 +180,7 @@ export const search = async (req: Request, res: Response) => {
             Number(vendorValue.dataValues.lanlog.dataValues.Lan), Number(vendorValue.dataValues.lanlog.dataValues.Log), Number(lan), Number(log)
         );
 
-        if (distance <= Number(50000)) {
+        if (distance <= Number(500)) {
             if (vendorValue.dataValues.user.dataValues.type == UserType.VENDOR) {
                 vendor.push(vendorValue.dataValues)
             }
