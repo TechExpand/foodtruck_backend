@@ -18,6 +18,7 @@ import { Favourite } from '../models/Favourite';
 import { AllTag } from '../models/Alltags';
 import { Order } from '../models/Order';
 import { Extra } from '../models/Extras';
+import { Rating } from '../models/Rate';
 // import { Sector } from '../models/Sector';
 
 
@@ -35,6 +36,7 @@ const sequelize = new Sequelize(config.DBNAME, config.DBUSERNAME, config.DBPASSW
 		Users,
 		AllTag,
 		Verify,
+		Rating,
 		Favourite,
 		Menu,
 		HomeTag,

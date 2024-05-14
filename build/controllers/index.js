@@ -255,7 +255,8 @@ const onlineLanlogVendors = (req, res) => __awaiter(void 0, void 0, void 0, func
     });
     for (let vendor of lanlog) {
         const distance = (0, utility_1.getDistanceFromLatLonInKm)(Number(vendor.Lan), Number(vendor.Log), Number(lan), Number(log));
-        if (distance <= Number(500)) {
+        // 500
+        if (distance <= Number(50000)) {
             if (vendor.dataValues.user.dataValues.type == Users_1.UserType.VENDOR) {
                 distance_list.push(Object.assign(Object.assign({}, vendor.dataValues), { user: vendor.dataValues.user.dataValues, distance }));
                 distance_list.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
@@ -440,10 +441,12 @@ const vendorMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     const user = yield Users_1.Users.findOne({ where: { id } });
     stripe.subscriptions.retrieve(user === null || user === void 0 ? void 0 : user.subscription_id).then(function (subscription_status) {
         if (subscription_status.status == 'active' || subscription_status.status == 'trialing') {
-            // const menu = await Menu.findAll({ where: { userId: id }, include: [{ model: Extra }] })
+            const menu = yield Menus_1.Menu.findAll({ where: { userId: id },
+                // include: [{ model: Extra }]
+            });
             return res.status(200).send({
                 message: "Fetched Successfully",
-                // menu
+                menu
             });
         }
         else {
@@ -472,10 +475,10 @@ const vendorEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     const subscription_status = yield stripe.subscriptions.retrieve(user === null || user === void 0 ? void 0 : user.subscription_id).then(function (subscription_status) {
         if (subscription_status.status == 'active' || subscription_status.status == 'trialing') {
             // const menu = await Menu.findAll({ where: { userId: id }, include: [{ model: Extra }] })
-            // const event = await Events.findAll({ where: { userId: id } })
+            const event = yield Event_1.Events.findAll({ where: { userId: id } });
             return res.status(200).send({
                 message: "Fetched Successfully",
-                //  event
+                event
             });
         }
         else {

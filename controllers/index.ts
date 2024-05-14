@@ -24,6 +24,7 @@ import { Extra } from "../models/Extras";
 import { sendEmailResend, sendTestEmail } from "../services/sms";
 import { templateEmail } from "../config/template";
 import { sendToken } from "../services/notification";
+import { Rating } from "../models/Rate";
 const cloudinary = require("cloudinary").v2;
 const stripe = new Stripe('sk_test_51HGpOPE84s4AdL4O3gsrsEu4BXpPqDpWvlRAwPA30reXQ6UKhOzlUluJaYKiDDh6g9A0xYJbeCh9rM0RnlQov2lW00ZyOHxrx1', {
     apiVersion: '2023-08-16',
@@ -288,8 +289,9 @@ export const onlineLanlogVendors = async (req: Request, res: Response) => {
         const distance = getDistanceFromLatLonInKm(
             Number(vendor.Lan), Number(vendor.Log), Number(lan), Number(log)
         );
+        // 500
 
-        if (distance <= Number(500)) {
+        if (distance <= Number(50000)) {
             if (vendor.dataValues.user.dataValues.type == UserType.VENDOR) {
                 distance_list.push({
                     ...vendor.dataValues,
@@ -536,51 +538,74 @@ export const updateLanLog = async (req: Request, res: Response) => {
 
 export const rateProfile = async (req: Request, res: Response) => {
     const { id, rate } = req.body
-    const profile = await Profile.findOne({ where: { lanlogId: id } });
+    const profile = await Profile.findOne({ where: { id } });
+    const truckUser = await Users.findOne({ where: { id: profile.userId } })
+    await Rating.create({
+        profileId: profile?.id, rate, truckId: truckUser?.id, userId: req.user.id
+    })
     await profile?.update({ totalRate: profile.totalRate + 1, meanRate: profile.meanRate + Number(rate), rate: ((profile.meanRate + Number(rate)) / (profile.totalRate + 1)) })
     return res.status(200).send({ message: "Fetched Successfully", profile })
 }
 
 
 
-
-
-
-
-
-
-
+export const fetchRate = async (req: Request, res: Response) => {
+    const { id } = req.query
+    const rate = await Rating.findAll({ where: { userId: req.user.id, profileId: id } });
+    return res.status(200).send({ message: "Fetched Successfully", rate })
+}
 
 
 
 export const vendorMenu = async (req: Request, res: Response) => {
     const { id } = req.query
     const user = await Users.findOne({ where: { id } })
+    const profile = await Profile.findOne({ where: { userId: user?.id } })
+    const menu = await Menu.findAll({
+        where: { userId: id }, include: [{ model: Extra }]
+    })
     stripe.subscriptions.retrieve(user?.subscription_id).then(
         function (subscription_status) {
             if (subscription_status.status == 'active' || subscription_status.status == 'trialing') {
-                // const menu = await Menu.findAll({ where: { userId: id }, include: [{ model: Extra }] })
+
                 return res.status(200).send({
                     message: "Fetched Successfully",
-                    // menu
+                    menu
                 })
             } else {
+                console.log("meeeeeeeee")
+                console.log("youuuuuuuu")
                 sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
-                    "Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer."
+                    `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`
                 );
                 sendEmailResend(`${user?.email}`,
                     "Foodtruck.express".toUpperCase(),
-                    templateEmail(`${user?.email}`, "Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer."))
+                    templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`))
                 return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
             }
         },
         function (err) {
             if (err instanceof Stripe.errors.StripeError) {
                 // Break down err based on err.type
+
+                sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
+                    `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`
+                );
+                sendEmailResend(`${user?.email}`,
+                    "Foodtruck.express".toUpperCase(),
+                    templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`))
+
                 console.log(err.type)
                 return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
             } else {
+
                 // ...
+                sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
+                    `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`
+                );
+                sendEmailResend(`${user?.email}`,
+                    "Foodtruck.express".toUpperCase(),
+                    templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`))
                 console.log(err)
                 return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
             }
@@ -596,15 +621,19 @@ export const vendorMenu = async (req: Request, res: Response) => {
 export const vendorEvent = async (req: Request, res: Response) => {
     const { id } = req.query
     const user = await Users.findOne({ where: { id } })
+    const event = await Events.findAll({
+        where: { userId: id }, include: [
+            { model: Users, include: [{ model: Profile }] }
+        ]
+    })
     console.log(user?.subscription_id)
     const subscription_status = await stripe.subscriptions.retrieve(user?.subscription_id).then(
         function (subscription_status) {
             if (subscription_status.status == 'active' || subscription_status.status == 'trialing') {
                 // const menu = await Menu.findAll({ where: { userId: id }, include: [{ model: Extra }] })
-                // const event = await Events.findAll({ where: { userId: id } })
                 return res.status(200).send({
                     message: "Fetched Successfully",
-                    //  event
+                    event
                 })
 
             } else {

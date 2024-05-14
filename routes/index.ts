@@ -1,6 +1,6 @@
 // Import packages
 import { Router } from 'express';
-import { apiIndex, cancelSubscription, createEvent, createMenu, createSubscription, deleteMenu, getAllTags, getFirstFiveEvents, getFirstFivePorpular, getHomeDetails, getLanLog, getMenu, getProfile, getSubscription, getTags, getUser, getVendorEvent, getVendorProfile, onlineLanlogUser, onlineLanlogVendors, rateProfile, sendTestEmailCon, updateEvent, updateLanLog, updateMenu, updateProfile, updateToken, vendorEvent, vendorMenu } from '../controllers';
+import { apiIndex, cancelSubscription, createEvent, createMenu, createSubscription, deleteMenu, fetchRate, getAllTags, getFirstFiveEvents, getFirstFivePorpular, getHomeDetails, getLanLog, getMenu, getProfile, getSubscription, getTags, getUser, getVendorEvent, getVendorProfile, onlineLanlogUser, onlineLanlogVendors, rateProfile, sendTestEmailCon, updateEvent, updateLanLog, updateMenu, updateProfile, updateToken, vendorEvent, vendorMenu } from '../controllers';
 import { uploads } from '../helpers/upload';
 import { deleteFavourite, getFavourite, getOrder, getp, notifyOrder, postFavourite, postOrder, search } from '../controllers/favourite';
 
@@ -42,6 +42,7 @@ routes.post('/event', uploads.single("menu_picture1"), createEvent);
 routes.put('/menu', uploads.single("menu_picture1"), updateMenu);
 routes.put('/event', uploads.single("menu_picture1"), updateEvent);
 routes.post("/rating", rateProfile)
+routes.get("/rating", fetchRate)
 routes.get("/lanlog", getLanLog)
 routes.get("/search", search)
 routes.get("/getp", getp)
