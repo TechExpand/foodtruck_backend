@@ -105,7 +105,7 @@ export const verifyOtp = async (req: Request, res: Response) => {
        Have questions?<br><br>
        
        
-       Our dedicated support team is always happy to help. Feel free to reach out to us at support@foodtruck.expressanytime. Welcome to the Foodtruck.Express family!<br>
+       Our dedicated support team is always happy to help. Feel free to reach out to us at support@foodtruck.express anytime. Welcome to the Foodtruck.Express family!<br>
        
        
         Best, The Foodtruck.Express Team<br><br>`));

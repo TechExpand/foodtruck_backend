@@ -3,7 +3,7 @@
 
 
 export const templateEmail = (subject: string, body: string)=>{
-    return `<!-- © 2018 Shift Technologies. All rights reserved. -->
+    return `<!-- © 2024 Wingu Digital LLC. All rights reserved. -->
     <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout:fixed;background-color:#f9f9f9" id="bodyTable">
         <tbody>
             <tr>
@@ -15,7 +15,7 @@ export const templateEmail = (subject: string, body: string)=>{
                                     <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                         <tbody>
                                             <tr>
-                                                <td style="padding-top: 20px; padding-bottom: 20px; padding-right: 0px;" align="right" valign="middle" class="webview"> <a href="#" style="color:#bbb;font-family:'Open Sans',Helvetica,Arial,sans-serif;font-size:12px;font-weight:400;font-style:normal;letter-spacing:normal;line-height:20px;text-transform:none;text-align:right;text-decoration:underline;padding:0;margin:0" target="_blank" class="text hideOnMobile">Oh wait, there's more! →</a>
+                                                <td style="padding-top: 20px; padding-bottom: 20px; padding-right: 0px;" align="right" valign="middle" class="webview"> <a href="https://foodtruck.express" style="color:#bbb;font-family:'Open Sans',Helvetica,Arial,sans-serif;font-size:12px;font-weight:400;font-style:normal;letter-spacing:normal;line-height:20px;text-transform:none;text-align:right;text-decoration:underline;padding:0;margin:0" target="_blank" class="text hideOnMobile">All Aboard the FoodTruck Express! →</a>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -33,7 +33,7 @@ export const templateEmail = (subject: string, body: string)=>{
                                             <tr>
                                                 <td style="background-color:#00d2f4;font-size:1px;line-height:3px" class="topBorder" height="3">&nbsp;</td>
                                             </tr>
-                                          
+
                                             <tr>
                                                 <td style="padding-bottom: 20px;" align="center" valign="top" class="imgHero">
                                                     <a href="#" style="text-decoration:none" target="_blank">
@@ -57,7 +57,7 @@ export const templateEmail = (subject: string, body: string)=>{
                                                         <tbody>
                                                             <tr>
                                                                 <td style="padding-bottom: 20px;" align="center" valign="top" class="description">
-                                                                    <p class="text" style="color:#666;font-family:'Open Sans',Helvetica,Arial,sans-serif;font-size:14px;font-weight:400;font-style:normal;letter-spacing:normal;line-height:22px;text-transform:none;text-align:center;padding:0;margin:0">Thanks for subscribe for the Vespro newsletter. Please click confirm button for subscription to start receiving our emails.</p>
+                                                                    <p class="text" style="color:#666;font-family:'Open Sans',Helvetica,Arial,sans-serif;font-size:14px;font-weight:400;font-style:normal;letter-spacing:normal;line-height:22px;text-transform:none;text-align:center;padding:0;margin:0">Welcome aboard the FoodTruck.Express!</p>
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -69,8 +69,8 @@ export const templateEmail = (subject: string, body: string)=>{
                                                                     <table border="0" cellpadding="0" cellspacing="0" align="center">
                                                                         <tbody>
                                                                             <tr>
-                                                                              
-                                                                              
+
+
                                                                             </tr>
                                                                         </tbody>
                                                                     </table>
@@ -83,7 +83,7 @@ export const templateEmail = (subject: string, body: string)=>{
                                             <tr>
                                                 <td style="font-size:1px;line-height:1px" height="20">&nbsp;</td>
                                             </tr>
-                                           
+
                                         </tbody>
                                     </table>
                                     <table border="0" cellpadding="0" cellspacing="0" width="100%" class="space">
@@ -105,47 +105,50 @@ export const templateEmail = (subject: string, body: string)=>{
                                         <tbody>
                                             <tr>
                                                 <td style="padding-top:10px;padding-bottom:10px;padding-left:10px;padding-right:10px" align="center" valign="top" class="socialLinks">
-                                                    <a href="#facebook-link" style="display:inline-block" target="_blank" class="facebook">
-                                                        <img alt="" border="0" src="http://email.aumfusion.com/vespro/img/social/light/facebook.png" style="height:auto;width:100%;max-width:40px;margin-left:2px;margin-right:2px" width="40">
+                                                    <a href="https://www.facebook.com/theFoodTruckExpress" style="display:inline-block" target="_blank" class="facebook">
+                                                        <img alt="" border="0" src="https://foodtruck.express/img/facebook.png" style="height:auto;width:100%;max-width:40px;margin-left:2px;margin-right:2px" width="40">
                                                     </a>
-                                                    <a href="#twitter-link" style="display: inline-block;" target="_blank" class="twitter">
-                                                        <img alt="" border="0" src="http://email.aumfusion.com/vespro/img/social/light/twitter.png" style="height:auto;width:100%;max-width:40px;margin-left:2px;margin-right:2px" width="40">
+                                                    <!-- <a href="#twitter-link" style="display: inline-block;" target="_blank" class="twitter">
+                                                        <img alt="" border="0" src="https://foodtruck.express/img/twitter.png" style="height:auto;width:100%;max-width:40px;margin-left:2px;margin-right:2px" width="40">
                                                     </a>
                                                     <a href="#pintrest-link" style="display: inline-block;" target="_blank" class="pintrest">
-                                                        <img alt="" border="0" src="http://email.aumfusion.com/vespro/img/social/light/pintrest.png" style="height:auto;width:100%;max-width:40px;margin-left:2px;margin-right:2px" width="40">
+                                                        <img alt="" border="0" src="https://foodtruck.express/img/pintrest.png" style="height:auto;width:100%;max-width:40px;margin-left:2px;margin-right:2px" width="40">
+                                                    </a> -->
+                                                    <a href="https://www.instagram.com/food_truck_express" style="display: inline-block;" target="_blank" class="instagram">
+                                                        <img alt="" border="0" src="https://foodtruck.express/img/instagram.png" style="height:auto;width:100%;max-width:40px;margin-left:2px;margin-right:2px" width="40">
                                                     </a>
-                                                    <a href="#instagram-link" style="display: inline-block;" target="_blank" class="instagram">
-                                                        <img alt="" border="0" src="http://email.aumfusion.com/vespro/img/social/light/instagram.png" style="height:auto;width:100%;max-width:40px;margin-left:2px;margin-right:2px" width="40">
-                                                    </a>
-                                                    <a href="#linkdin-link" style="display: inline-block;" target="_blank" class="linkdin">
-                                                        <img alt="" border="0" src="http://email.aumfusion.com/vespro/img/social/light/linkdin.png" style="height:auto;width:100%;max-width:40px;margin-left:2px;margin-right:2px" width="40">
-                                                    </a>
+                                                    <!-- <a href="#linkdin-link" style="display: inline-block;" target="_blank" class="linkdin">
+                                                        <img alt="" border="0" src="https://foodtruck.express/img/linkdin.png" style="height:auto;width:100%;max-width:40px;margin-left:2px;margin-right:2px" width="40">
+                                                    </a> -->
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td style="padding: 10px 10px 5px;" align="center" valign="top" class="brandInfo">
-                                                    <p class="text" style="color:#bbb;font-family:'Open Sans',Helvetica,Arial,sans-serif;font-size:12px;font-weight:400;font-style:normal;letter-spacing:normal;line-height:20px;text-transform:none;text-align:center;padding:0;margin:0">©&nbsp;Vespro Inc. | 800 Broadway, Suite 1500 | New York, NY 000123, USA.</p>
+                                                    <p class="text" style="color:#bbb;font-family:'Open Sans',Helvetica,Arial,sans-serif;font-size:12px;font-weight:400;font-style:normal;letter-spacing:normal;line-height:20px;text-transform:none;text-align:center;padding:0;margin:0">©&nbsp;Wingu Digital LLC. | wingudigital.com </p>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td style="padding: 0px 10px 20px;" align="center" valign="top" class="footerLinks">
-                                                    <p class="text" style="color:#bbb;font-family:'Open Sans',Helvetica,Arial,sans-serif;font-size:12px;font-weight:400;font-style:normal;letter-spacing:normal;line-height:20px;text-transform:none;text-align:center;padding:0;margin:0"> <a href="#" style="color:#bbb;text-decoration:underline" target="_blank">View Web Version </a>&nbsp;|&nbsp; <a href="#" style="color:#bbb;text-decoration:underline" target="_blank">Email Preferences </a>&nbsp;|&nbsp; <a href="#" style="color:#bbb;text-decoration:underline" target="_blank">Privacy Policy</a>
+                                                    <p class="text" style="color:#bbb;font-family:'Open Sans',Helvetica,Arial,sans-serif;font-size:12px;font-weight:400;font-style:normal;letter-spacing:normal;line-height:20px;text-transform:none;text-align:center;padding:0;margin:0"><a href="https://wingudigital.com" target="_blank">
+        <img src="https://foodtruck.express/wp-content/uploads/2024/01/wingu-google-app-logo.png" alt="Wingudigital" width="30" height="30">
+    </a></br><a href="https://foodtruck.express/privacy-policy/" style="color:#bbb;text-decoration:underline" target="_blank">Privacy Policy</a>
                                                     </p>
+                                                    
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td style="padding: 0px 10px 10px;" align="center" valign="top" class="footerEmailInfo">
-                                                    <p class="text" style="color:#bbb;font-family:'Open Sans',Helvetica,Arial,sans-serif;font-size:12px;font-weight:400;font-style:normal;letter-spacing:normal;line-height:20px;text-transform:none;text-align:center;padding:0;margin:0">If you have any quetions please contact us <a href="#" style="color:#bbb;text-decoration:underline" target="_blank">support@mail.com.</a>
+                                                    <p class="text" style="color:#bbb;font-family:'Open Sans',Helvetica,Arial,sans-serif;font-size:12px;font-weight:400;font-style:normal;letter-spacing:normal;line-height:20px;text-transform:none;text-align:center;padding:0;margin:0">If you have any comments, questions, or suggestions please contact us <a href="mailto:support@foodtruck.express" style="color:#bbb;text-decoration:underline" target="_blank">support@foodtruck.express</a>
                                                         <br> <a href="#" style="color:#bbb;text-decoration:underline" target="_blank">Unsubscribe</a> from our mailing lists</p>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td style="padding-top:10px;padding-bottom:10px;padding-left:10px;padding-right:10px" align="center" valign="top" class="appLinks">
-                                                    <a href="#Play-Store-Link" style="display: inline-block;" target="_blank" class="play-store">
-                                                        <img alt="" border="0" src="http://email.aumfusion.com/vespro/img/app/play-store.png" style="height:auto;margin:5px;width:100%;max-width:120px" width="120">
+                                                    <a href="https://play.google.com/store/apps/details?id=com.express.foodtruck" style="display: inline-block;" target="_blank" class="play-store">
+                                                        <img alt="" border="0" src="https://foodtruck.express/img/play-store.png" style="height:auto;margin:5px;width:100%;max-width:120px" width="120">
                                                     </a>
-                                                    <a href="#App-Store-Link" style="display: inline-block;" target="_blank" class="app-store">
-                                                        <img alt="" border="0" src="http://email.aumfusion.com/vespro/img/app/app-store.png" style="height:auto;margin:5px;width:100%;max-width:120px" width="120">
+                                                    <a href="https://apps.apple.com/us/app/foodtruck-express/id1583754395" style="display: inline-block;" target="_blank" class="app-store">
+                                                        <img alt="" border="0" src="https://foodtruck.express/img/app-store.png" style="height:auto;margin:5px;width:100%;max-width:120px" width="120">
                                                     </a>
                                                 </td>
                                             </tr>
