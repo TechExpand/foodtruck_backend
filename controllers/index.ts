@@ -226,7 +226,7 @@ export const reactivateSubscription = async (req: Request, res: Response) => {
     let { id } = req.user;
     const user = await Users.findOne({ where: { id } })
     const subscription = await stripe.subscriptions.resume(user!.subscription_id)
-    return res.status(200).send({ message: "You have subscribe to foodtruck.express plan", status: true })
+    return res.status(200).send({ message: "You have subscribed to foodtruck.express plan", status: true })
 }
 
 
@@ -317,7 +317,7 @@ export const onlineLanlogUser = async (req: Request, res: Response) => {
     const { id } = req.user
     const user = await Users.findOne({ where: { id } })
     const subscription = await stripe.subscriptions.retrieve(user?.subscription_id)
-    if (subscription.status == 'active' || subscription.status == 'trialing') {
+    if (subscription.status == 'active' || subscription.status == 'trial mode') {
         let distance_list: any[] = []
         const lanlog = await LanLog.findAll({
             include: [{
@@ -353,7 +353,7 @@ export const onlineLanlogUser = async (req: Request, res: Response) => {
         }
         return res.status(200).send({ message: "Fetched Successfully", users: distance_list })
     } else {
-        return res.status(200).send({ message: "Fetched Successfully", users: "Subscribe to get online Users and Display your Menu" })
+        return res.status(200).send({ message: "Fetched Successfully", users: "Subscribe to view online User locations and Display your Menu on your profile" })
 
     }
 
@@ -576,11 +576,11 @@ export const vendorMenu = async (req: Request, res: Response) => {
                 console.log("meeeeeeeee")
                 console.log("youuuuuuuu")
                 sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
-                    `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`
+                    `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`
                 );
                 sendEmailResend(`${user?.email}`,
                     "Foodtruck.express".toUpperCase(),
-                    templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`))
+                    templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`))
                 return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
             }
         },
@@ -589,11 +589,11 @@ export const vendorMenu = async (req: Request, res: Response) => {
                 // Break down err based on err.type
 
                 sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
-                    `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`
+                    `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`
                 );
                 sendEmailResend(`${user?.email}`,
                     "Foodtruck.express".toUpperCase(),
-                    templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`))
+                    templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`))
 
                 console.log(err.type)
                 return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
@@ -601,11 +601,11 @@ export const vendorMenu = async (req: Request, res: Response) => {
 
                 // ...
                 sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
-                    `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`
+                    `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`
                 );
                 sendEmailResend(`${user?.email}`,
                     "Foodtruck.express".toUpperCase(),
-                    templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available to customer.`))
+                    templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`))
                 console.log(err)
                 return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
             }
