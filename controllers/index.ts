@@ -42,6 +42,7 @@ export const apiIndex = async (req: Request, res: Response) => successResponse(r
 export const createLocation = async (req: Request, res: Response) => {
     let { Lan, Log, online } = req.body;
     let { id } = req.user;
+    console.log(id)
     const lanlog = await LanLog.findOne({ where: { userId: id } })
     if (lanlog) {
         await lanlog.update({ Lan, Log })
@@ -291,7 +292,7 @@ export const onlineLanlogVendors = async (req: Request, res: Response) => {
         );
         // 500
 
-        if (distance <= Number(50000)) {
+        if (distance <= Number(500)) {
             if (vendor.dataValues.user.dataValues.type == UserType.VENDOR) {
                 distance_list.push({
                     ...vendor.dataValues,
