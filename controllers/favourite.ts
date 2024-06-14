@@ -69,7 +69,7 @@ export const notifyOrder = async (req: Request, res: Response) => {
     if (!order) return res.status(200).send({ message: "Not Found", order })
     if (status == "PENDING") {
         await order.update({ status: "COMPLETED" })
-        await sendToken(userData?.fcmToken, `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
+        await sendToken(userData?.id, `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
             `pick up your meal at ${order.profile.dataValues.business_name}`
         );
         await sendEmailResend(`${userData?.email}`,
@@ -78,7 +78,7 @@ export const notifyOrder = async (req: Request, res: Response) => {
         )
         return res.status(200).send({ message: "Fetched Successfully", order })
     } else {
-        await sendToken(userData?.fcmToken, `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
+        await sendToken(userData?.id, `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
             `pick up your meal at ${order.profile.dataValues.business_name}`
         );
         await sendEmailResend(`${userData.email}`,
@@ -118,9 +118,10 @@ export const postOrder = async (req: Request, res: Response) => {
     let { profileId, menuId, extras } = req.body;
     let { id } = req.user;
 
+
     let profile = await Profile.findOne({ where: { id: profileId } })
     let user = await Users.findOne({ where: { id: profile?.userId } })
-    sendToken(user?.fcmToken, `Foodtruck.express`.toUpperCase(),
+    sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
         "You have recieved an order, please process the pending order."
     );
     sendEmailResend(`${user?.email}`,

@@ -68,12 +68,12 @@ const notifyOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         return res.status(200).send({ message: "Not Found", order });
     if (status == "PENDING") {
         yield order.update({ status: "COMPLETED" });
-        yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.fcmToken, `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), `pick up your meal at ${order.profile.dataValues.business_name}`);
+        yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), `pick up your meal at ${order.profile.dataValues.business_name}`);
         yield (0, sms_1.sendEmailResend)(`${userData === null || userData === void 0 ? void 0 : userData.email}`, `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), (0, template_1.templateEmail)(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`));
         return res.status(200).send({ message: "Fetched Successfully", order });
     }
     else {
-        yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.fcmToken, `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), `pick up your meal at ${order.profile.dataValues.business_name}`);
+        yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), `pick up your meal at ${order.profile.dataValues.business_name}`);
         yield (0, sms_1.sendEmailResend)(`${userData.email}`, `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), (0, template_1.templateEmail)(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`));
         return res.status(200).send({ message: "Fetched Successfully", order });
     }
@@ -99,7 +99,7 @@ const postOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let { id } = req.user;
     let profile = yield Profile_1.Profile.findOne({ where: { id: profileId } });
     let user = yield Users_1.Users.findOne({ where: { id: profile === null || profile === void 0 ? void 0 : profile.userId } });
-    (0, notification_1.sendToken)(user === null || user === void 0 ? void 0 : user.fcmToken, `Foodtruck.express`.toUpperCase(), "You have recieved an order, please process the pending order.");
+    (0, notification_1.sendToken)(user === null || user === void 0 ? void 0 : user.id, `Foodtruck.express`.toUpperCase(), "You have recieved an order, please process the pending order.");
     (0, sms_1.sendEmailResend)(`${user === null || user === void 0 ? void 0 : user.email}`, "Foodtruck.express".toUpperCase(), (0, template_1.templateEmail)(`${user === null || user === void 0 ? void 0 : user.email}`, "You have recieved an order, please process the pending order."));
     const order = yield Order_1.Order.create({ profileId: profileId, userId: id, menuId, extras: extras });
     return res.status(200).send({ message: "Order Added Successfully", order, status: true });

@@ -18,6 +18,7 @@ export const sendOtp = async (req: Request, res: Response) => {
   const { email } = req.body;
   const serviceId = randomId(12);
   const codeEmail = String(Math.floor(1000 + Math.random() * 9000));
+  console.log(codeEmail)
 
   await Verify.create({
     serviceId,
@@ -181,10 +182,7 @@ export const validateReg = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   let { email, password } = req.body;
-  console.log(email)
-  console.log(password)
   const user = await Users.findOne({ where: { email } })
-  console.log(user)
   if (!user) return errorResponse(res, "Failed", { status: false, message: "User does not exist" })
   const match = await compare(password, user.password)
   if (!match) return errorResponse(res, "Failed", { status: false, message: "Invalid Credentials" })

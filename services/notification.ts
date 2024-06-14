@@ -13,6 +13,7 @@ admin.initializeApp({
 
 export const sendToken = async (id:number, title: string, body: string) => {
    const user = await Users.findOne({ where: {id}});
+   
         const message = {
           notification: {
             title,

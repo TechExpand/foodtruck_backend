@@ -700,9 +700,11 @@ const updateEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     const { id } = req.query;
     // console.log(userId);
     const { event_title, event_description, event_date, event_address } = req.body;
+    console.log(event_date);
     const user = yield Users_1.Users.findOne({ where: { id: req.user.id } });
-    const [day, month, year] = event_date.split("-");
-    const formattedDate = new Date(`${year}-${month}-${day + 1}`);
+    let [day, month, year] = event_date.split("-");
+    day = Number(day) + 1;
+    const formattedDate = new Date(`${year}-${month}-${(day)}`);
     if (req.file) {
         const result = yield cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"));
         const event = yield Event_1.Events.findOne({ where: { id } });
@@ -717,13 +719,12 @@ const updateEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         return res.status(200).send({ message: "Updated Successfully", event });
     }
     else {
-        const menu = yield Menus_1.Menu.findOne({ where: { id } });
         const event = yield Event_1.Events.findOne({ where: { id } });
-        yield menu.update({
+        yield event.update({
             event_title: event_title !== null && event_title !== void 0 ? event_title : event === null || event === void 0 ? void 0 : event.event_title,
             event_description: event_description !== null && event_description !== void 0 ? event_description : event === null || event === void 0 ? void 0 : event.event_description,
             event_date: event_date !== null && event_date !== void 0 ? event_date : event === null || event === void 0 ? void 0 : event.event_date,
-            formated_date: formattedDate !== null && formattedDate !== void 0 ? formattedDate : event === null || event === void 0 ? void 0 : event.formated_date,
+            formated_date: event_date == null ? event === null || event === void 0 ? void 0 : event.formated_date : formattedDate,
             event_address: event_address !== null && event_address !== void 0 ? event_address : event === null || event === void 0 ? void 0 : event.event_address,
         });
         return res.status(200).send({ message: "Updated Successfully", event });

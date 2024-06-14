@@ -29,7 +29,7 @@ routes.get('/get-vendor-event', controllers_1.getVendorEvent);
 routes.get('/get-popular', controllers_1.getFirstFivePorpular);
 routes.get('/get-favourite', favourite_1.getFavourite);
 routes.post('/add-favourite', favourite_1.postFavourite);
-routes.post('/add-order', upload_1.uploads.single("menu_picture1"), favourite_1.postOrder);
+routes.post('/add-order', favourite_1.postOrder);
 routes.get('/get-order', favourite_1.getOrder);
 routes.get('/notify-order', favourite_1.notifyOrder);
 routes.post('/delete-favourite', favourite_1.deleteFavourite);

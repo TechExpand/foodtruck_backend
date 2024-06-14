@@ -25,6 +25,7 @@ const sendOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email } = req.body;
     const serviceId = (0, utility_1.randomId)(12);
     const codeEmail = String(Math.floor(1000 + Math.random() * 9000));
+    console.log(codeEmail);
     yield Verify_1.Verify.create({
         serviceId,
         code: codeEmail,
@@ -167,10 +168,7 @@ const validateReg = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 exports.validateReg = validateReg;
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let { email, password } = req.body;
-    console.log(email);
-    console.log(password);
     const user = yield Users_1.Users.findOne({ where: { email } });
-    console.log(user);
     if (!user)
         return (0, utility_1.errorResponse)(res, "Failed", { status: false, message: "User does not exist" });
     const match = yield (0, bcryptjs_1.compare)(password, user.password);

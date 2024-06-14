@@ -885,11 +885,16 @@ export const updateMenu = async (req: Request, res: Response) => {
 
 export const updateEvent = async (req: Request, res: Response) => {
     const { id } = req.query
+
     // console.log(userId);
     const { event_title, event_description, event_date, event_address } = req.body
+    console.log(event_date)
     const user = await Users.findOne({ where: { id: req.user.id } })
-    const [day, month, year] = event_date.split("-");
-    const formattedDate = new Date(`${year}-${month}-${day + 1}`);
+    let [day, month, year] = event_date.split("-");
+    day = Number(day) + 1;
+    const formattedDate = new Date(`${year}-${month}-${(day)}`);
+   
+
     if (req.file) {
         const result = await cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"))
         const event = await Events.findOne({ where: { id } })
@@ -908,15 +913,14 @@ export const updateEvent = async (req: Request, res: Response) => {
         return res.status(200).send({ message: "Updated Successfully", event })
     } else {
 
-        const menu = await Menu.findOne({ where: { id } })
         const event = await Events.findOne({ where: { id } })
 
-        await menu.update(
+        await event.update(
             {
                 event_title: event_title ?? event?.event_title,
                 event_description: event_description ?? event?.event_description,
                 event_date: event_date ?? event?.event_date,
-                formated_date: formattedDate ?? event?.formated_date,
+                formated_date: event_date == null ? event?.formated_date : formattedDate,
                 event_address: event_address ?? event?.event_address,
             }
         );
