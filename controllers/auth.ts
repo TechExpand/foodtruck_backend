@@ -195,28 +195,6 @@ export const login = async (req: Request, res: Response) => {
 
 
 
-// export const recoverPassword = async (req: Request, res: Response)=>{
-//     const { email } = req.body;
-//     const serviceId = randomId(12);
-//     const codeEmail = String(Math.floor(1000 + Math.random() * 9000));
-
-//         await Verify.create({
-//             serviceId,
-//             code:codeEmail,
-//             client: email,
-//             secret_key: createRandomRef(12, "ace_pick",),
-//           })
-//           const emailResult = await sendEmail(email, codeEmail.toString());
-//           if(emailResult.status) return successResponse(res, "Successful", {...emailResult, serviceId})
-//           return errorResponse(res, "Failed", emailResult)
-
-
-// };
-
-
-
-
-
 export const passwordChange = async (req: Request, res: Response) => {
   let { newPassword, email } = req.body;
   const user = await Users.findOne({ where: { email } })

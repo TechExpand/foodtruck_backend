@@ -99,7 +99,7 @@ const verifyOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
        Have questions?<br><br>
        
        
-       Our dedicated support team is always happy to help. Feel free to reach out to us at support@foodtruck.expressanytime. Welcome to the Foodtruck.Express family!<br>
+       Our dedicated support team is always happy to help. Feel free to reach out to us at support@foodtruck.express anytime. Welcome to the Foodtruck.Express family!<br>
        
        
         Best, The Foodtruck.Express Team<br><br>`));
@@ -178,20 +178,6 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     return res.status(200).send({ token, type: user.type });
 });
 exports.login = login;
-// export const recoverPassword = async (req: Request, res: Response)=>{
-//     const { email } = req.body;
-//     const serviceId = randomId(12);
-//     const codeEmail = String(Math.floor(1000 + Math.random() * 9000));
-//         await Verify.create({
-//             serviceId,
-//             code:codeEmail,
-//             client: email,
-//             secret_key: createRandomRef(12, "ace_pick",),
-//           })
-//           const emailResult = await sendEmail(email, codeEmail.toString());
-//           if(emailResult.status) return successResponse(res, "Successful", {...emailResult, serviceId})
-//           return errorResponse(res, "Failed", emailResult)
-// };
 const passwordChange = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let { newPassword, email } = req.body;
     const user = yield Users_1.Users.findOne({ where: { email } });

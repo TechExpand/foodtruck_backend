@@ -89,8 +89,8 @@ const postFavourite = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     if (fav)
         return res.status(200).send({ message: "Vendor Added Successfully", status: true });
     const favourite = yield Favourite_1.Favourite.create({ profileId, userId: id });
-    (0, notification_1.sendToken)(truckUser === null || truckUser === void 0 ? void 0 : truckUser.id, `Foodtruck.express`.toUpperCase(), `Hey ${profile === null || profile === void 0 ? void 0 : profile.business_name}, Customers are adding your truck to their favourite on foodtruck.express, subscribe to get more attention.`);
-    (0, sms_1.sendEmailResend)(`${truckUser === null || truckUser === void 0 ? void 0 : truckUser.email}`, "Foodtruck.express".toUpperCase(), (0, template_1.templateEmail)(`${user === null || user === void 0 ? void 0 : user.email}`, `Hey ${profile === null || profile === void 0 ? void 0 : profile.business_name}, Customers are adding your truck to their favourite on foodtruck.express, subscribe to get more attention.`));
+    (0, notification_1.sendToken)(truckUser === null || truckUser === void 0 ? void 0 : truckUser.id, `Foodtruck.express`.toUpperCase(), `Hey ${profile === null || profile === void 0 ? void 0 : profile.business_name}, Customers are adding your truck to their favorites list on foodtruck.express, subscribe to get more attention.`);
+    (0, sms_1.sendEmailResend)(`${truckUser === null || truckUser === void 0 ? void 0 : truckUser.email}`, "Foodtruck.express".toUpperCase(), (0, template_1.templateEmail)(`${user === null || user === void 0 ? void 0 : user.email}`, `Hey ${profile === null || profile === void 0 ? void 0 : profile.business_name}, Customers are adding your truck to their favorites list on foodtruck.express, subscribe to get more attention.`));
     return res.status(200).send({ message: "Vendor Added Successfully", favourite, status: true });
 });
 exports.postFavourite = postFavourite;
