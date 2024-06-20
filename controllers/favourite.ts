@@ -105,11 +105,11 @@ export const postFavourite = async (req: Request, res: Response) => {
     if (fav) return res.status(200).send({ message: "Vendor Added Successfully", status: true })
     const favourite = await Favourite.create({ profileId, userId: id })
     sendToken(truckUser?.id, `Foodtruck.express`.toUpperCase(),
-        `Hey ${profile?.business_name}, Customers are adding your truck to their favourite on foodtruck.express, subscribe to get more attention.`
+        `Hey ${profile?.business_name}, Customers are adding your truck to their favorites list on foodtruck.express, subscribe to get more attention.`
     );
     sendEmailResend(`${truckUser?.email}`,
         "Foodtruck.express".toUpperCase(),
-        templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are adding your truck to their favourite on foodtruck.express, subscribe to get more attention.`))
+        templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are adding your truck to their favorites list on foodtruck.express, subscribe to get more attention.`))
     return res.status(200).send({ message: "Vendor Added Successfully", favourite, status: true })
 }
 
