@@ -39,7 +39,7 @@ const stripe = new stripe_1.default('sk_test_51HGpOPE84s4AdL4O3gsrsEu4BXpPqDpWvl
 const apiIndex = (req, res) => __awaiter(void 0, void 0, void 0, function* () { return (0, utility_1.successResponse)(res, 'API Working!'); });
 exports.apiIndex = apiIndex;
 const createLocation = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let { Lan, Log, online } = req.body;
+    let { Lan, Log, online, type } = req.body;
     let { id } = req.user;
     console.log(id);
     const lanlog = yield LanLog_1.LanLog.findOne({ where: { userId: id } });
@@ -48,7 +48,7 @@ const createLocation = (req, res) => __awaiter(void 0, void 0, void 0, function*
         return res.status(200).send({ message: "Created Successfully", status: true });
     }
     else {
-        const location = yield LanLog_1.LanLog.create({ Lan, Log, online, userId: id });
+        const location = yield LanLog_1.LanLog.create({ Lan, Log, online, userId: id, type });
         return res.status(200).send({ message: "Created Successfully", status: true });
     }
 });
@@ -60,15 +60,11 @@ const createProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         const result = yield cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"));
         const user = yield Users_1.Users.findOne({ where: { id } });
         const location = yield LanLog_1.LanLog.findOne({ where: { userId: id } });
-        // const customer = await stripe.customers.create({
-        //     email: user?.email
-        // })
         const profile = yield Profile_1.Profile.create({
             business_name, unique_detail, detail,
             phone, lanlogId: location.id, userId: id,
             pro_pic: result.secure_url, tag,
         });
-        //  await user?.update({custom er_id:  customer.id})
         return res.status(200).send({ message: "Created Successfully", status: true });
     }
     return res.status(400).send({ message: "File is required", status: false });
@@ -119,26 +115,6 @@ const createSubscription = (req, res) => __awaiter(void 0, void 0, void 0, funct
     try {
         const user = yield Users_1.Users.findOne({ where: { id } });
         const profile = yield Profile_1.Profile.findOne({ where: { userId: user === null || user === void 0 ? void 0 : user.id } });
-        // const token = await  stripe.tokens.create({
-        //     card: {
-        //         number: String(card_number),
-        //         exp_month: exp_month,
-        //         exp_year: exp_year,
-        //         cvc: String(cvc),
-        //     } })
-        //     const paymentMethod = await stripe.paymentMethods.create({
-        //   type: 'card',
-        //   card: {
-        //     number: String(card_number),
-        //     exp_month: exp_month,
-        //     exp_year: exp_year,
-        //     cvc: String(cvc),
-        //   },
-        // });
-        // await stripe.paymentMethods.attach(
-        //   paymentMethod.id,
-        //   {customer: user!.customer_id}
-        // );
         const customer = yield stripe.customers.create({
             email: user.email,
             payment_method: paymentMethod,
@@ -167,13 +143,11 @@ const createSubscription = (req, res) => __awaiter(void 0, void 0, void 0, funct
             expand: ['latest_invoice.payment_intent'],
             trial_period_days: 1
         });
-        console.log(subscription);
         yield (user === null || user === void 0 ? void 0 : user.update({
             customer_id: customer.id,
-            // token_id:token.id, card_id:token.card?.id, 
             subscription_id: subscription.id
         }));
-        yield (profile === null || profile === void 0 ? void 0 : profile.update({ subscription_id: subscription.id }));
+        yield (profile === null || profile === void 0 ? void 0 : profile.update({ subcription_id: subscription.id }));
         if (subscription.latest_invoice.payment_intent) {
             return res.status(200).send({
                 message: "Created Successfully",
@@ -216,16 +190,6 @@ const addNewCard = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     let { id } = req.user;
     const user = yield Users_1.Users.findOne({ where: { id } });
     const profile = yield Profile_1.Profile.findOne({ where: { userId: user === null || user === void 0 ? void 0 : user.id } });
-    // const token = await  stripe.tokens.create({
-    //     card: {
-    //         number: String(card_number),
-    //         exp_month: expiry_month,
-    //         exp_year: expiry_year,
-    //         cvc: String(cvc),
-    //     } })
-    // await stripe.customers.update(user!.customer_id, {
-    //     source:  token.id
-    // })
     const paymentMethod = yield stripe.paymentMethods.create({
         type: 'card',
         card: {
@@ -244,6 +208,9 @@ const onlineLanlogVendors = (req, res) => __awaiter(void 0, void 0, void 0, func
     const { lan, log, range_value } = req.query;
     let distance_list = [];
     const lanlog = yield LanLog_1.LanLog.findAll({
+        where: {
+            type: Users_1.UserType.VENDOR
+        },
         include: [{
                 model: Users_1.Users,
                 where: {
@@ -272,33 +239,41 @@ const onlineLanlogUser = (req, res) => __awaiter(void 0, void 0, void 0, functio
     const { lan, log, range_value } = req.query;
     const { id } = req.user;
     const user = yield Users_1.Users.findOne({ where: { id } });
-    const subscription = yield stripe.subscriptions.retrieve(user === null || user === void 0 ? void 0 : user.subscription_id);
-    if (subscription.status == 'active' || subscription.status == 'trial mode') {
-        let distance_list = [];
-        const lanlog = yield LanLog_1.LanLog.findAll({
-            include: [{
-                    model: Users_1.Users,
-                    where: {
-                        type: Users_1.UserType.USER
-                    },
-                    attributes: [
-                        'createdAt', 'updatedAt', "email", "type"
-                    ]
-                }
-            ],
-        });
-        for (let vendor of lanlog) {
-            const distance = (0, utility_1.getDistanceFromLatLonInKm)(Number(vendor.Lan), Number(vendor.Log), Number(lan), Number(log));
-            if (distance <= Number(range_value)) {
-                if (vendor.dataValues.user.dataValues.type == Users_1.UserType.USER) {
-                    distance_list.push(Object.assign(Object.assign({}, vendor.dataValues), { user: vendor.dataValues.user.dataValues, distance }));
-                    distance_list.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+    try {
+        const subscription = yield stripe.subscriptions.retrieve(user === null || user === void 0 ? void 0 : user.subscription_id);
+        if (subscription.status == 'active' || subscription.status == 'trialing') {
+            let distance_list = [];
+            const lanlog = yield LanLog_1.LanLog.findAll({
+                where: {
+                    type: Users_1.UserType.USER
+                },
+                include: [{
+                        model: Users_1.Users,
+                        where: {
+                            type: Users_1.UserType.USER
+                        },
+                        attributes: [
+                            'createdAt', 'updatedAt', "email", "type"
+                        ]
+                    }
+                ],
+            });
+            for (let user of lanlog) {
+                const distance = (0, utility_1.getDistanceFromLatLonInKm)(Number(user.Lan), Number(user.Log), Number(lan), Number(log));
+                if (distance <= Number(500)) {
+                    if (user.dataValues.user.dataValues.type == Users_1.UserType.USER) {
+                        distance_list.push(Object.assign(Object.assign({}, user.dataValues), { user: user.dataValues.user.dataValues, distance }));
+                        distance_list.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+                    }
                 }
             }
+            return res.status(200).send({ message: "Fetched Successfully", users: distance_list });
         }
-        return res.status(200).send({ message: "Fetched Successfully", users: distance_list });
+        else {
+            return res.status(200).send({ message: "Fetched Successfully", users: "Subscribe to view online User locations and Display your Menu on your profile" });
+        }
     }
-    else {
+    catch (e) {
         return res.status(200).send({ message: "Fetched Successfully", users: "Subscribe to view online User locations and Display your Menu on your profile" });
     }
 });
@@ -373,7 +348,6 @@ const getAllTags = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.getAllTags = getAllTags;
 const getVendorProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.user;
-    console.log(id);
     const profile = yield Profile_1.Profile.findOne({
         where: { userId: id }, include: [
             { model: Users_1.Users },
@@ -403,11 +377,15 @@ const getVendorProfile = (req, res) => __awaiter(void 0, void 0, void 0, functio
 });
 exports.getVendorProfile = getVendorProfile;
 const getSubscription = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.user;
-    console.log(id);
-    const user = yield Users_1.Users.findOne({ where: { id } });
-    const subscription = yield stripe.subscriptions.retrieve(user === null || user === void 0 ? void 0 : user.subscription_id);
-    return res.status(200).send({ message: "Fetched Successfully", status: subscription.status });
+    try {
+        const { id } = req.user;
+        const user = yield Users_1.Users.findOne({ where: { id } });
+        const subscription = yield stripe.subscriptions.retrieve(user === null || user === void 0 ? void 0 : user.subscription_id);
+        return res.status(200).send({ message: "Fetched Successfully", status: subscription.status });
+    }
+    catch (error) {
+        return res.status(200).send({ message: "Fetched Successfully", status: "null" });
+    }
 });
 exports.getSubscription = getSubscription;
 const getLanLog = (req, res) => __awaiter(void 0, void 0, void 0, function* () {

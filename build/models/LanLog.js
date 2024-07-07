@@ -9,14 +9,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LanLog = exports.UserStatus = void 0;
+exports.LanLog = exports.UserStatus = exports.UserType = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
 const Users_1 = require("./Users");
-// export enum UserGender {
-// 	MALE = 'MALE',
-// 	FEMALE = 'FEMALE',
-// 	OTHER = 'OTHER',
-// }
+var UserType;
+(function (UserType) {
+    UserType["USER"] = "USER";
+    UserType["VENDOR"] = "VENDOR";
+})(UserType || (exports.UserType = UserType = {}));
 var UserStatus;
 (function (UserStatus) {
     UserStatus["ACTIVE"] = "ACTIVE";
@@ -26,6 +26,11 @@ var UserStatus;
 let LanLog = class LanLog extends sequelize_typescript_1.Model {
 };
 exports.LanLog = LanLog;
+__decorate([
+    (0, sequelize_typescript_1.Default)(UserType.VENDOR),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.ENUM(UserType.USER, UserType.VENDOR)),
+    __metadata("design:type", String)
+], LanLog.prototype, "type", void 0);
 __decorate([
     (0, sequelize_typescript_1.AllowNull)(false),
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.DOUBLE),
