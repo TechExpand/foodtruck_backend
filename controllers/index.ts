@@ -40,7 +40,7 @@ export const apiIndex = async (req: Request, res: Response) => successResponse(r
 
 
 export const createLocation = async (req: Request, res: Response) => {
-    let { Lan, Log, online } = req.body;
+    let { Lan, Log, online, type } = req.body;
     let { id } = req.user;
     console.log(id)
     const lanlog = await LanLog.findOne({ where: { userId: id } })
@@ -48,7 +48,7 @@ export const createLocation = async (req: Request, res: Response) => {
         await lanlog.update({ Lan, Log })
         return res.status(200).send({ message: "Created Successfully", status: true })
     } else {
-        const location = await LanLog.create({ Lan, Log, online, userId: id })
+        const location = await LanLog.create({ Lan, Log, online, userId: id, type })
         return res.status(200).send({ message: "Created Successfully", status: true })
     }
 }
@@ -62,15 +62,11 @@ export const createProfile = async (req: Request, res: Response) => {
         const result = await cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"))
         const user = await Users.findOne({ where: { id } })
         const location = await LanLog.findOne({ where: { userId: id } })
-        // const customer = await stripe.customers.create({
-        //     email: user?.email
-        // })
         const profile = await Profile.create({
             business_name, unique_detail, detail,
             phone, lanlogId: location!.id, userId: id,
             pro_pic: result.secure_url, tag,
         })
-        //  await user?.update({custom er_id:  customer.id})
         return res.status(200).send({ message: "Created Successfully", status: true })
     }
     return res.status(400).send({ message: "File is required", status: false })
@@ -129,27 +125,6 @@ export const createSubscription = async (req: Request, res: Response) => {
     try {
         const user = await Users.findOne({ where: { id } })
         const profile = await Profile.findOne({ where: { userId: user?.id } })
-        // const token = await  stripe.tokens.create({
-        //     card: {
-        //         number: String(card_number),
-        //         exp_month: exp_month,
-        //         exp_year: exp_year,
-        //         cvc: String(cvc),
-        //     } })
-        //     const paymentMethod = await stripe.paymentMethods.create({
-        //   type: 'card',
-        //   card: {
-        //     number: String(card_number),
-        //     exp_month: exp_month,
-        //     exp_year: exp_year,
-        //     cvc: String(cvc),
-        //   },
-        // });
-
-        // await stripe.paymentMethods.attach(
-        //   paymentMethod.id,
-        //   {customer: user!.customer_id}
-        // );
         const customer = await stripe.customers.create({
             email: user!.email,
             payment_method: paymentMethod,
@@ -178,13 +153,11 @@ export const createSubscription = async (req: Request, res: Response) => {
             expand: ['latest_invoice.payment_intent'],
             trial_period_days: 1
         })
-        console.log(subscription)
         await user?.update({
             customer_id: customer.id,
-            // token_id:token.id, card_id:token.card?.id, 
             subscription_id: subscription.id
         })
-        await profile?.update({ subscription_id: subscription.id })
+        await profile?.update({ subcription_id: subscription.id })
         if (subscription.latest_invoice.payment_intent) {
             return res.status(200).send({
                 message: "Created Successfully",
@@ -238,16 +211,7 @@ export const addNewCard = async (req: Request, res: Response) => {
     let { id } = req.user;
     const user = await Users.findOne({ where: { id } })
     const profile = await Profile.findOne({ where: { userId: user?.id } })
-    // const token = await  stripe.tokens.create({
-    //     card: {
-    //         number: String(card_number),
-    //         exp_month: expiry_month,
-    //         exp_year: expiry_year,
-    //         cvc: String(cvc),
-    //     } })
-    // await stripe.customers.update(user!.customer_id, {
-    //     source:  token.id
-    // })
+
     const paymentMethod = await stripe.paymentMethods.create({
         type: 'card',
         card: {
@@ -275,6 +239,9 @@ export const onlineLanlogVendors = async (req: Request, res: Response) => {
     const { lan, log, range_value } = req.query
     let distance_list: any[] = []
     const lanlog = await LanLog.findAll({
+        where: {
+            type: UserType.VENDOR
+        },
         include: [{
             model: Users,
             where: {
@@ -317,47 +284,57 @@ export const onlineLanlogUser = async (req: Request, res: Response) => {
     const { lan, log, range_value } = req.query
     const { id } = req.user
     const user = await Users.findOne({ where: { id } })
-    const subscription = await stripe.subscriptions.retrieve(user?.subscription_id)
-    if (subscription.status == 'active' || subscription.status == 'trial mode') {
-        let distance_list: any[] = []
-        const lanlog = await LanLog.findAll({
-            include: [{
-                model: Users,
+
+    try {
+        const subscription = await stripe.subscriptions.retrieve(user?.subscription_id)
+        if (subscription.status == 'active' || subscription.status == 'trialing') {
+            let distance_list: any[] = []
+            const lanlog = await LanLog.findAll({
                 where: {
                     type: UserType.USER
                 },
-                attributes: [
-                    'createdAt', 'updatedAt', "email", "type"]
-            }
-            ],
-        });
-
-
-        for (let vendor of lanlog) {
-            const distance = getDistanceFromLatLonInKm(
-                Number(vendor.Lan), Number(vendor.Log), Number(lan), Number(log)
-            );
-
-            if (distance <= Number(range_value)) {
-
-                if (vendor.dataValues.user.dataValues.type == UserType.USER) {
-
-                    distance_list.push({
-                        ...vendor.dataValues,
-                        user: vendor.dataValues.user.dataValues,
-                        distance,
-                    })
-                    distance_list.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+                include: [{
+                    model: Users,
+                    where: {
+                        type: UserType.USER
+                    },
+                    attributes: [
+                        'createdAt', 'updatedAt', "email", "type"]
                 }
+                ],
+            });
+
+
+
+            for (let user of lanlog) {
+                const distance = getDistanceFromLatLonInKm(
+                    Number(user.Lan), Number(user.Log), Number(lan), Number(log)
+                );
+
+
+                if (distance <= Number(500)) {
+
+                    if (user.dataValues.user.dataValues.type == UserType.USER) {
+
+                        distance_list.push({
+                            ...user.dataValues,
+                            user: user.dataValues.user.dataValues,
+                            distance,
+                        })
+                        distance_list.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+                    }
+                }
+
             }
+
+            return res.status(200).send({ message: "Fetched Successfully", users: distance_list })
+        } else {
+            return res.status(200).send({ message: "Fetched Successfully", users: "Subscribe to view online User locations and Display your Menu on your profile" })
 
         }
-        return res.status(200).send({ message: "Fetched Successfully", users: distance_list })
-    } else {
+    } catch (e) {
         return res.status(200).send({ message: "Fetched Successfully", users: "Subscribe to view online User locations and Display your Menu on your profile" })
-
     }
-
 }
 
 
@@ -461,7 +438,6 @@ export const getAllTags = async (req: Request, res: Response) => {
 
 export const getVendorProfile = async (req: Request, res: Response) => {
     const { id } = req.user
-    console.log(id)
     const profile = await Profile.findOne({
         where: { userId: id }, include: [
             { model: Users },
@@ -491,6 +467,7 @@ export const getVendorProfile = async (req: Request, res: Response) => {
             profile: profile
         }
     })
+
 }
 
 
@@ -499,11 +476,15 @@ export const getVendorProfile = async (req: Request, res: Response) => {
 
 
 export const getSubscription = async (req: Request, res: Response) => {
-    const { id } = req.user
-    console.log(id)
-    const user = await Users.findOne({ where: { id } });
-    const subscription = await stripe.subscriptions.retrieve(user?.subscription_id)
-    return res.status(200).send({ message: "Fetched Successfully", status: subscription.status })
+    try {
+        const { id } = req.user
+        const user = await Users.findOne({ where: { id } });
+        const subscription = await stripe.subscriptions.retrieve(user?.subscription_id)
+        return res.status(200).send({ message: "Fetched Successfully", status: subscription.status })
+    } catch (error) {
+        return res.status(200).send({ message: "Fetched Successfully", status: "null" })
+    }
+
 }
 
 
@@ -893,7 +874,7 @@ export const updateEvent = async (req: Request, res: Response) => {
     let [day, month, year] = event_date.split("-");
     day = Number(day) + 1;
     const formattedDate = new Date(`${year}-${month}-${(day)}`);
-   
+
 
     if (req.file) {
         const result = await cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"))

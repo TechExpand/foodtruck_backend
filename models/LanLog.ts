@@ -3,12 +3,11 @@ import { Profile } from './Profile';
 import { Users } from './Users';
 
 
-// export enum UserGender {
-// 	MALE = 'MALE',
-// 	FEMALE = 'FEMALE',
-// 	OTHER = 'OTHER',
-// }
 
+export enum UserType {
+	USER = 'USER',
+	VENDOR = 'VENDOR'
+}
 export enum UserStatus {
 	ACTIVE = 'ACTIVE',
 	INACTIVE = 'INACTIVE',
@@ -18,6 +17,9 @@ export enum UserStatus {
 @Table({ timestamps: true, tableName: 'lanlog' })
 export class LanLog extends Model {
 
+	@Default(UserType.VENDOR)
+	@Column(DataType.ENUM(UserType.USER, UserType.VENDOR))
+	type!: UserType;
 
 	@AllowNull(false)
 	@Column(DataType.DOUBLE)
@@ -28,20 +30,20 @@ export class LanLog extends Model {
 	Log!: string;
 
 
-    @AllowNull(false)
+	@AllowNull(false)
 	@Column(DataType.BOOLEAN)
 	online!: string;
 
 
-    @ForeignKey(() => Users)
+	@ForeignKey(() => Users)
 	@AllowNull(false)
 	@Column(DataType.INTEGER)
-    userId!: number;
+	userId!: number;
 
 
 	@BelongsTo(() => Users, { onDelete: 'CASCADE' })
 	user!: Users;
 
-// relationships
+	// relationships
 
 }
