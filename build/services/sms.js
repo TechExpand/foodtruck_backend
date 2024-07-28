@@ -82,13 +82,13 @@ let transporter = nodemailer.createTransport({
     host: "server1.wingudigital.com",
     port: 465,
     auth: {
-        user: "smtpizzle@foodtruck.express",
+        user: "support@foodtruck.express",
         pass: "NfzRa5ghz8H"
     }
 });
 const sendEmailResend = (email, subject, template) => __awaiter(void 0, void 0, void 0, function* () {
     let mailOptions = {
-        from: "smtpizzle@foodtruck.express",
+        from: "support@foodtruck.express",
         to: `${email}`,
         subject: `${subject}`,
         html: `${template}`
