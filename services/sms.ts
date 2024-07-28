@@ -86,7 +86,7 @@ let transporter = nodemailer.createTransport({
   host: "server1.wingudigital.com",
   port: 465,
   auth: {
-    user: "smtpizzle@foodtruck.express",
+    user: "support@foodtruck.express",
     pass: "NfzRa5ghz8H"
   }
 });
@@ -95,7 +95,7 @@ let transporter = nodemailer.createTransport({
 
 export const sendEmailResend = async (email: String, subject: String, template: String) => {
   let mailOptions = {
-    from: "smtpizzle@foodtruck.express",
+    from: "support@foodtruck.express",
       to: `${email}`,
       subject: `${subject}`,
       html: `${template}`
