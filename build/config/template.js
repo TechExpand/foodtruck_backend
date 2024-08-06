@@ -36,7 +36,7 @@ const templateEmail = (subject, body) => {
                                             <tr>
                                                 <td style="padding-bottom: 20px;" align="center" valign="top" class="imgHero">
                                                     <a href="#" style="text-decoration:none" target="_blank">
-                                                        <img alt="" border="0" src="https://foodtruck.express/wp-content/uploads/2023/04/icon.png" style="width:100%;max-width:300px;height:auto;display:block;color: #f9f9f9;" width="300">
+                                                        <img alt="" border="0" src="https://foodtruck.express/img/icon.png" style="width:100%;max-width:300px;height:auto;display:block;color: #f9f9f9;" width="300">
                                                     </a>
                                                 </td>
                                             </tr>
@@ -47,7 +47,7 @@ const templateEmail = (subject, body) => {
                                             </tr>
                                             <tr>
                                                 <td style="padding-bottom: 30px; padding-left: 20px; padding-right: 20px;" align="center" valign="top" class="subTitle">
-                                                    <h4 class="text" style="color:#999;font-family:Poppins,Helvetica,Arial,sans-serif;font-size:16px;font-weight:500;font-style:normal;letter-spacing:normal;line-height:24px;text-transform:none;text-align:center;padding:0;margin:0">${body}</h4>
+                                                    <h4 class="text" style="color:#999;font-family:Poppins,Helvetica,Arial,sans-serif;font-size:16px;font-weight:500;font-style:normal;letter-spacing:normal;line-height:24px;text-transform:none;text-align:left;padding:0;margin:0">${body}</h4>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -128,7 +128,7 @@ const templateEmail = (subject, body) => {
                                             </tr>
                                             <tr>
                                                 <td style="padding: 0px 10px 20px;" align="center" valign="top" class="footerLinks">
-                                                    <p class="text" style="color:#bbb;font-family:'Open Sans',Helvetica,Arial,sans-serif;font-size:12px;font-weight:400;font-style:normal;letter-spacing:normal;line-height:20px;text-transform:none;text-align:center;padding:0;margin:0"><a href="https://wingudigital.com" target="_blank">
+                                                    <p class="text" style="color:#bbb;font-family:'Open Sans',Helvetica,Arial,sans-serif;font-size:12px;font-weight:400;font-style:normal;letter-spacing:normal;line-height:20px;text-transform:none;text-align:center;padding:0;margin:0;flex-direction:row;justify-content:center;"><a href="https://wingudigital.com" target="_blank">
         <img src="https://foodtruck.express/wp-content/uploads/2024/01/wingu-google-app-logo.png" alt="Wingudigital" width="30" height="30">
     </a></br><a href="https://foodtruck.express/privacy-policy/" style="color:#bbb;text-decoration:underline" target="_blank">Privacy Policy</a>
                                                     </p>

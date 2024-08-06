@@ -39,16 +39,16 @@ const stripe = new stripe_1.default('sk_test_51HGpOPE84s4AdL4O3gsrsEu4BXpPqDpWvl
 const apiIndex = (req, res) => __awaiter(void 0, void 0, void 0, function* () { return (0, utility_1.successResponse)(res, 'API Working!'); });
 exports.apiIndex = apiIndex;
 const createLocation = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let { Lan, Log, online, type } = req.body;
+    let { Lan, Log, online } = req.body;
     let { id } = req.user;
-    console.log(id);
+    const user = yield Users_1.Users.findOne({ where: { id } });
     const lanlog = yield LanLog_1.LanLog.findOne({ where: { userId: id } });
     if (lanlog) {
-        yield lanlog.update({ Lan, Log });
+        yield lanlog.update({ Lan, Log, type: user === null || user === void 0 ? void 0 : user.type });
         return res.status(200).send({ message: "Created Successfully", status: true });
     }
     else {
-        const location = yield LanLog_1.LanLog.create({ Lan, Log, online, userId: id, type });
+        const location = yield LanLog_1.LanLog.create({ Lan, Log, online, userId: id, type: user === null || user === void 0 ? void 0 : user.type });
         return res.status(200).send({ message: "Created Successfully", status: true });
     }
 });
