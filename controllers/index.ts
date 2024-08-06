@@ -45,10 +45,10 @@ export const createLocation = async (req: Request, res: Response) => {
     const user = await Users.findOne({ where: { id } })
     const lanlog = await LanLog.findOne({ where: { userId: id } })
     if (lanlog) {
-        await lanlog.update({ Lan, Log, type: user?.type.toUpperCase() })
+        await lanlog.update({ Lan, Log, type: user?.type})
         return res.status(200).send({ message: "Created Successfully", status: true })
     } else {
-        const location = await LanLog.create({ Lan, Log, online, userId: id, type: user?.type.toUpperCase() })
+        const location = await LanLog.create({ Lan, Log, online, userId: id, type: user?.type })
         return res.status(200).send({ message: "Created Successfully", status: true })
     }
 }
