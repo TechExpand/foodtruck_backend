@@ -40,15 +40,15 @@ export const apiIndex = async (req: Request, res: Response) => successResponse(r
 
 
 export const createLocation = async (req: Request, res: Response) => {
-    let { Lan, Log, online, type } = req.body;
+    let { Lan, Log, online } = req.body;
     let { id } = req.user;
-    console.log(id)
+    const user = await Users.findOne({ where: { id } })
     const lanlog = await LanLog.findOne({ where: { userId: id } })
     if (lanlog) {
-        await lanlog.update({ Lan, Log })
+        await lanlog.update({ Lan, Log, type: user?.type.toUpperCase() })
         return res.status(200).send({ message: "Created Successfully", status: true })
     } else {
-        const location = await LanLog.create({ Lan, Log, online, userId: id, type })
+        const location = await LanLog.create({ Lan, Log, online, userId: id, type: user?.type.toUpperCase() })
         return res.status(200).send({ message: "Created Successfully", status: true })
     }
 }
