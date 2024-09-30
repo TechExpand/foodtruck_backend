@@ -140,7 +140,7 @@ const search = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let vendor = [];
     for (let vendorValue of vendors) {
         const distance = (0, utility_1.getDistanceFromLatLonInKm)(Number(vendorValue.dataValues.lanlog.dataValues.Lan), Number(vendorValue.dataValues.lanlog.dataValues.Log), Number(lan), Number(log));
-        if (distance <= Number(500)) {
+        if (distance <= Number(15)) {
             if (vendorValue.dataValues.user.dataValues.type == Users_1.UserType.VENDOR) {
                 vendor.push(vendorValue.dataValues);
             }
