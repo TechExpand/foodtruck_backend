@@ -55,6 +55,8 @@ const getConfig = () => {
             '/foodtruck/get-home-details',
             '/foodtruck/currentvendorslanlog',
             '/foodtruck/locationprofile',
+            '/foodtruck/locationevent',
+            '/foodtruck/locationmenu',
             "/foodtruck/email/",
             "/foodtruck/users/validate/",
             '/foodtruck/verify-otp',
