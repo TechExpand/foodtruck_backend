@@ -1,6 +1,6 @@
 // Import packages
 import { Router } from 'express';
-import { apiIndex, cancelSubscription, createEvent, createMenu, createSubscription, deleteMenu, fetchRate, getAllTags, getFirstFiveEvents, getFirstFivePorpular, getHomeDetails, getLanLog, getMenu, getProfile, getSubscription, getTags, getUser, getVendorEvent, getVendorProfile, onlineLanlogUser, onlineLanlogVendors, rateProfile, sendTestEmailCon, updateEvent, updateLanLog, updateMenu, updateProfile, updateToken, vendorEvent, vendorMenu } from '../controllers';
+import { apiIndex, cancelSubscription, createEvent, createMenu, createSubscription, deleteMenu, deleteUser, fetchRate, getAllTags, getFirstFiveEvents, getFirstFivePorpular, getHomeDetails, getLanLog, getMenu, getProfile, getSubscription, getTags, getUser, getVendorEvent, getVendorProfile, onlineLanlogUser, onlineLanlogVendors, rateProfile, sendTestEmailCon, updateEvent, updateLanLog, updateMenu, updateProfile, updateToken, vendorEvent, vendorMenu } from '../controllers';
 import { uploads } from '../helpers/upload';
 import { deleteFavourite, getFavourite, getOrder, getp, notifyOrder, postFavourite, postOrder, search } from '../controllers/favourite';
 
@@ -17,9 +17,9 @@ routes.get('/createsubscription', createSubscription);
 routes.get('/currentvendorslanlog', onlineLanlogVendors);
 routes.get('/currentuserlanlog', onlineLanlogUser);
 routes.get('/user', getUser);
+routes.delete('/user', deleteUser);
 routes.get('/alltags', getAllTags);
 routes.get('/profile', getVendorProfile);
-// routes.get('/email', register2);
 routes.put('/profile', uploads.single("pro_pic"), updateProfile)
 routes.get('/locationprofile', getProfile);
 routes.get('/locationmenu', vendorMenu);

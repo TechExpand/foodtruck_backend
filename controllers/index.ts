@@ -259,7 +259,7 @@ export const onlineLanlogVendors = async (req: Request, res: Response) => {
         );
         // 500
 
-        if (distance <= Number(500)) {
+        if (distance <= Number(15)) {
             if (vendor.dataValues.user.dataValues.type == UserType.VENDOR) {
                 distance_list.push({
                     ...vendor.dataValues,
@@ -312,7 +312,7 @@ export const onlineLanlogUser = async (req: Request, res: Response) => {
                 );
 
 
-                if (distance <= Number(500)) {
+                if (distance <= Number(15)) {
 
                     if (user.dataValues.user.dataValues.type == UserType.USER) {
 
@@ -423,6 +423,30 @@ export const getUser = async (req: Request, res: Response) => {
         message: "Fetched Successfully", user
     })
 }
+
+
+
+
+export const deleteUser = async (req: Request, res: Response) => {
+    const { id } = req.user
+    const user = await Users.findOne({
+        where: { id }
+    });
+    const profile = await Profile.findOne({
+        where: { userId: user?.id }
+    });
+    if(profile){
+        await profile.destroy()
+        await user.destroy()
+    }else{
+        await user.destroy()
+    }
+    return res.status(200).send({
+        message: "Fetched Successfully"
+    })
+}
+
+
 
 
 
