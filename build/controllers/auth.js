@@ -48,7 +48,7 @@ const verifyOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             const verifyEmailResult = yield Verify_1.Verify.findOne({ where: { id: verifyEmail.id } });
             yield (verifyEmailResult === null || verifyEmailResult === void 0 ? void 0 : verifyEmailResult.destroy());
             const user = yield Users_1.Users.findOne({ where: { email: verifyEmail.client.toString() } });
-            yield (0, sms_1.sendEmailResend)(verifyEmail.client.toString(), "'Welcome to Foodtruck.Express'", (user === null || user === void 0 ? void 0 : user.type) == Users_1.UserType.USER ? (0, template_1.templateEmail)('Welcome to Foodtruck.Express', `Welcome aboard the FoodTruck Express community! 🎉<br><br>
+            yield (0, sms_1.sendEmailResend)(verifyEmail.client.toString(), "'Welcome to Foodtruck.Express'", (user === null || user === void 0 ? void 0 : user.type) === Users_1.UserType.USER ? (0, template_1.templateEmail)('Welcome to Foodtruck.Express', `Welcome aboard the FoodTruck Express community! 🎉<br><br>
           
           
           Your account has been successfully created, and you are now part of a vibrant community.<br><br>
