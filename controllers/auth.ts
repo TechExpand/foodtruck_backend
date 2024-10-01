@@ -9,6 +9,7 @@ const saltRounds = 10;
 import { compare, hash } from "bcryptjs";
 import { sign } from "jsonwebtoken";
 import { templateEmail } from "../config/template";
+import { Profile } from "../models/Profile";
 const nodemailer = require("nodemailer")
 // import { Professional } from "../models/Professional";
 
@@ -52,8 +53,9 @@ export const verifyOtp = async (req: Request, res: Response) => {
       const verifyEmailResult = await Verify.findOne({ where: { id: verifyEmail.id } })
       await verifyEmailResult?.destroy()
       const user = await Users.findOne({ where: { email: verifyEmail.client!.toString() } })
-      await sendEmailResend(verifyEmail.client!.toString(), `Welcome to Foodtruck.Express ${user?.type}`,
-        user?.type === UserType.USER ?
+      const profile = await Profile.findOne({ where: { userId: user?.id } })
+      await sendEmailResend(verifyEmail.client!.toString(), `Welcome to Foodtruck.Express`,
+        !profile ?
          templateEmail('Welcome to Foodtruck.Express',
           `Welcome aboard the FoodTruck Express community! 🎉<br><br>
           

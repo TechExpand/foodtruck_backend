@@ -19,6 +19,7 @@ const saltRounds = 10;
 const bcryptjs_1 = require("bcryptjs");
 const jsonwebtoken_1 = require("jsonwebtoken");
 const template_1 = require("../config/template");
+const Profile_1 = require("../models/Profile");
 const nodemailer = require("nodemailer");
 // import { Professional } from "../models/Professional";
 const sendOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -48,7 +49,8 @@ const verifyOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             const verifyEmailResult = yield Verify_1.Verify.findOne({ where: { id: verifyEmail.id } });
             yield (verifyEmailResult === null || verifyEmailResult === void 0 ? void 0 : verifyEmailResult.destroy());
             const user = yield Users_1.Users.findOne({ where: { email: verifyEmail.client.toString() } });
-            yield (0, sms_1.sendEmailResend)(verifyEmail.client.toString(), `Welcome to Foodtruck.Express ${user === null || user === void 0 ? void 0 : user.type}`, (user === null || user === void 0 ? void 0 : user.type) === Users_1.UserType.USER ?
+            const profile = yield Profile_1.Profile.findOne({ where: { userId: user === null || user === void 0 ? void 0 : user.id } });
+            yield (0, sms_1.sendEmailResend)(verifyEmail.client.toString(), `Welcome to Foodtruck.Express`, !profile ?
                 (0, template_1.templateEmail)('Welcome to Foodtruck.Express', `Welcome aboard the FoodTruck Express community! 🎉<br><br>
           
           
