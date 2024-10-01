@@ -53,9 +53,9 @@ export const verifyOtp = async (req: Request, res: Response) => {
       const verifyEmailResult = await Verify.findOne({ where: { id: verifyEmail.id } })
       await verifyEmailResult?.destroy()
       const user = await Users.findOne({ where: { email: verifyEmail.client!.toString() } })
-      const profile = await Profile.findOne({ where: { userId: user!.id } })
-      if(profile){
-        await sendEmailResend(verifyEmail.client!.toString(), `Welcome to Foodtruck.Express`,
+     
+      if(user?.dataValues.type === UserType.USER){
+        await sendEmailResend(verifyEmail.client!.toString(), `${user?.dataValues.type} Welcome to Foodtruck.Express`,
          
         templateEmail('Welcome to Foodtruck.Express',
             `Welcome aboard the FoodTruck Express community! 🎉<br><br>
