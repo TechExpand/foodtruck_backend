@@ -48,6 +48,10 @@ const verifyOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             const verifyEmailResult = yield Verify_1.Verify.findOne({ where: { id: verifyEmail.id } });
             yield (verifyEmailResult === null || verifyEmailResult === void 0 ? void 0 : verifyEmailResult.destroy());
             const user = yield Users_1.Users.findOne({ where: { email: verifyEmail.client.toString() } });
+            console.log("Printing");
+            console.log(user.type);
+            console.log(user.type);
+            console.log((user === null || user === void 0 ? void 0 : user.dataValues.type) === Users_1.UserType.USER);
             if ((user === null || user === void 0 ? void 0 : user.dataValues.type) === Users_1.UserType.USER) {
                 yield (0, sms_1.sendEmailResend)(verifyEmail.client.toString(), `${user === null || user === void 0 ? void 0 : user.dataValues.type} Welcome to Foodtruck.Express`, (0, template_1.templateEmail)('Welcome to Foodtruck.Express', `Welcome aboard the FoodTruck Express community! 🎉<br><br>
 
