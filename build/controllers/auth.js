@@ -49,35 +49,9 @@ const verifyOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             const verifyEmailResult = yield Verify_1.Verify.findOne({ where: { id: verifyEmail.id } });
             yield (verifyEmailResult === null || verifyEmailResult === void 0 ? void 0 : verifyEmailResult.destroy());
             const user = yield Users_1.Users.findOne({ where: { email: verifyEmail.client.toString() } });
-            const profile = yield Profile_1.Profile.findOne({ where: { userId: user === null || user === void 0 ? void 0 : user.id } });
-            yield (0, sms_1.sendEmailResend)(verifyEmail.client.toString(), `Welcome to Foodtruck.Express`, !profile ?
-                (0, template_1.templateEmail)('Welcome to Foodtruck.Express', `Welcome aboard the FoodTruck Express community! 🎉<br><br>
-          
-          
-          Your account has been successfully created, and you are now part of a vibrant community.<br><br>
-          
-          
-          We’re thrilled to have you join us on this exciting culinary adventure. Get ready to discover, order, and savor the best food truck experiences in your city!<br><br>
-          
-          
-          Here's a quick guide to kickstart your FoodTruck.Express journey:<br>
-          🚚 Locate & Love: Use our app to find your favorite food trucks on the move. Whether you’re craving tacos, pizza, or something exotic, we’ve got you covered.<br>
-          
-          🌮 Share the Love: Have a fantastic experience? Share the FoodTruck Express love with friends and family. The more, the merrier!<br>
-          
-          🎉 Exclusive Updates: Stay in the loop! Receive updates on citywide food truck events and exclusive offers. Don’t miss out on any flavor-filled festivities.<br>
-          
-          Feel free to explore, share, and let us know how we can make your FoodTruck Express experience even better. Your feedback matters!<br><br>
-          
-          
-          Happy exploring and happy eating!<br><br>
-          
-          
-          Best, The FoodTruck Express Team 🍔🍕🌯<br><br>
-          
-          
-          P.S. Spread the word! Tell your friends about FoodTruck Express and let’s build a community of foodies together. Sharing is caring!<br>`) :
-                (0, template_1.templateEmail)('Welcome to Foodtruck.Express', `Welcome aboard the FoodTruck Express community! 🎉<br><br>
+            const profile = yield Profile_1.Profile.findOne({ where: { userId: user.id } });
+            if (profile) {
+                yield (0, sms_1.sendEmailResend)(verifyEmail.client.toString(), `Welcome to Foodtruck.Express`, (0, template_1.templateEmail)('Welcome to Foodtruck.Express', `Welcome aboard the FoodTruck Express community! 🎉<br><br>
 
 
        Your account has been successfully created, and you are now part of a vibrant community.<br>
@@ -106,6 +80,35 @@ const verifyOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
        
        
         Best, The Foodtruck.Express Team<br><br>`));
+            }
+            else {
+                yield (0, sms_1.sendEmailResend)(verifyEmail.client.toString(), `Welcome to Foodtruck.Express`, (0, template_1.templateEmail)('Welcome to Foodtruck.Express', `Welcome aboard the FoodTruck Express community! 🎉<br><br>
+          
+          
+          Your account has been successfully created, and you are now part of a vibrant community.<br><br>
+          
+          
+          We’re thrilled to have you join us on this exciting culinary adventure. Get ready to discover, order, and savor the best food truck experiences in your city!<br><br>
+          
+          
+          Here's a quick guide to kickstart your FoodTruck.Express journey:<br>
+          🚚 Locate & Love: Use our app to find your favorite food trucks on the move. Whether you’re craving tacos, pizza, or something exotic, we’ve got you covered.<br>
+          
+          🌮 Share the Love: Have a fantastic experience? Share the FoodTruck Express love with friends and family. The more, the merrier!<br>
+          
+          🎉 Exclusive Updates: Stay in the loop! Receive updates on citywide food truck events and exclusive offers. Don’t miss out on any flavor-filled festivities.<br>
+          
+          Feel free to explore, share, and let us know how we can make your FoodTruck Express experience even better. Your feedback matters!<br><br>
+          
+          
+          Happy exploring and happy eating!<br><br>
+          
+          
+          Best, The FoodTruck Express Team 🍔🍕🌯<br><br>
+          
+          
+          P.S. Spread the word! Tell your friends about FoodTruck Express and let’s build a community of foodies together. Sharing is caring!<br>`));
+            }
             return (0, utility_1.successResponse)(res, "Successful", {
                 message: "successful",
                 status: true
