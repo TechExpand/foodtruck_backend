@@ -2,7 +2,6 @@ import { createRandomRef, errorResponse, randomId, successResponse, validateEmai
 import { Request, Response } from 'express';
 import { VerificationType, Verify } from "../models/Verify";
 import { sendEmailResend, sendSMS } from "../services/sms";
-import { Op, where } from "sequelize";
 import { UserType, Users } from "../models/Users";
 const TOKEN_SECRET = "222hwhdhnnjduru838272@@$henncndbdhsjj333n33brnfn";
 const saltRounds = 10;
@@ -19,6 +18,7 @@ export const sendOtp = async (req: Request, res: Response) => {
   const { email } = req.body;
   const serviceId = randomId(12);
   const codeEmail = String(Math.floor(1000 + Math.random() * 9000));
+  console.log(codeEmail)
   console.log(codeEmail)
 
   await Verify.create({
@@ -37,7 +37,7 @@ export const sendOtp = async (req: Request, res: Response) => {
 
 
 export const verifyOtp = async (req: Request, res: Response) => {
-  const { serviceId, emailCode } = req.body;
+  const { serviceId, emailCode, type } = req.body;
 
 
   const verifyEmail = await Verify.findOne({
@@ -53,12 +53,8 @@ export const verifyOtp = async (req: Request, res: Response) => {
       const verifyEmailResult = await Verify.findOne({ where: { id: verifyEmail.id } })
       await verifyEmailResult?.destroy()
       const user = await Users.findOne({ where: { email: verifyEmail.client!.toString() } })
-     console.log("Printing")
-     console.log(user!.type)
-     console.log(user!.type)
-     console.log(user?.dataValues.type === UserType.USER)
-      if(user?.dataValues.type === UserType.USER){
-        await sendEmailResend(verifyEmail.client!.toString(), `${user?.dataValues.type} Welcome to Foodtruck.Express`,
+      if(type === UserType.USER){
+        await sendEmailResend(verifyEmail.client!.toString(), `Welcome to Foodtruck.Express`,
          
         templateEmail('Welcome to Foodtruck.Express',
             `Welcome aboard the FoodTruck Express community! 🎉<br><br>
@@ -179,6 +175,7 @@ export const validateReg = async (req: Request, res: Response) => {
     client: email,
     secret_key: createRandomRef(12, "foodtruck",),
   })
+  console.log(codeEmail)
   const emailResult = await sendEmailResend(email, "Foodtruck otp code", templateEmail("OTP CODE", codeEmail.toString()));
   // return successResponse(res, "Successful", { serviceId })
   return res.status(200).send({ message: true, serviceId })
