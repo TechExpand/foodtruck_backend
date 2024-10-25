@@ -8,7 +8,7 @@ import { Profile } from "../models/Profile";
 
 
 import Stripe from 'stripe';
-import { config } from "dotenv";
+import config  from "../config/configSetup";
 import { UserType, Users } from "../models/Users";
 import { Menu } from "../models/Menus";
 import { Events } from "../models/Event";
@@ -25,8 +25,9 @@ import { sendEmailResend, sendTestEmail } from "../services/sms";
 import { templateEmail } from "../config/template";
 import { sendToken } from "../services/notification";
 import { Rating } from "../models/Rate";
+
 const cloudinary = require("cloudinary").v2;
-const stripe = new Stripe('sk_test_51HGpOPE84s4AdL4O3gsrsEu4BXpPqDpWvlRAwPA30reXQ6UKhOzlUluJaYKiDDh6g9A0xYJbeCh9rM0RnlQov2lW00ZyOHxrx1', {
+const stripe = new Stripe(config.STRIPE_SK, {
     apiVersion: '2023-08-16',
 });
 
@@ -132,11 +133,12 @@ export const createSubscription = async (req: Request, res: Response) => {
                 default_payment_method: paymentMethod,
             }
         })
+        console.log(customer.id)
         const subscription = await stripe.subscriptions.create({
             customer: String(customer.id),
             items: [
                 {
-                    'price': 'price_1HHR0XE84s4AdL4OfNPppTRM',
+                    'price': config.PRICE_ID,
                     'quantity': 1,
                 },
             ],
@@ -174,7 +176,11 @@ export const createSubscription = async (req: Request, res: Response) => {
         }
 
     } catch (e) {
-        console.log(e)
+        console.log(e.message)
+        return res.status(400).send({
+            message: e.message,
+            status: false
+        })
     }
 }
 

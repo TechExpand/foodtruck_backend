@@ -20,6 +20,7 @@ const Profile_1 = require("../models/Profile");
 const stripe_1 = __importDefault(require("stripe"));
 const Users_1 = require("../models/Users");
 const Menus_1 = require("../models/Menus");
+const configSetup_1 = __importDefault(require("../config/configSetup"));
 const Favourite_1 = require("../models/Favourite");
 const sequelize_1 = require("sequelize");
 const Order_1 = require("../models/Order");
@@ -27,14 +28,14 @@ const notification_1 = require("../services/notification");
 const sms_1 = require("../services/sms");
 const template_1 = require("../config/template");
 const cloudinary = require("cloudinary").v2;
-const stripe = new stripe_1.default('sk_test_51HGpOPE84s4AdL4O3gsrsEu4BXpPqDpWvlRAwPA30reXQ6UKhOzlUluJaYKiDDh6g9A0xYJbeCh9rM0RnlQov2lW00ZyOHxrx1', {
+const stripe = new stripe_1.default(configSetup_1.default.STRIPE_SK, {
     apiVersion: '2023-08-16',
 });
 const getFavourite = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const favourite = yield Favourite_1.Favourite.findAll({
         include: [
             { model: Profile_1.Profile, include: [{ model: LanLog_1.LanLog }] },
-            { model: Users_1.Users },
+            { model: Users_1.Users, },
         ]
     });
     return res.status(200).send({ message: "Fetched Successfully", favourite });

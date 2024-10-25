@@ -7,12 +7,12 @@ import { Profile } from "../models/Profile";
 
 
 import Stripe from 'stripe';
-import { config } from "dotenv";
 import { UserType, Users } from "../models/Users";
 import { Menu } from "../models/Menus";
 import { Events } from "../models/Event";
 import { PopularVendor } from "../models/Popular";
 import { Tag } from "../models/Tag";
+import config from '../config/configSetup';
 import { HomeTag } from "../models/HomeTag";
 import { Favourite } from "../models/Favourite";
 import { Op, where } from "sequelize";
@@ -20,8 +20,10 @@ import { Order } from "../models/Order";
 import { sendToken } from "../services/notification";
 import { sendEmailResend } from "../services/sms";
 import { templateEmail } from "../config/template";
+
+
 const cloudinary = require("cloudinary").v2;
-const stripe = new Stripe('sk_test_51HGpOPE84s4AdL4O3gsrsEu4BXpPqDpWvlRAwPA30reXQ6UKhOzlUluJaYKiDDh6g9A0xYJbeCh9rM0RnlQov2lW00ZyOHxrx1', {
+const stripe = new Stripe(config.STRIPE_SK, {
     apiVersion: '2023-08-16',
 });
 
@@ -32,7 +34,7 @@ export const getFavourite = async (req: Request, res: Response) => {
     const favourite = await Favourite.findAll({
         include: [
             { model: Profile, include: [{ model: LanLog }] },
-            { model: Users },
+            { model: Users ,},
         ]
     });
     return res.status(200).send({ message: "Fetched Successfully", favourite })

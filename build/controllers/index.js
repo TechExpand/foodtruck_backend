@@ -18,6 +18,7 @@ const utility_1 = require("../helpers/utility");
 const LanLog_1 = require("../models/LanLog");
 const Profile_1 = require("../models/Profile");
 const stripe_1 = __importDefault(require("stripe"));
+const configSetup_1 = __importDefault(require("../config/configSetup"));
 const Users_1 = require("../models/Users");
 const Menus_1 = require("../models/Menus");
 const Event_1 = require("../models/Event");
@@ -33,7 +34,7 @@ const template_1 = require("../config/template");
 const notification_1 = require("../services/notification");
 const Rate_1 = require("../models/Rate");
 const cloudinary = require("cloudinary").v2;
-const stripe = new stripe_1.default('sk_test_51HGpOPE84s4AdL4O3gsrsEu4BXpPqDpWvlRAwPA30reXQ6UKhOzlUluJaYKiDDh6g9A0xYJbeCh9rM0RnlQov2lW00ZyOHxrx1', {
+const stripe = new stripe_1.default(configSetup_1.default.STRIPE_SK, {
     apiVersion: '2023-08-16',
 });
 const apiIndex = (req, res) => __awaiter(void 0, void 0, void 0, function* () { return (0, utility_1.successResponse)(res, 'API Working!'); });
@@ -122,11 +123,12 @@ const createSubscription = (req, res) => __awaiter(void 0, void 0, void 0, funct
                 default_payment_method: paymentMethod,
             }
         });
+        console.log(customer.id);
         const subscription = yield stripe.subscriptions.create({
             customer: String(customer.id),
             items: [
                 {
-                    'price': 'price_1HHR0XE84s4AdL4OfNPppTRM',
+                    'price': configSetup_1.default.PRICE_ID,
                     'quantity': 1,
                 },
             ],
@@ -165,7 +167,11 @@ const createSubscription = (req, res) => __awaiter(void 0, void 0, void 0, funct
         }
     }
     catch (e) {
-        console.log(e);
+        console.log(e.message);
+        return res.status(400).send({
+            message: e.message,
+            status: false
+        });
     }
 });
 exports.createSubscription = createSubscription;

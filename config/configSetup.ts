@@ -23,6 +23,8 @@ type Config = {
 	BASE_API_URL: string | undefined;
 	REDIS_INSTANCE_URL: string | undefined;
 	PUBLIC_ROUTES: string[] | [];
+	STRIPE_SK: string | undefined;
+	PRICE_ID: string | undefined;
 	BUSINESS_PUBLIC_ROUTES: string[] | [];
 };
 
@@ -34,6 +36,7 @@ const getConfig = (): Config => {
 		JWTSECRET: process.env.JWTSECRET,
 		JWT_EXPIRY_TIME: process.env.JWT_EXPIRY_TIME,
 		DBNAME: process.env.DBNAME,
+		STRIPE_SK: process.env.STRIPE_SK,
 		DBUSERNAME: process.env.DBUSERNAME,
 		DBPASSWORD: process.env.DBPASSWORD,
 		DBHOST: process.env.DBHOST,
@@ -41,6 +44,7 @@ const getConfig = (): Config => {
 		RESEND: process.env.RESEND,
 		DBDIALECT: process.env.DBDIALECT,
 		MAIL_FROM: process.env.MAIL_FROM,
+		PRICE_ID: process.env.PRICE_ID,
 		SUPPORT_MAIL: process.env.SUPPORT_MAIL,
 		SUPPORT_PHONE: process.env.SUPPORT_PHONE,
 		MAIL_FROM_NAME: process.env.MAIL_FROM_NAME,
