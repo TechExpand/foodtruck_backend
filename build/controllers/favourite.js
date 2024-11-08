@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.search = exports.deleteFavourite = exports.getp = exports.postOrderV2 = exports.postOrder = exports.postFavourite = exports.notifyOrder = exports.getOrderV2 = exports.getOrder = exports.getFavourite = void 0;
+exports.search = exports.deleteFavourite = exports.getp = exports.postOrderV2 = exports.postOrder = exports.postFavourite = exports.notifyOrderV2 = exports.notifyOrder = exports.getOrderV2 = exports.getOrder = exports.getFavourite = void 0;
 const utility_1 = require("../helpers/utility");
 const LanLog_1 = require("../models/LanLog");
 const Profile_1 = require("../models/Profile");
@@ -95,6 +95,32 @@ const notifyOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.notifyOrder = notifyOrder;
+const notifyOrderV2 = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { status, orderid } = req.query;
+    const order = yield OrderV2_1.OrderV2.findOne({
+        where: { id: orderid },
+        include: [
+            { model: Profile_1.Profile },
+            //     { model: Menu },
+            { model: Users_1.Users },
+        ]
+    });
+    const userData = yield Users_1.Users.findOne({ where: { id: order === null || order === void 0 ? void 0 : order.userId } });
+    if (!order)
+        return res.status(200).send({ message: "Not Found", order });
+    if (status == "PENDING") {
+        yield order.update({ status: "COMPLETED" });
+        yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `YOUR ORDER IS READY FOR PICKUP`.toUpperCase(), `pick up your meal at ${order.profile.dataValues.business_name}`);
+        yield (0, sms_1.sendEmailResend)(`${userData === null || userData === void 0 ? void 0 : userData.email}`, `YOUR ORDER IS READY FOR PICKUP`.toUpperCase(), (0, template_1.templateEmail)(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`));
+        return res.status(200).send({ message: "Fetched Successfully", order });
+    }
+    else {
+        yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `REMINDER: YOUR ORDER IS READY FOR PICKUP`.toUpperCase(), `pick up your meal at ${order.profile.dataValues.business_name}`);
+        yield (0, sms_1.sendEmailResend)(`${userData.email}`, `REMINDER: YOUR ORDER IS READY FOR PICKUP`.toUpperCase(), (0, template_1.templateEmail)(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`));
+        return res.status(200).send({ message: "Fetched Successfully", order });
+    }
+});
+exports.notifyOrderV2 = notifyOrderV2;
 const postFavourite = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let { profileId } = req.body;
     let { id } = req.user;
@@ -122,7 +148,7 @@ const postOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.postOrder = postOrder;
 const postOrderV2 = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { profileId, menus } = req.body;
+    const { profileId, menus, phone } = req.body;
     const { id } = req.user;
     if (!menus) {
         menus = [{
@@ -131,7 +157,7 @@ const postOrderV2 = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             }];
     }
     const tempMenu = [];
-    const order = yield OrderV2_1.OrderV2.create({ profileId: profileId, userId: id });
+    const order = yield OrderV2_1.OrderV2.create({ profileId: profileId, userId: id, phone });
     for (var value of menus) {
         tempMenu.push(Object.assign({ userId: id, order: order.id }, value));
     }

@@ -30,6 +30,12 @@ __decorate([
     __metadata("design:type", Object)
 ], CartProduct.prototype, "extras", void 0);
 __decorate([
+    (0, sequelize_typescript_1.Default)(1),
+    (0, sequelize_typescript_1.AllowNull)(false),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
+    __metadata("design:type", Number)
+], CartProduct.prototype, "quantity", void 0);
+__decorate([
     (0, sequelize_typescript_1.ForeignKey)(() => Menus_1.Menu),
     (0, sequelize_typescript_1.AllowNull)(false),
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.INTEGER),
