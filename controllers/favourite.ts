@@ -20,6 +20,8 @@ import { Order } from "../models/Order";
 import { sendToken } from "../services/notification";
 import { sendEmailResend } from "../services/sms";
 import { templateEmail } from "../config/template";
+import { CartProduct } from "../models/CartProduct";
+import { OrderV2 } from "../models/OrderV2";
 
 
 const cloudinary = require("cloudinary").v2;
@@ -57,6 +59,22 @@ export const getOrder = async (req: Request, res: Response) => {
 
 
 
+export const getOrderV2 = async (req: Request, res: Response) => {
+    const { id } = req.user;
+    const order = await OrderV2.findAll({
+        where: { userId: id },
+        include: [
+            { model: Profile, include: [{ model: LanLog }] },
+            { model: Users },
+            { model: CartProduct , include: [{model: Menu}]},
+        ]
+    });
+    return res.status(200).send({ message: "Fetched Successfully", order })
+}
+
+
+
+
 export const notifyOrder = async (req: Request, res: Response) => {
     const { status, orderid } = req.query;
 
@@ -85,6 +103,44 @@ export const notifyOrder = async (req: Request, res: Response) => {
         );
         await sendEmailResend(`${userData.email}`,
             `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
+            templateEmail(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`)
+        )
+        return res.status(200).send({ message: "Fetched Successfully", order })
+    }
+
+}
+
+
+
+
+export const notifyOrderV2 = async (req: Request, res: Response) => {
+    const { status, orderid } = req.query;
+
+    const order = await OrderV2.findOne({
+        where: { id: orderid },
+        include: [
+            { model: Profile },
+        //     { model: Menu },
+            { model: Users },]
+    });
+    const userData = await Users.findOne({ where: { id: order?.userId } })
+    if (!order) return res.status(200).send({ message: "Not Found", order })
+    if (status == "PENDING") {
+        await order.update({ status: "COMPLETED" })
+        await sendToken(userData?.id, `YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
+            `pick up your meal at ${order.profile.dataValues.business_name}`
+        );
+        await sendEmailResend(`${userData?.email}`,
+            `YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
+            templateEmail(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`)
+        )
+        return res.status(200).send({ message: "Fetched Successfully", order })
+    } else {
+        await sendToken(userData?.id, `REMINDER: YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
+            `pick up your meal at ${order.profile.dataValues.business_name}`
+        );
+        await sendEmailResend(`${userData.email}`,
+            `REMINDER: YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
             templateEmail(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`)
         )
         return res.status(200).send({ message: "Fetched Successfully", order })
@@ -130,6 +186,40 @@ export const postOrder = async (req: Request, res: Response) => {
         "Foodtruck.express".toUpperCase(),
         templateEmail(`${user?.email}`, "You have recieved an order, please process the pending order."))
     const order = await Order.create({ profileId: profileId, userId: id, menuId, extras: extras })
+    return res.status(200).send({ message: "Order Added Successfully", order, status: true })
+}
+
+
+
+export const postOrderV2 = async (req: Request, res: Response) => {
+    const { profileId, menus, phone } = req.body;
+    const { id } = req.user;
+
+    if(!menus){
+        menus = [{
+            menuId: 1,
+            extras:[{name: 'ketchup', price: 100}]
+        }]
+    }
+    const tempMenu:any[] = []
+    const order = await OrderV2.create({ profileId: profileId, userId: id, phone})
+    for(var value of menus){
+        tempMenu.push({
+            userId: id,
+            order: order.id,
+            ...value
+        })
+    }
+    await CartProduct.bulkCreate(tempMenu)
+    const profile = await Profile.findOne({ where: { id: profileId } })
+    const user = await Users.findOne({ where: { id: profile?.userId } })
+    sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
+        "You have recieved an order, please process the pending order."
+    );
+    sendEmailResend(`${user?.email}`,
+        "Foodtruck.express".toUpperCase(),
+        templateEmail(`${user?.email}`, "You have recieved an order, please process the pending order."))
+        
     return res.status(200).send({ message: "Order Added Successfully", order, status: true })
 }
 

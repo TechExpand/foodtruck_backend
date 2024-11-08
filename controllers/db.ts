@@ -19,6 +19,8 @@ import { AllTag } from '../models/Alltags';
 import { Order } from '../models/Order';
 import { Extra } from '../models/Extras';
 import { Rating } from '../models/Rate';
+import { CartProduct } from '../models/CartProduct';
+import { OrderV2 } from '../models/OrderV2';
 // import { Sector } from '../models/Sector';
 
 
@@ -39,7 +41,9 @@ const sequelize = new Sequelize(config.DBNAME, config.DBUSERNAME, config.DBPASSW
 		Rating,
 		Favourite,
 		Menu,
+		CartProduct,
 		HomeTag,
+		OrderV2,
 		Extra,
 		Order,
 		PopularVendor,

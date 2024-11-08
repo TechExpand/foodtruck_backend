@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.search = exports.deleteFavourite = exports.getp = exports.postOrder = exports.postFavourite = exports.notifyOrder = exports.getOrder = exports.getFavourite = void 0;
+exports.search = exports.deleteFavourite = exports.getp = exports.postOrderV2 = exports.postOrder = exports.postFavourite = exports.notifyOrder = exports.getOrderV2 = exports.getOrder = exports.getFavourite = void 0;
 const utility_1 = require("../helpers/utility");
 const LanLog_1 = require("../models/LanLog");
 const Profile_1 = require("../models/Profile");
@@ -27,6 +27,8 @@ const Order_1 = require("../models/Order");
 const notification_1 = require("../services/notification");
 const sms_1 = require("../services/sms");
 const template_1 = require("../config/template");
+const CartProduct_1 = require("../models/CartProduct");
+const OrderV2_1 = require("../models/OrderV2");
 const cloudinary = require("cloudinary").v2;
 const stripe = new stripe_1.default(configSetup_1.default.STRIPE_SK, {
     apiVersion: '2023-08-16',
@@ -54,6 +56,19 @@ const getOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     return res.status(200).send({ message: "Fetched Successfully", order });
 });
 exports.getOrder = getOrder;
+const getOrderV2 = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.user;
+    const order = yield OrderV2_1.OrderV2.findAll({
+        where: { userId: id },
+        include: [
+            { model: Profile_1.Profile, include: [{ model: LanLog_1.LanLog }] },
+            { model: Users_1.Users },
+            { model: CartProduct_1.CartProduct, include: [{ model: Menus_1.Menu }] },
+        ]
+    });
+    return res.status(200).send({ message: "Fetched Successfully", order });
+});
+exports.getOrderV2 = getOrderV2;
 const notifyOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { status, orderid } = req.query;
     const order = yield Order_1.Order.findOne({
@@ -106,6 +121,28 @@ const postOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     return res.status(200).send({ message: "Order Added Successfully", order, status: true });
 });
 exports.postOrder = postOrder;
+const postOrderV2 = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { profileId, menus } = req.body;
+    const { id } = req.user;
+    if (!menus) {
+        menus = [{
+                menuId: 1,
+                extras: [{ name: 'ketchup', price: 100 }]
+            }];
+    }
+    const tempMenu = [];
+    const order = yield OrderV2_1.OrderV2.create({ profileId: profileId, userId: id });
+    for (var value of menus) {
+        tempMenu.push(Object.assign({ userId: id, order: order.id }, value));
+    }
+    yield CartProduct_1.CartProduct.bulkCreate(tempMenu);
+    const profile = yield Profile_1.Profile.findOne({ where: { id: profileId } });
+    const user = yield Users_1.Users.findOne({ where: { id: profile === null || profile === void 0 ? void 0 : profile.userId } });
+    (0, notification_1.sendToken)(user === null || user === void 0 ? void 0 : user.id, `Foodtruck.express`.toUpperCase(), "You have recieved an order, please process the pending order.");
+    (0, sms_1.sendEmailResend)(`${user === null || user === void 0 ? void 0 : user.email}`, "Foodtruck.express".toUpperCase(), (0, template_1.templateEmail)(`${user === null || user === void 0 ? void 0 : user.email}`, "You have recieved an order, please process the pending order."));
+    return res.status(200).send({ message: "Order Added Successfully", order, status: true });
+});
+exports.postOrderV2 = postOrderV2;
 const getp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const profile = yield Profile_1.Profile.findAll({});
     return res.status(200).send({ message: "Vendor Added Successfully", profile, status: true });

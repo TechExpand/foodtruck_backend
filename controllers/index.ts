@@ -10,6 +10,7 @@ import { Profile } from "../models/Profile";
 import Stripe from 'stripe';
 import config  from "../config/configSetup";
 import { UserType, Users } from "../models/Users";
+import {CartProduct} from "../models/CartProduct";
 import { Menu } from "../models/Menus";
 import { Events } from "../models/Event";
 import { PopularVendor } from "../models/Popular";
@@ -25,6 +26,7 @@ import { sendEmailResend, sendTestEmail } from "../services/sms";
 import { templateEmail } from "../config/template";
 import { sendToken } from "../services/notification";
 import { Rating } from "../models/Rate";
+import { OrderV2 } from "../models/OrderV2";
 
 const cloudinary = require("cloudinary").v2;
 const stripe = new Stripe(config.STRIPE_SK, {
@@ -466,6 +468,44 @@ export const getAllTags = async (req: Request, res: Response) => {
 }
 
 
+export const getVendorProfileV2 = async (req: Request, res: Response) => {
+    const { id } = req.user
+    const profile = await Profile.findOne({
+        where: { userId: id }, include: [
+            { model: Users },
+            { model: LanLog },
+
+        ],
+    });
+    const menus = await Menu.findAll({
+        where: { userId: id }, include: [
+            { model: Extra }
+        ]
+    })
+
+
+    const events = await Events.findAll({ where: { userId: id } })
+    const order = await OrderV2.findAll({
+        where: { profileId: profile?.id }, 
+        include: [
+            { model: Profile, include: [{ model: LanLog }] },
+            { model: Users },
+            { model: CartProduct , include: [{model: Menu}]},
+        ]
+    })
+    return res.status(200).send({
+        message: "Fetched Successfully", profile: {
+            menus,
+            events,
+            order,
+            profile: profile
+        }
+    })
+
+}
+
+
+
 export const getVendorProfile = async (req: Request, res: Response) => {
     const { id } = req.user
     const profile = await Profile.findOne({
@@ -576,53 +616,57 @@ export const vendorMenu = async (req: Request, res: Response) => {
     const menu = await Menu.findAll({
         where: { userId: id }, include: [{ model: Extra }]
     })
-    stripe.subscriptions.retrieve(user?.subscription_id).then(
-        function (subscription_status) {
-            if (subscription_status.status == 'active' || subscription_status.status == 'trialing') {
 
-                return res.status(200).send({
-                    message: "Fetched Successfully",
-                    menu
-                })
-            } else {
-                console.log("meeeeeeeee")
-                console.log("youuuuuuuu")
-                sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
-                    `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`
-                );
-                sendEmailResend(`${user?.email}`,
-                    "Foodtruck.express".toUpperCase(),
-                    templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`))
-                return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
-            }
-        },
-        function (err) {
-            if (err instanceof Stripe.errors.StripeError) {
-                // Break down err based on err.type
+    //temp code
+    return res.status(200).send({
+        message: "Fetched Successfully",
+        menu
+    })
+    // stripe.subscriptions.retrieve(user?.subscription_id).then(
+    //     function (subscription_status) {
+    //         if (subscription_status.status == 'active' || subscription_status.status == 'trialing') {
 
-                sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
-                    `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`
-                );
-                sendEmailResend(`${user?.email}`,
-                    "Foodtruck.express".toUpperCase(),
-                    templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`))
+    //             return res.status(200).send({
+    //                 message: "Fetched Successfully",
+    //                 menu
+    //             })
+    //         } else {
+    //             sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
+    //                 `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`
+    //             );
+    //             sendEmailResend(`${user?.email}`,
+    //                 "Foodtruck.express".toUpperCase(),
+    //                 templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`))
+    //             return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
+    //         }
+    //     },
+    //     function (err) {
+    //         if (err instanceof Stripe.errors.StripeError) {
+    //             // Break down err based on err.type
 
-                console.log(err.type)
-                return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
-            } else {
+    //             sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
+    //                 `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`
+    //             );
+    //             sendEmailResend(`${user?.email}`,
+    //                 "Foodtruck.express".toUpperCase(),
+    //                 templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`))
 
-                // ...
-                sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
-                    `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`
-                );
-                sendEmailResend(`${user?.email}`,
-                    "Foodtruck.express".toUpperCase(),
-                    templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`))
-                console.log(err)
-                return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
-            }
-        }
-    );
+    //             console.log(err.type)
+    //             return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
+    //         } else {
+
+    //             // ...
+    //             sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
+    //                 `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`
+    //             );
+    //             sendEmailResend(`${user?.email}`,
+    //                 "Foodtruck.express".toUpperCase(),
+    //                 templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`))
+    //             console.log(err)
+    //             return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
+    //         }
+    //     }
+    // );
 
 }
 

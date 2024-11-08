@@ -1,8 +1,8 @@
 // Import packages
 import { Router } from 'express';
-import { apiIndex, cancelSubscription, createEvent, createMenu, createSubscription, deleteMenu, deleteUser, fetchRate, getAllTags, getFirstFiveEvents, getFirstFivePorpular, getHomeDetails, getLanLog, getMenu, getProfile, getSubscription, getTags, getUser, getVendorEvent, getVendorProfile, onlineLanlogUser, onlineLanlogVendors, rateProfile, sendTestEmailCon, updateEvent, updateLanLog, updateMenu, updateProfile, updateToken, vendorEvent, vendorMenu } from '../controllers';
+import { apiIndex, cancelSubscription, createEvent, createMenu, createSubscription, deleteMenu, deleteUser, fetchRate, getAllTags, getFirstFiveEvents, getFirstFivePorpular, getHomeDetails, getLanLog, getMenu, getProfile, getSubscription, getTags, getUser, getVendorEvent, getVendorProfile, getVendorProfileV2, onlineLanlogUser, onlineLanlogVendors, rateProfile, sendTestEmailCon, updateEvent, updateLanLog, updateMenu, updateProfile, updateToken, vendorEvent, vendorMenu } from '../controllers';
 import { uploads } from '../helpers/upload';
-import { deleteFavourite, getFavourite, getOrder, getp, notifyOrder, postFavourite, postOrder, search } from '../controllers/favourite';
+import { deleteFavourite, getFavourite, getOrder, getOrderV2, getp, notifyOrder, notifyOrderV2, postFavourite, postOrder, postOrderV2, search } from '../controllers/favourite';
 
 
 const routes = Router();
@@ -20,6 +20,7 @@ routes.get('/user', getUser);
 routes.delete('/user', deleteUser);
 routes.get('/alltags', getAllTags);
 routes.get('/profile', getVendorProfile);
+routes.get('/profileV2', getVendorProfileV2);
 routes.put('/profile', uploads.single("pro_pic"), updateProfile)
 routes.get('/locationprofile', getProfile);
 routes.get('/locationmenu', vendorMenu);
@@ -32,8 +33,11 @@ routes.get('/get-popular', getFirstFivePorpular)
 routes.get('/get-favourite', getFavourite)
 routes.post('/add-favourite', postFavourite)
 routes.post('/add-order', postOrder)
+routes.post('/add-order-v2', postOrderV2)
 routes.get('/get-order', getOrder)
+routes.get('/get-order-v2', getOrderV2)
 routes.get('/notify-order', notifyOrder)
+routes.get('/notify-orderV2', notifyOrderV2)
 routes.post('/delete-favourite', deleteFavourite)
 routes.get('/get-tags', getTags)
 routes.delete('/menu/:id', deleteMenu);
