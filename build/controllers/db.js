@@ -33,6 +33,8 @@ const Alltags_1 = require("../models/Alltags");
 const Order_1 = require("../models/Order");
 const Extras_1 = require("../models/Extras");
 const Rate_1 = require("../models/Rate");
+const CartProduct_1 = require("../models/CartProduct");
+const OrderV2_1 = require("../models/OrderV2");
 // import { Sector } from '../models/Sector';
 const sequelize = new sequelize_typescript_1.Sequelize(configSetup_1.default.DBNAME, configSetup_1.default.DBUSERNAME, configSetup_1.default.DBPASSWORD, {
     host: configSetup_1.default.DBHOST,
@@ -50,7 +52,9 @@ const sequelize = new sequelize_typescript_1.Sequelize(configSetup_1.default.DBN
         Rate_1.Rating,
         Favourite_1.Favourite,
         Menus_1.Menu,
+        CartProduct_1.CartProduct,
         HomeTag_1.HomeTag,
+        OrderV2_1.OrderV2,
         Extras_1.Extra,
         Order_1.Order,
         Popular_1.PopularVendor,
