@@ -617,7 +617,7 @@ export const vendorMenu = async (req: Request, res: Response) => {
         where: { userId: id }, include: [{ model: Extra }]
     })
 
-    //temp code
+    // temp code
     // return res.status(200).send({
     //     message: "Fetched Successfully",
     //     menu
