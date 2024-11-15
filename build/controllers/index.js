@@ -493,7 +493,7 @@ const vendorMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     const menu = yield Menus_1.Menu.findAll({
         where: { userId: id }, include: [{ model: Extras_1.Extra }]
     });
-    //temp code
+    // temp code
     // return res.status(200).send({
     //     message: "Fetched Successfully",
     //     menu
