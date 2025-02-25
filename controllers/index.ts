@@ -248,7 +248,8 @@ export const onlineLanlogVendors = async (req: Request, res: Response) => {
     let distance_list: any[] = []
     const lanlog = await LanLog.findAll({
         where: {
-            type: UserType.VENDOR
+            type: UserType.VENDOR,
+            online: true
         },
         include: [{
             model: Users,
@@ -299,7 +300,8 @@ export const onlineLanlogUser = async (req: Request, res: Response) => {
             let distance_list: any[] = []
             const lanlog = await LanLog.findAll({
                 where: {
-                    type: UserType.USER
+                    type: UserType.USER,
+                    // online: true
                 },
                 include: [{
                     model: Users,
@@ -629,7 +631,7 @@ export const vendorMenu = async (req: Request, res: Response) => {
 
                 return res.status(200).send({
                     message: "Fetched Successfully",
-                    menu
+                    menuepa
                 })
             } else {
                 sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
@@ -842,7 +844,7 @@ export const createMenu = async (req: Request, res: Response) => {
         );
 
         let valueExtra = [];
-        for (let value of extra) {
+        for (let value of extra??[]) {
             valueExtra.push({
                 extra_title: value.extra_title,
                 extra_description: value.extra_description,
@@ -876,7 +878,7 @@ export const updateMenu = async (req: Request, res: Response) => {
         const menu = await Menu.findOne({ where: { id } })
         const extras = await Extra.findAll({ menuId: id })
         let ids = []
-        for (let value of extras) {
+        for (let value of extra??[]) {
             ids.push(value.id)
         }
 
@@ -891,7 +893,7 @@ export const updateMenu = async (req: Request, res: Response) => {
             }
         );
         let valueExtra = [];
-        for (let value of extra) {
+        for (let value of extra??[]) {
             valueExtra.push({
                 extra_title: value.extra_title,
                 extra_description: value.extra_description,
@@ -906,7 +908,7 @@ export const updateMenu = async (req: Request, res: Response) => {
         const menu = await Menu.findOne({ where: { id } })
         const extras = await Extra.findAll({ menuId: id })
         let ids = []
-        for (let value of extras) {
+        for (let value of extra??[]) {
             ids.push(value.id)
         }
         await Extra.destroy({ where: { id: ids } })
@@ -920,7 +922,7 @@ export const updateMenu = async (req: Request, res: Response) => {
             }
         );
         let valueExtra = [];
-        for (let value of extra) {
+        for (let value of extra??[]) {
             valueExtra.push({
                 extra_title: value.extra_title,
                 extra_description: value.extra_description,
