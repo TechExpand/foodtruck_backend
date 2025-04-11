@@ -13,6 +13,8 @@ API CALL START
 routes.post('/send-otp', auth_1.sendOtp);
 routes.post('/change-password', auth_1.passwordChange);
 routes.post('/verify-otp', auth_1.verifyOtp);
+routes.post('/google/register', auth_1.googleRegister);
+routes.post('/google/login', auth_1.googleLogin);
 routes.post('/token/login/', auth_1.login);
 routes.post('/users/validate/', auth_1.validateReg);
 routes.post('/lanlog', controllers_1.createLocation);

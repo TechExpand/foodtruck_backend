@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDistanceFromLatLonInKm = exports.createRandomRef = exports.validateEmail = exports.randomId = exports.errorResponse = exports.successResponse = exports.handleResponse = void 0;
+exports.estimateCarCityTimeRange = exports.getDistanceFromLatLonInKm = exports.createRandomRef = exports.validateEmail = exports.randomId = exports.errorResponse = exports.successResponse = exports.handleResponse = void 0;
 const handleResponse = (res, statusCode, status, message, data) => {
     return res.status(statusCode).json({
         status,
@@ -66,4 +66,14 @@ const getDistanceFromLatLonInKm = (lat1, lon1, lat2, lon2) => {
     return distance_miles;
 };
 exports.getDistanceFromLatLonInKm = getDistanceFromLatLonInKm;
+const estimateCarCityTimeRange = (distanceKm) => {
+    const bestCaseSpeed = 40; // Best-case speed in km/h
+    const worstCaseSpeed = 20; // Worst-case speed in km/h (traffic)
+    const bestTimeMinutes = (distanceKm / bestCaseSpeed) * 60;
+    const worstTimeMinutes = (distanceKm / worstCaseSpeed) * 60;
+    const minMinutes = Math.floor(bestTimeMinutes);
+    const maxMinutes = Math.ceil(worstTimeMinutes);
+    return `${minMinutes}-${maxMinutes} mins`;
+};
+exports.estimateCarCityTimeRange = estimateCarCityTimeRange;
 //# sourceMappingURL=utility.js.map

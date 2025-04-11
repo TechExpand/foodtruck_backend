@@ -9,13 +9,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendToken = void 0;
+exports.sendToken = exports.admin = void 0;
 const Users_1 = require("../models/Users");
-var admin = require("firebase-admin");
+exports.admin = require("firebase-admin");
 const { getMessaging } = require('firebase-admin/messaging');
 var serviceAccount = require("../keys/key.json");
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
+exports.admin.initializeApp({
+    credential: exports.admin.credential.cert(serviceAccount)
 });
 const sendToken = (id, title, body) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield Users_1.Users.findOne({ where: { id } });

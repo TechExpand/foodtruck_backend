@@ -18,9 +18,11 @@ import {
   getProfile,
   getSubscription,
   getUser,
+  getVendorByTag,
   getVendorEvent,
   getVendorProfile,
   getVendorProfileV2,
+  getVendorUserProfile,
   onlineLanlogUser,
   onlineLanlogVendors,
   rateProfile,
@@ -64,6 +66,8 @@ routes.delete("/user", deleteUser);
 routes.get("/all-categories", getAllCategories);
 routes.get("/profile", getVendorProfile);
 routes.get("/profileV2", getVendorProfileV2);
+routes.get("/vendor-profile", getVendorUserProfile);
+
 routes.put("/profile", uploads.single("pro_pic"), updateProfile);
 routes.get("/locationprofile", getProfile);
 routes.get("/locationmenu", vendorMenu);
@@ -78,6 +82,7 @@ routes.post("/add-favourite", postFavourite);
 routes.post("/add-order", postOrder);
 routes.post("/add-order-v2", postOrderV2);
 routes.get("/get-order", getOrder);
+routes.get("/vendor-by-tags", getVendorByTag);
 routes.get("/get-order-v2", getOrderV2);
 routes.get("/notify-order", notifyOrder);
 routes.get("/notify-orderV2", notifyOrderV2);

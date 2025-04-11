@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LanLog = exports.UserStatus = exports.UserType = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
+const Profile_1 = require("./Profile");
 const Users_1 = require("./Users");
 var UserType;
 (function (UserType) {
@@ -56,6 +57,10 @@ __decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => Users_1.Users, { onDelete: 'CASCADE' }),
     __metadata("design:type", Users_1.Users)
 ], LanLog.prototype, "user", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasOne)(() => Profile_1.Profile, { onDelete: 'CASCADE' }),
+    __metadata("design:type", Profile_1.Profile)
+], LanLog.prototype, "profile", void 0);
 exports.LanLog = LanLog = __decorate([
     (0, sequelize_typescript_1.Table)({ timestamps: true, tableName: 'lanlog' })
 ], LanLog);

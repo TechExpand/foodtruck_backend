@@ -228,8 +228,8 @@ export const postOrderV2 = async (req: Request, res: Response) => {
     sendEmailResend(`${user?.email}`,
         "Foodtruck.express".toUpperCase(),
         templateEmail(`${user?.email}`, "You have recieved an order, please process the pending order."))
-        
-    return res.status(200).send({ message: "Order Added Successfully", order, status: true })
+        console.log(`${user?.email}`);
+    return successResponse(res, "Order Added Successfully")
 }
 
 
