@@ -22,6 +22,11 @@ export class Users extends Model {
 	@Column(DataType.STRING)
 	email!: string;
 
+
+	@AllowNull(false)
+	@Column(DataType.STRING)
+	username!: string;
+
 	@AllowNull(false)
 	@Column(DataType.STRING)
 	password!: string;

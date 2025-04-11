@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.templateEmail = void 0;
+exports.vendorWelcomeTemplate = exports.userWelcomeTemplate = exports.templateEmail = void 0;
 const templateEmail = (subject, body) => {
     return `<!-- © 2024 Wingu Digital LLC. All rights reserved. -->
     <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout:fixed;background-color:#f9f9f9" id="bodyTable">
@@ -169,4 +169,65 @@ const templateEmail = (subject, body) => {
     </table>`;
 };
 exports.templateEmail = templateEmail;
+const userWelcomeTemplate = () => {
+    return `Welcome aboard the FoodTruck Express community! 🎉<br><br>
+    
+    
+           Your account has been successfully created, and you are now part of a vibrant community.<br>
+           
+           
+           Welcome aboard, food truck operators! We're thrilled to have you on board and excited to help you connect with hungry customers in your area.  <br>With real-time access to your location through our app, you'll attract hungry customers like never before. Let's hit the road together and bring the joy of delicious food to every corner of the city!<br>
+           
+           Here's what you can expect with foodtruck.express:<br><br>
+           Reach a wider audience 🌟: Showcase your mouthwatering dishes to a vast audience of hungry app users craving fantastic street eats.<br>
+           
+           Effortless management 📲: Easily update your menu, location, and operating hours through our user-friendly app.<br>
+           
+           Increase sales 💰: Harness the power of our integrated location system, enabling customers to easily find and flock to your truck.<br>
+           
+           Cultivate your brand 🌱: Cultivate your reputation with valuable customer feedback, participate in curated events, and host your own promotions to captivate an even larger audience of food truck enthusiasts.<br><br>
+           
+           Ready to Roll?<br><br>
+           
+           Once you  familiarize yourself with the platform, update your profile with your delicious menu. Let your social followers know that they can now find you in real time with the FoodTruck.Express platform!   We can't wait to see you hitting the streets and serving up amazing food!<br><br>
+           
+           
+           Have questions?<br><br>
+           
+           
+           Our dedicated support team is always happy to help. Feel free to reach out to us at support@foodtruck.express anytime. Welcome to the Foodtruck.Express family!<br>
+           
+           
+            Best, The Foodtruck.Express Team<br><br>`;
+};
+exports.userWelcomeTemplate = userWelcomeTemplate;
+const vendorWelcomeTemplate = () => {
+    return `Welcome aboard the FoodTruck Express community! 🎉<br><br>
+              
+              
+              Your account has been successfully created, and you are now part of a vibrant community.<br><br>
+              
+              
+              We’re thrilled to have you join us on this exciting culinary adventure. Get ready to discover, order, and savor the best food truck experiences in your city!<br><br>
+              
+              
+              Here's a quick guide to kickstart your FoodTruck.Express journey:<br>
+              🚚 Locate & Love: Use our app to find your favorite food trucks on the move. Whether you’re craving tacos, pizza, or something exotic, we’ve got you covered.<br>
+              
+              🌮 Share the Love: Have a fantastic experience? Share the FoodTruck Express love with friends and family. The more, the merrier!<br>
+              
+              🎉 Exclusive Updates: Stay in the loop! Receive updates on citywide food truck events and exclusive offers. Don’t miss out on any flavor-filled festivities.<br>
+              
+              Feel free to explore, share, and let us know how we can make your FoodTruck Express experience even better. Your feedback matters!<br><br>
+              
+              
+              Happy exploring and happy eating!<br><br>
+              
+              
+              Best, The FoodTruck Express Team 🍔🍕🌯<br><br>
+              
+              
+              P.S. Spread the word! Tell your friends about FoodTruck Express and let’s build a community of foodies together. Sharing is caring!<br>`;
+};
+exports.vendorWelcomeTemplate = vendorWelcomeTemplate;
 //# sourceMappingURL=template.js.map

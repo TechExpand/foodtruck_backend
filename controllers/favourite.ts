@@ -39,7 +39,7 @@ export const getFavourite = async (req: Request, res: Response) => {
             { model: Users ,},
         ]
     });
-    return res.status(200).send({ message: "Fetched Successfully", favourite })
+    return successResponse(res, "Fetched Successfully", favourite)
 }
 
 
@@ -54,7 +54,7 @@ export const getOrder = async (req: Request, res: Response) => {
             { model: Menu },
         ]
     });
-    return res.status(200).send({ message: "Fetched Successfully", order })
+    return successResponse(res, "Fetched Successfully", order)
 }
 
 
@@ -69,7 +69,7 @@ export const getOrderV2 = async (req: Request, res: Response) => {
             { model: CartProduct , include: [{model: Menu}]},
         ]
     });
-    return res.status(200).send({ message: "Fetched Successfully", order })
+    return successResponse(res, "Fetched Successfully", order)
 }
 
 
@@ -86,7 +86,7 @@ export const notifyOrder = async (req: Request, res: Response) => {
             { model: Users },]
     });
     const userData = await Users.findOne({ where: { id: order?.userId } })
-    if (!order) return res.status(200).send({ message: "Not Found", order })
+    if (!order) return errorResponse(res, "Not Found")
     if (status == "PENDING") {
         await order.update({ status: "COMPLETED" })
         await sendToken(userData?.id, `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
@@ -96,7 +96,7 @@ export const notifyOrder = async (req: Request, res: Response) => {
             `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
             templateEmail(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`)
         )
-        return res.status(200).send({ message: "Fetched Successfully", order })
+        return successResponse(res, "Fetched Successfully", order)
     } else {
         await sendToken(userData?.id, `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
             `pick up your meal at ${order.profile.dataValues.business_name}`
@@ -105,7 +105,7 @@ export const notifyOrder = async (req: Request, res: Response) => {
             `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
             templateEmail(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`)
         )
-        return res.status(200).send({ message: "Fetched Successfully", order })
+        return successResponse(res, "Fetched Successfully", order)
     }
 
 }
@@ -124,7 +124,7 @@ export const notifyOrderV2 = async (req: Request, res: Response) => {
             { model: Users },]
     });
     const userData = await Users.findOne({ where: { id: order?.userId } })
-    if (!order) return res.status(200).send({ message: "Not Found", order })
+    if (!order) return errorResponse(res, 'No Found')
     if (status == "PENDING") {
         await order.update({ status: "COMPLETED" })
         await sendToken(userData?.id, `YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
@@ -134,7 +134,7 @@ export const notifyOrderV2 = async (req: Request, res: Response) => {
             `YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
             templateEmail(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`)
         )
-        return res.status(200).send({ message: "Fetched Successfully", order })
+        return successResponse(res, "Fetched Successfully", order)
     } else {
         await sendToken(userData?.id, `REMINDER: YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
             `pick up your meal at ${order.profile.dataValues.business_name}`
@@ -143,7 +143,7 @@ export const notifyOrderV2 = async (req: Request, res: Response) => {
             `REMINDER: YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
             templateEmail(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`)
         )
-        return res.status(200).send({ message: "Fetched Successfully", order })
+        return successResponse(res, "Fetched Successfully", order)
     }
 
 }
@@ -160,15 +160,24 @@ export const postFavourite = async (req: Request, res: Response) => {
     const profile = await Profile.findOne({ where: { id: profileId } })
     const truckUser = await Users.findOne({ where: { id: profile?.userId } })
     const fav = await Favourite.findOne({ where: { profileId, userId: id } })
-    if (fav) return res.status(200).send({ message: "Vendor Added Successfully", status: true })
-    const favourite = await Favourite.create({ profileId, userId: id })
+    if (fav) return errorResponse(res, 'Vendor Already Added')
+    const createFavourite = await Favourite.create({ profileId, userId: id })
+    const favourite = await Favourite.findOne({
+        where: {
+            id: createFavourite.id,
+        },
+        include: [
+            { model: Profile, include: [{ model: LanLog }] },
+            { model: Users ,},
+        ]
+    });
     sendToken(truckUser?.id, `Foodtruck.express`.toUpperCase(),
         `Hey ${profile?.business_name}, Customers are adding your truck to their favorites list on foodtruck.express, subscribe to get more attention.`
     );
     sendEmailResend(`${truckUser?.email}`,
         "Foodtruck.express".toUpperCase(),
         templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are adding your truck to their favorites list on foodtruck.express, subscribe to get more attention.`))
-    return res.status(200).send({ message: "Vendor Added Successfully", favourite, status: true })
+    return successResponse(res, "Added Successfully", favourite)
 }
 
 
@@ -186,7 +195,7 @@ export const postOrder = async (req: Request, res: Response) => {
         "Foodtruck.express".toUpperCase(),
         templateEmail(`${user?.email}`, "You have recieved an order, please process the pending order."))
     const order = await Order.create({ profileId: profileId, userId: id, menuId, extras: extras })
-    return res.status(200).send({ message: "Order Added Successfully", order, status: true })
+    return successResponse(res, "Order Added Successfully")
 }
 
 

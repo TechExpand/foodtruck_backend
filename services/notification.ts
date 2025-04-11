@@ -1,5 +1,5 @@
 import { Users } from "../models/Users";
-var admin = require("firebase-admin");
+export const admin = require("firebase-admin");
 const { getMessaging } = require('firebase-admin/messaging');
 
 var serviceAccount = require("../keys/key.json");

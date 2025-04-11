@@ -1,7 +1,7 @@
 
 // @ts-nocheck comment
 
-import { errorResponse, getDistanceFromLatLonInKm, successResponse } from "../helpers/utility";
+import { errorResponse, getDistanceFromLatLonInKm, estimateCarCityTimeRange, successResponse } from "../helpers/utility";
 import { Request, Response } from 'express';
 import { LanLog } from "../models/LanLog";
 import { Profile } from "../models/Profile";
@@ -258,7 +258,7 @@ export const onlineLanlogVendors = async (req: Request, res: Response) => {
             },
             attributes: [
                 'createdAt', 'updatedAt', "email", 'type']
-        }
+        },{model: Profile}
         ],
     });
 
@@ -266,21 +266,23 @@ export const onlineLanlogVendors = async (req: Request, res: Response) => {
         const distance = getDistanceFromLatLonInKm(
             Number(vendor.Lan), Number(vendor.Log), Number(lan), Number(log)
         );
-        // 500
+        // 15
 
-        if (distance <= Number(15)) {
+        if (distance <= Number(1500000000)) {
             if (vendor.dataValues.user.dataValues.type == UserType.VENDOR) {
                 distance_list.push({
                     ...vendor.dataValues,
                     user: vendor.dataValues.user.dataValues,
+                    profile: vendor.dataValues.profile.dataValues,
                     distance,
+                    time: estimateCarCityTimeRange(distance)
                 })
                 distance_list.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
             }
         }
 
     }
-    return res.status(200).send({ message: "Fetched Successfully", vendors: distance_list })
+    return successResponse(res, "Fetched Successfully", distance_list )
 }
 
 
@@ -416,7 +418,7 @@ export const getFirstFivePorpular = async (req: Request, res: Response) => {
 
 
 
-export const getTags = async (req: Request, res: Response) => {
+export const getCategories = async (req: Request, res: Response) => {
     const tags = await Tag.findAll({});
     return res.status(200).send({ message: "Fetched Successfully", tags })
 }
@@ -457,17 +459,6 @@ export const deleteUser = async (req: Request, res: Response) => {
 }
 
 
-
-
-
-export const getAllTags = async (req: Request, res: Response) => {
-    const tags = await AllTag.findAll({
-        where: {}
-    });
-    return res.status(200).send({
-        message: "Fetched Successfully", tags
-    })
-}
 
 
 export const getVendorProfileV2 = async (req: Request, res: Response) => {
@@ -613,64 +604,55 @@ export const fetchRate = async (req: Request, res: Response) => {
 
 export const vendorMenu = async (req: Request, res: Response) => {
     const { id } = req.query
-    const user = await Users.findOne({ where: { id } })
-    const profile = await Profile.findOne({ where: { userId: user?.id } })
     const menu = await Menu.findAll({
         where: { userId: id }, include: [{ model: Extra }]
     })
+    return successResponse(res, "Fetched Successfully", menu)
+    // stripe.subscriptions.retrieve(user?.subscription_id).then(
+    //     function (subscription_status) {
+    //         if (subscription_status.status == 'active' || subscription_status.status == 'trialing') {
 
-    // temp code
-    // return res.status(200).send({
-    //     message: "Fetched Successfully",
-    //     menu
-    // })
+    //             return res.status(200).send({
+    //                 message: "Fetched Successfully",
+    //                 menu
+    //             })
+    //         } else {
+    //             sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
+    //                 `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`
+    //             );
+    //             sendEmailResend(`${user?.email}`,
+    //                 "Foodtruck.express".toUpperCase(),
+    //                 templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`))
+    //             return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
+    //         }
+    //     },
+    //     function (err) {
+    //         if (err instanceof Stripe.errors.StripeError) {
+    //             // Break down err based on err.type
 
-    stripe.subscriptions.retrieve(user?.subscription_id).then(
-        function (subscription_status) {
-            if (subscription_status.status == 'active' || subscription_status.status == 'trialing') {
+    //             sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
+    //                 `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`
+    //             );
+    //             sendEmailResend(`${user?.email}`,
+    //                 "Foodtruck.express".toUpperCase(),
+    //                 templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`))
 
-                return res.status(200).send({
-                    message: "Fetched Successfully",
-                    menuepa
-                })
-            } else {
-                sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
-                    `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`
-                );
-                sendEmailResend(`${user?.email}`,
-                    "Foodtruck.express".toUpperCase(),
-                    templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`))
-                return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
-            }
-        },
-        function (err) {
-            if (err instanceof Stripe.errors.StripeError) {
-                // Break down err based on err.type
+    //             console.log(err.type)
+    //             return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
+    //         } else {
 
-                sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
-                    `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`
-                );
-                sendEmailResend(`${user?.email}`,
-                    "Foodtruck.express".toUpperCase(),
-                    templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`))
-
-                console.log(err.type)
-                return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
-            } else {
-
-                // ...
-                sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
-                    `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`
-                );
-                sendEmailResend(`${user?.email}`,
-                    "Foodtruck.express".toUpperCase(),
-                    templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`))
-                console.log(err)
-                return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
-            }
-        }
-    );
-
+    //             // ...
+    //             sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
+    //                 `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`
+    //             );
+    //             sendEmailResend(`${user?.email}`,
+    //                 "Foodtruck.express".toUpperCase(),
+    //                 templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`))
+    //             console.log(err)
+    //             return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
+    //         }
+    //     }
+    // );
 }
 
 
@@ -727,7 +709,10 @@ export const getMenu = async (req: Request, res: Response) => {
     return res.status(200).send({ message: "Fetched Successfully", menu })
 }
 
-
+export const getAllCategories = async (req: Request, res: Response) => {
+    const tags = await AllTag.findAll();
+    return successResponse(res, "Fetched Successfully", tags)
+}
 
 
 

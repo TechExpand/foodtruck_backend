@@ -1,4 +1,4 @@
-import { Table, Model, Column, DataType, AllowNull, Unique, Default, Index, BelongsTo, ForeignKey } from 'sequelize-typescript';
+import { Table, Model, Column, DataType, AllowNull, Unique, Default, Index, BelongsTo, ForeignKey, HasOne } from 'sequelize-typescript';
 import { Profile } from './Profile';
 import { Users } from './Users';
 
@@ -43,6 +43,10 @@ export class LanLog extends Model {
 
 	@BelongsTo(() => Users, { onDelete: 'CASCADE' })
 	user!: Users;
+
+
+	@HasOne(() => Profile, { onDelete: 'CASCADE' })
+	profile!: Profile;
 
 	// relationships
 

@@ -80,3 +80,16 @@ export const getDistanceFromLatLonInKm = (lat1: number, lon1:number, lat2: numbe
 	return distance_miles;
 
   }
+
+  export const estimateCarCityTimeRange = (distanceKm: number) => {
+    const bestCaseSpeed = 40; // Best-case speed in km/h
+    const worstCaseSpeed = 20; // Worst-case speed in km/h (traffic)
+
+    const bestTimeMinutes = (distanceKm / bestCaseSpeed) * 60;
+    const worstTimeMinutes = (distanceKm / worstCaseSpeed) * 60;
+
+    const minMinutes = Math.floor(bestTimeMinutes);
+    const maxMinutes = Math.ceil(worstTimeMinutes);
+
+    return `${minMinutes}-${maxMinutes} mins`;
+}

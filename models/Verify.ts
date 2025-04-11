@@ -19,6 +19,21 @@ export class Verify extends Model {
 	code!: string;
 
 
+	@AllowNull(false)
+	@Column(DataType.STRING)
+	otpType!: string;
+
+
+	@AllowNull(false)
+	@Column(DataType.STRING)
+	type!: string;
+
+
+	@AllowNull(false)
+	@Column(DataType.STRING)
+	username!: string;
+
+
 	@AllowNull(true)
 	@Column(DataType.STRING)
 	secret_key!: string;

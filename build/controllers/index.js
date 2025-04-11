@@ -217,7 +217,8 @@ const onlineLanlogVendors = (req, res) => __awaiter(void 0, void 0, void 0, func
     let distance_list = [];
     const lanlog = yield LanLog_1.LanLog.findAll({
         where: {
-            type: Users_1.UserType.VENDOR
+            type: Users_1.UserType.VENDOR,
+            online: true
         },
         include: [{
                 model: Users_1.Users,
@@ -253,7 +254,8 @@ const onlineLanlogUser = (req, res) => __awaiter(void 0, void 0, void 0, functio
             let distance_list = [];
             const lanlog = yield LanLog_1.LanLog.findAll({
                 where: {
-                    type: Users_1.UserType.USER
+                    type: Users_1.UserType.USER,
+                    // online: true
                 },
                 include: [{
                         model: Users_1.Users,
@@ -502,7 +504,7 @@ const vendorMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         if (subscription_status.status == 'active' || subscription_status.status == 'trialing') {
             return res.status(200).send({
                 message: "Fetched Successfully",
-                menu
+                menuepa
             });
         }
         else {
@@ -658,7 +660,7 @@ const createMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             menu_picture: result.secure_url
         });
         let valueExtra = [];
-        for (let value of extra) {
+        for (let value of extra !== null && extra !== void 0 ? extra : []) {
             valueExtra.push({
                 extra_title: value.extra_title,
                 extra_description: value.extra_description,
@@ -685,7 +687,7 @@ const updateMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const menu = yield Menus_1.Menu.findOne({ where: { id } });
         const extras = yield Extras_1.Extra.findAll({ menuId: id });
         let ids = [];
-        for (let value of extras) {
+        for (let value of extra !== null && extra !== void 0 ? extra : []) {
             ids.push(value.id);
         }
         yield Extras_1.Extra.destroy({ where: { id: ids } });
@@ -697,7 +699,7 @@ const updateMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             menu_picture: result.secure_url
         });
         let valueExtra = [];
-        for (let value of extra) {
+        for (let value of extra !== null && extra !== void 0 ? extra : []) {
             valueExtra.push({
                 extra_title: value.extra_title,
                 extra_description: value.extra_description,
@@ -712,7 +714,7 @@ const updateMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const menu = yield Menus_1.Menu.findOne({ where: { id } });
         const extras = yield Extras_1.Extra.findAll({ menuId: id });
         let ids = [];
-        for (let value of extras) {
+        for (let value of extra !== null && extra !== void 0 ? extra : []) {
             ids.push(value.id);
         }
         yield Extras_1.Extra.destroy({ where: { id: ids } });
@@ -724,7 +726,7 @@ const updateMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             menu_picture: menu.menu_picture
         });
         let valueExtra = [];
-        for (let value of extra) {
+        for (let value of extra !== null && extra !== void 0 ? extra : []) {
             valueExtra.push({
                 extra_title: value.extra_title,
                 extra_description: value.extra_description,
