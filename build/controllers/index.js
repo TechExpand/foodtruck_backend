@@ -456,16 +456,16 @@ const getVendorByTag = (req, res) => __awaiter(void 0, void 0, void 0, function*
     });
     for (let vendor of vendors) {
         const profile = vendor.dataValues;
-        delete profile.user;
-        delete profile.lanlog;
-        const distance = (0, utility_1.getDistanceFromLatLonInKm)(Number(vendor.lanlog.dataValues.Lan), Number(vendor.lanlog.dataValues.Log), Number(lan), Number(log));
+        const distance = (0, utility_1.getDistanceFromLatLonInKm)(Number(vendor.dataValues.lanlog.dataValues.Lan), Number(vendor.dataValues.lanlog.dataValues.Log), Number(lan), Number(log));
         if (distance <= Number(1500000000)) {
             if (vendor.user.dataValues.type == Users_1.UserType.VENDOR) {
-                distance_list.push(Object.assign(Object.assign({}, vendor.lanlog.dataValues), { user: vendor.user.dataValues, profile: vendor.dataValues, distance, time: (0, utility_1.estimateCarCityTimeRange)(distance) }));
+                distance_list.push(Object.assign(Object.assign({}, vendor.dataValues.lanlog.dataValues), { user: vendor.dataValues.user.dataValues, profile,
+                    distance, time: (0, utility_1.estimateCarCityTimeRange)(distance) }));
                 distance_list.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
             }
         }
     }
+    console.log(distance_list);
     return (0, utility_1.successResponse)(res, "Vendor Fetched", distance_list);
 });
 exports.getVendorByTag = getVendorByTag;
