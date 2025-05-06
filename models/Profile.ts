@@ -25,25 +25,36 @@ export class Profile extends Model {
 
 
 	@AllowNull(true)
-	@Column(DataType.STRING)
+	@Column(DataType.JSON)
 	tag!: any;
+	
+
+	@AllowNull(true)
+	@Column(DataType.JSON)
+	days!: any;
+
+	@AllowNull(true)
+	@Column(DataType.STRING)
+	closeTime!: any;
+
+
+
+	@AllowNull(true)
+	@Column(DataType.STRING)
+	openingTime!: any;
+
+
 	// @BeforeCreate
-	// static setvalue(instance: Profile) {
-	// 	const stringValue = instance.tag
-	// 	return stringValue ? stringValue.split(',') : null;
-	// }
-	// @BeforeFindAfterExpandIncludeAll
-	// static getValue(instance: Profile) {
-	// 	const arrayValue = instance.tag ? instance.tag.join(',') : '';
-	// 	return arrayValue;
-	// 	// this.setDataValue('studentIds', arrayValue);
+	// static capitalizeName(instance: Profile) {
+	// 	instance.tag = instance.tag.toLowerCase();
 	// }
 
 
-	@BeforeCreate
-	static capitalizeName(instance: Profile) {
-		instance.tag = instance.tag.toLowerCase();
-	}
+	// @BeforeCreate
+	// static capitalizeName(instance: Profile) {
+	// 	instance.tag = instance.tag.toLowerCase();
+	// }
+
 
 	@AllowNull(false)
 	@Column(DataType.STRING)

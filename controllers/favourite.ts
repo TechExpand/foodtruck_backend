@@ -43,6 +43,12 @@ export const getFavourite = async (req: Request, res: Response) => {
 }
 
 
+export const getTags = async (req: Request, res: Response) => {
+    const tags = await Tag.findAll();
+    return successResponse(res, "Fetched Successfully", tags)
+}
+
+
 
 export const getOrder = async (req: Request, res: Response) => {
     const { id } = req.user;

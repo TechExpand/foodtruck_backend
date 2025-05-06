@@ -42,6 +42,7 @@ import {
   getOrder,
   getOrderV2,
   getp,
+  getTags,
   notifyOrder,
   notifyOrderV2,
   postFavourite,
@@ -58,7 +59,7 @@ API CALL START
 
 // INDEX ROUTE TO SHOW API IS WORKING FINE.
 routes.get("/", apiIndex);
-routes.get("/createsubscription", createSubscription);
+routes.post("/createsubscription", createSubscription);
 routes.get("/currentvendorslanlog", onlineLanlogVendors);
 routes.get("/currentuserlanlog", onlineLanlogUser);
 routes.get("/user", getUser);
@@ -87,9 +88,9 @@ routes.get("/get-order-v2", getOrderV2);
 routes.get("/notify-order", notifyOrder);
 routes.get("/notify-orderV2", notifyOrderV2);
 routes.post("/delete-favourite", deleteFavourite);
-// routes.get("/get-tags", getTags);
+routes.get("/get-tags", getTags);
 routes.delete("/menu/:id", deleteMenu);
-routes.post("/menu", uploads.single("menu_picture1"), createMenu);
+routes.post("/menu", createMenu);
 routes.post("/event", uploads.single("menu_picture1"), createEvent);
 routes.put("/menu", uploads.single("menu_picture1"), updateMenu);
 routes.put("/event", uploads.single("menu_picture1"), updateEvent);

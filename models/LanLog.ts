@@ -30,6 +30,11 @@ export class LanLog extends Model {
 	Log!: string;
 
 
+	@AllowNull(true)
+	@Column(DataType.STRING)
+	address!: string;
+
+
 	@AllowNull(false)
 	@Column(DataType.BOOLEAN)
 	online!: string;

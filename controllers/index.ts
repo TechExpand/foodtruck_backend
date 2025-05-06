@@ -30,6 +30,7 @@ import { templateEmail } from "../config/template";
 import { sendToken } from "../services/notification";
 import { Rating } from "../models/Rate";
 import { OrderV2 } from "../models/OrderV2";
+import { successResponse } from '../helpers/utility';
 
 const cloudinary = require("cloudinary").v2;
 const stripe = new Stripe(config.STRIPE_SK, {
@@ -39,54 +40,61 @@ const stripe = new Stripe(config.STRIPE_SK, {
 export const apiIndex = async (req: Request, res: Response) =>
   successResponse(res, "API Working!");
 
-export const createLocation = async (req: Request, res: Response) => {
+export const updateLocation = async (req: Request, res: Response) => {
   let { Lan, Log, online } = req.body;
   let { id } = req.user;
   const user = await Users.findOne({ where: { id } });
   const lanlog = await LanLog.findOne({ where: { userId: id } });
   if (lanlog) {
     await lanlog.update({ Lan, Log, type: user?.type });
-    return res
-      .status(200)
-      .send({ message: "Created Successfully", status: true });
-  } else {
-    const location = await LanLog.create({
-      Lan,
-      Log,
-      online,
-      userId: id,
-      type: user?.type,
-    });
-    return res
-      .status(200)
-      .send({ message: "Created Successfully", status: true });
+    return successResponse(res, "Updated Successfully");
   }
+  return errorResponse(res, "Failed to Update");
 };
 
 export const createProfile = async (req: Request, res: Response) => {
-  let { business_name, unique_detail, detail, phone, tag } = req.body;
+  let {
+    business_name,
+    unique_detail,
+    detail,
+    phone,
+    tag,
+    pro_pic,
+    address,
+    lan,
+    log,
+    days,
+    closeTime,
+    openingTime,
+  } = req.body;
   let { id } = req.user;
-  if (req.file) {
-    const result = await cloudinary.uploader.upload(
-      req.file.path.replace(/ /g, "_")
-    );
-    const user = await Users.findOne({ where: { id } });
-    const location = await LanLog.findOne({ where: { userId: id } });
-    const profile = await Profile.create({
-      business_name,
-      unique_detail,
-      detail,
-      phone,
-      lanlogId: location!.id,
-      userId: id,
-      pro_pic: result.secure_url,
-      tag,
-    });
-    return res
-      .status(200)
-      .send({ message: "Created Successfully", status: true });
-  }
-  return res.status(400).send({ message: "File is required", status: false });
+  const user = await Users.findOne({ where: { id } });
+  const lanlog = await LanLog.findOne({ where: { userId: id } });
+  const profileExist = await Profile.findOne({ where: { userId: id } });
+  if (profileExist && user && lanlog) return errorResponse(res, "Profile Already Exist");
+  const location = await LanLog.create({
+    Lan: lan,
+    Log: log,
+    address,
+    online: true,
+    userId: id,
+    type: user?.type,
+  });
+
+  const profile = await Profile.create({
+    business_name,
+    unique_detail,
+    detail,
+    phone,
+    lanlogId: location!.id,
+    userId: id,
+    days,
+    closeTime,
+    openingTime,
+    pro_pic,
+    tag,
+  });
+  return successResponse(res, "Created Successfully");
 };
 
 export const updateToken = async (req: Request, res: Response) => {
@@ -141,20 +149,18 @@ export const updateProfile = async (req: Request, res: Response) => {
 };
 
 export const createSubscription = async (req: Request, res: Response) => {
-  let { paymentMethod } = req.query;
-  // console.log(`${card_number}, ${exp_month}, ${exp_year}, ${cvc}`)
+  let { paymentMethodId } = req.body;
   let { id } = req.user;
   try {
     const user = await Users.findOne({ where: { id } });
     const profile = await Profile.findOne({ where: { userId: user?.id } });
     const customer = await stripe.customers.create({
       email: user!.email,
-      payment_method: paymentMethod,
+      payment_method: paymentMethodId,
       invoice_settings: {
-        default_payment_method: paymentMethod,
+        default_payment_method: paymentMethodId,
       },
     });
-    console.log(customer.id);
     const subscription = await stripe.subscriptions.create({
       customer: String(customer.id),
       items: [
@@ -163,7 +169,7 @@ export const createSubscription = async (req: Request, res: Response) => {
           quantity: 1,
         },
       ],
-      default_payment_method: paymentMethod,
+      default_payment_method: paymentMethodId,
       payment_settings: {
         payment_method_options: {
           card: {
@@ -182,25 +188,14 @@ export const createSubscription = async (req: Request, res: Response) => {
     });
     await profile?.update({ subcription_id: subscription.id });
     if (subscription.latest_invoice.payment_intent) {
-      return res.status(200).send({
-        message: "Created Successfully",
-        clientSecret: subscription.latest_invoice.payment_intent.client_secret,
-        subscriptionId: subscription.id,
-        status: true,
-      });
+      return successResponse(res, "Subscribe Successfully")
     } else {
-      return res.status(200).send({
-        message: "Created Successfully",
-        subscriptionId: subscription.id,
-        status: true,
-      });
+      return successResponse(res, "Subscribe Successfully")
     }
   } catch (e) {
-    console.log(e.message);
-    return res.status(400).send({
-      message: e.message,
-      status: false,
-    });
+    return errorResponse(res, e.message)
+    
+    
   }
 };
 
@@ -209,25 +204,18 @@ export const cancelSubscription = async (req: Request, res: Response) => {
   const user = await Users.findOne({ where: { id } });
   const subscription = await stripe.subscriptions.cancel(user!.subscription_id);
   const status = await stripe.subscriptions.retrieve(user!.subscription_id);
-  return res
-    .status(200)
-    .send({ message: "Canceled Successfully", status: status.status });
+  return successResponse(res, "Canceled Successfully")
 };
 
 export const reactivateSubscription = async (req: Request, res: Response) => {
   let { id } = req.user;
   const user = await Users.findOne({ where: { id } });
   const subscription = await stripe.subscriptions.resume(user!.subscription_id);
-  return res
-    .status(200)
-    .send({
-      message: "You have subscribed to foodtruck.express plan",
-      status: true,
-    });
+  return successResponse(res, "You have subscribed to foodtruck.express plan")
 };
 
 export const addNewCard = async (req: Request, res: Response) => {
-  let { card_number, expiry_month, expiry_year, cvc } = req.query;
+  let { card_number, expiry_month, expiry_year, cvc } = req.body;
   let { id } = req.user;
   const user = await Users.findOne({ where: { id } });
   const profile = await Profile.findOne({ where: { userId: user?.id } });
@@ -246,9 +234,7 @@ export const addNewCard = async (req: Request, res: Response) => {
     customer: user!.customer_id,
   });
   await user?.update({ token_id: token.id, card_id: token.card?.id });
-  return res
-    .status(200)
-    .send({ message: "Created Successfully", status: true });
+  return successResponse(res, "Added Successfully")
 };
 
 export const onlineLanlogVendors = async (req: Request, res: Response) => {
@@ -351,22 +337,18 @@ export const onlineLanlogUser = async (req: Request, res: Response) => {
         .status(200)
         .send({ message: "Fetched Successfully", users: distance_list });
     } else {
-      return res
-        .status(200)
-        .send({
-          message: "Fetched Successfully",
-          users:
-            "Subscribe to view online User locations and Display your Menu on your profile",
-        });
-    }
-  } catch (e) {
-    return res
-      .status(200)
-      .send({
+      return res.status(200).send({
         message: "Fetched Successfully",
         users:
           "Subscribe to view online User locations and Display your Menu on your profile",
       });
+    }
+  } catch (e) {
+    return res.status(200).send({
+      message: "Fetched Successfully",
+      users:
+        "Subscribe to view online User locations and Display your Menu on your profile",
+    });
   }
 };
 
@@ -479,21 +461,16 @@ export const getVendorUserProfile = async (req: Request, res: Response) => {
   });
 };
 
-
-
 export const getVendorByTag = async (req: Request, res: Response) => {
-  const {tag, lan, log} = req.query;
+  const { tag, lan, log } = req.query;
   const cleanTag = tag.replace(/[%&*]/g, "");
-  let distance_list = []
+  let distance_list = [];
   const vendors = await Profile.findAll({
     where: {
       [Op.or]: [
         {
           tag: {
-            [Op.like]:
-              "%" +
-              `${cleanTag.toString().toLowerCase()}` +
-              "%",
+            [Op.like]: "%" + `${cleanTag.toString().toLowerCase()}` + "%",
           },
         },
       ],
@@ -525,11 +502,9 @@ export const getVendorByTag = async (req: Request, res: Response) => {
       }
     }
   }
-  console.log(distance_list)
+  console.log(distance_list);
   return successResponse(res, "Vendor Fetched", distance_list);
 };
-
-
 
 export const getVendorProfileV2 = async (req: Request, res: Response) => {
   const { id } = req.user;
@@ -745,8 +720,8 @@ export const getMenu = async (req: Request, res: Response) => {
   const { id } = req.user;
   const user = await Users.findOne({ where: { id } });
   console.log(user?.subscription_id);
-  const menu = await Menu.findAll({ where: { userId: id } });
-  return res.status(200).send({ message: "Fetched Successfully", menu });
+  const menus = await Menu.findAll({ where: { userId: id } });
+  return successResponse(res, "Fetched Successfully", menus);
 };
 
 export const getAllCategories = async (req: Request, res: Response) => {
@@ -842,29 +817,16 @@ export const deleteMenu = async (req: Request, res: Response) => {
 
 export const createMenu = async (req: Request, res: Response) => {
   const { id } = req.user;
-  const { menu_title, menu_description, menu_price, extra } = req.body;
-
+  const { menu_title, menu_description, menu_price, extra, menu_picture } = req.body;
   const user = await Users.findOne({ where: { id } });
   const lanlog = await LanLog.findOne({ where: { userId: user?.id } });
-  if (req.file) {
-    const result = await cloudinary.uploader.upload(
-      req.file.path.replace(/ /g, "_")
-    );
-    console.log({
-      menu_title,
-      menu_description,
-      menu_price,
-      lanlogId: lanlog?.id,
-      userId: user?.id,
-      menu_picture: result.secure_url,
-    });
     const menu = await Menu.create({
       menu_title,
       menu_description,
       menu_price,
       lanlogId: lanlog?.id,
       userId: user?.id,
-      menu_picture: result.secure_url,
+      menu_picture,
     });
 
     let valueExtra = [];
@@ -877,10 +839,7 @@ export const createMenu = async (req: Request, res: Response) => {
       });
     }
     await Extra.bulkCreate(valueExtra);
-    return res.status(200).send({ message: "Created Successfully", menu });
-  } else {
-    return res.status(400).send({ message: "Image is Required" });
-  }
+    return successResponse(res, "Created Successfully")
 };
 
 export const updateMenu = async (req: Request, res: Response) => {

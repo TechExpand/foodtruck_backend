@@ -121,15 +121,17 @@ export const verifyOtp = async (req: Request, res: Response) => {
 
 
 export const googleLogin = async (req: Request, res: Response) => {
-  let { accessToken } = req.body;
+  let { accessToken, type, fcmToken } = req.body;
   const response = await axios.get("https://www.googleapis.com/oauth2/v2/userinfo", {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
   const user = await Users.findOne({ where: { email: response?.data?.email} });
   if (!user) return errorResponse(res, "User does not exist");
+  if(user.type != UserType.VENDOR && type == UserType.VENDOR) return errorResponse(res, "You don't have access to a Vendor Account");
   const match = await compare(response?.data?.id, user.password);
   if (!match) return errorResponse(res, "Invalid Credentials");
   let token = sign({ id: user.id, email: user.email }, TOKEN_SECRET);
+  await user.update({fcmToken})
   return successResponse(res, "Success login", { token, type: user.type });
 };
 
@@ -181,6 +183,7 @@ export const validateReg = async (req: Request, res: Response) => {
   else if (!userExist && otpType==="FORGET") return errorResponse(res, "Email doesn't exist");
   const serviceId = randomId(12);
   const codeEmail = String(Math.floor(1000 + Math.random() * 9000));
+  console.log(codeEmail)
   await Verify.create({
     serviceId,
     code: codeEmail,
@@ -190,7 +193,6 @@ export const validateReg = async (req: Request, res: Response) => {
     type,
     secret_key: createRandomRef(12, "foodtruck"),
   });
-  console.log(codeEmail);
   const emailResult = await sendEmailResend(
     email,
     "Foodtruck otp code",
@@ -200,12 +202,15 @@ export const validateReg = async (req: Request, res: Response) => {
 };
 
 export const login = async (req: Request, res: Response) => {
-  let { email, password } = req.body;
+  let { email, password, type , fcmToken} = req.body;
   const user = await Users.findOne({ where: { email } });
   if (!user) return errorResponse(res, "User does not exist");
+  console.log(user.type);
+  if(user.type != UserType.VENDOR && type == UserType.VENDOR) return errorResponse(res, "You don't have access to a Vendor Account");
   const match = await compare(password, user.password);
   if (!match) return errorResponse(res, "Invalid Credentials");
   let token = sign({ id: user.id, email: user.email }, TOKEN_SECRET);
+  await user.update({fcmToken})
   return successResponse(res, "Success login", { token, type: user.type });
 };
 

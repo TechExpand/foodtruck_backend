@@ -66,6 +66,7 @@ const getConfig = (): Config => {
 			'/foodtruck/all-categories',
 			'/foodtruck/google/register/',
 			"/foodtruck/email/",
+			'/foodtruck/get-tags',
 			"/foodtruck/users/validate/",
 			'/foodtruck/verify-otp',
 			'/foodtruck/send-otp',
