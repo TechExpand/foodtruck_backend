@@ -99,12 +99,10 @@ export const createProfile = async (req: Request, res: Response) => {
 
 export const updateToken = async (req: Request, res: Response) => {
   let { id } = req.user;
-  let { fcmToken } = req.body;
+  let { fcmToken } = req.query;
   const user = await Users.findOne({ where: { id } });
   await user?.update({ fcmToken });
-  return res
-    .status(200)
-    .send({ message: "Updated Successfully", status: true });
+  return successResponse(res, "success");
 };
 
 export const updateProfile = async (req: Request, res: Response) => {
@@ -526,6 +524,38 @@ export const getVendorProfileV2 = async (req: Request, res: Response) => {
   return successResponse(res, "Profile Fetched", profile);
 };
 
+
+
+export const getMainVendorProfile = async (req: Request, res: Response) => {
+  const { id } = req.user;
+  const profile = await Profile.findOne({
+    where: {
+      userId: id,
+    },
+    include: [
+      {
+        model: Users,
+       
+      }]
+  });
+  console.log(profile)
+  return successResponse(res, "Profile Fetched", profile);
+};
+
+
+export const getVendorOrder = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const order = await OrderV2.findAll({
+      where: { profileId: id },
+      include: [
+          { model: Profile, include: [{ model: LanLog }] },
+          { model: Users },
+          { model: CartProduct , include: [{model: Menu}]},
+      ]
+  });
+  return successResponse(res, "Fetched Successfully", order)
+}
+
 export const getVendorProfile = async (req: Request, res: Response) => {
   const { id } = req.user;
   const profile = await Profile.findOne({
@@ -720,7 +750,7 @@ export const getMenu = async (req: Request, res: Response) => {
   const { id } = req.user;
   const user = await Users.findOne({ where: { id } });
   console.log(user?.subscription_id);
-  const menus = await Menu.findAll({ where: { userId: id } });
+  const menus = await Menu.findAll({ where: { userId: id } , include: [{model: Extra}]});
   return successResponse(res, "Fetched Successfully", menus);
 };
 
@@ -812,7 +842,7 @@ export const deleteMenu = async (req: Request, res: Response) => {
   const { id } = req.params;
   const menu = await Menu.findOne({ where: { id } });
   await menu?.destroy();
-  return res.status(200).send({ message: "Deleted Successfully", menu });
+  return successResponse(res, "Deleted Successfully")
 };
 
 export const createMenu = async (req: Request, res: Response) => {
@@ -845,29 +875,26 @@ export const createMenu = async (req: Request, res: Response) => {
 export const updateMenu = async (req: Request, res: Response) => {
   const { id } = req.query;
   // console.log(userId);
-  const { menu_title, menu_description, menu_price, extra } = req.body;
+  const { menu_title, menu_description, menu_price, menu_picture, extra } = req.body;
 
   const user = await Users.findOne({ where: { id: req.user.id } });
   const lanlog = await LanLog.findOne({ where: { userId: user?.id } });
-  if (req.file) {
-    const result = await cloudinary.uploader.upload(
-      req.file.path.replace(/ /g, "_")
-    );
     const menu = await Menu.findOne({ where: { id } });
-    const extras = await Extra.findAll({ menuId: id });
+    const extras = await Extra.findAll({ where: {menuId: id }});
+ 
     let ids = [];
-    for (let value of extra ?? []) {
+    for (let value of extras ?? []) {
       ids.push(value.id);
     }
-
+  
     await Extra.destroy({ where: { id: ids } });
     await menu.update({
       menu_title: menu_title ?? menu?.menu_title,
       menu_description: menu_description ?? menu?.menu_description,
       menu_price: menu_price ?? menu?.menu_price,
       lanlogId: lanlog?.id,
-      userId: user?.id,
-      menu_picture: result.secure_url,
+      menu_picture: menu_picture ?? menu?.menu_picture,
+      userId: user?.id
     });
     let valueExtra = [];
     for (let value of extra ?? []) {
@@ -879,35 +906,8 @@ export const updateMenu = async (req: Request, res: Response) => {
       });
     }
     await Extra.bulkCreate(valueExtra);
-    return res.status(200).send({ message: "Updated Successfully", menu });
-  } else {
-    const menu = await Menu.findOne({ where: { id } });
-    const extras = await Extra.findAll({ menuId: id });
-    let ids = [];
-    for (let value of extra ?? []) {
-      ids.push(value.id);
-    }
-    await Extra.destroy({ where: { id: ids } });
-    await menu.update({
-      menu_title: menu_title ?? menu?.menu_title,
-      menu_description: menu_description ?? menu?.menu_description,
-      menu_price: menu_price ?? menu?.menu_price,
-      lanlogId: lanlog?.id,
-      userId: user?.id,
-      menu_picture: menu.menu_picture,
-    });
-    let valueExtra = [];
-    for (let value of extra ?? []) {
-      valueExtra.push({
-        extra_title: value.extra_title,
-        extra_description: value.extra_description,
-        extra_price: value.extra_price,
-        menuId: menu.id,
-      });
-    }
-    await Extra.bulkCreate(valueExtra);
-    return res.status(200).send({ message: "Updated Successfully", menu });
-  }
+    return successResponse(res, "Updated Successfully")
+  
 };
 
 export const updateEvent = async (req: Request, res: Response) => {

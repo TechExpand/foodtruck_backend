@@ -14,12 +14,14 @@ import {
   getFirstFivePorpular,
   getHomeDetails,
   getLanLog,
+  getMainVendorProfile,
   getMenu,
   getProfile,
   getSubscription,
   getUser,
   getVendorByTag,
   getVendorEvent,
+  getVendorOrder,
   getVendorProfile,
   getVendorProfileV2,
   getVendorUserProfile,
@@ -67,6 +69,7 @@ routes.delete("/user", deleteUser);
 routes.get("/all-categories", getAllCategories);
 routes.get("/profile", getVendorProfile);
 routes.get("/profileV2", getVendorProfileV2);
+routes.get('/get-vendor-profile', getMainVendorProfile)
 routes.get("/vendor-profile", getVendorUserProfile);
 
 routes.put("/profile", uploads.single("pro_pic"), updateProfile);
@@ -86,13 +89,14 @@ routes.get("/get-order", getOrder);
 routes.get("/vendor-by-tags", getVendorByTag);
 routes.get("/get-order-v2", getOrderV2);
 routes.get("/notify-order", notifyOrder);
-routes.get("/notify-orderV2", notifyOrderV2);
+routes.post("/notify-orderV2", notifyOrderV2);
 routes.post("/delete-favourite", deleteFavourite);
 routes.get("/get-tags", getTags);
+routes.get("/get-vendor-orders/:id", getVendorOrder)
 routes.delete("/menu/:id", deleteMenu);
 routes.post("/menu", createMenu);
 routes.post("/event", uploads.single("menu_picture1"), createEvent);
-routes.put("/menu", uploads.single("menu_picture1"), updateMenu);
+routes.put("/menu", updateMenu);
 routes.put("/event", uploads.single("menu_picture1"), updateEvent);
 routes.post("/rating", rateProfile);
 routes.get("/rating", fetchRate);
@@ -103,7 +107,7 @@ routes.get("/subscription", getSubscription);
 routes.get("/cancelsubscription", cancelSubscription);
 routes.get("/activesubscription", createSubscription);
 routes.put("/lanlog", updateLanLog);
-routes.post("/token", updateToken);
+routes.get("/token", updateToken);
 
 routes.post("/sendTest", sendTestEmailCon);
 

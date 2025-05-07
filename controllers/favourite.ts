@@ -120,7 +120,7 @@ export const notifyOrder = async (req: Request, res: Response) => {
 
 
 export const notifyOrderV2 = async (req: Request, res: Response) => {
-    const { status, orderid } = req.query;
+    const { status, orderid } = req.body;
 
     const order = await OrderV2.findOne({
         where: { id: orderid },

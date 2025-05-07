@@ -23,22 +23,24 @@ export class Profile extends Model {
 	@Column(DataType.STRING)
 	business_name!: string;
 
-
+	@Default([])
 	@AllowNull(true)
 	@Column(DataType.JSON)
 	tag!: any;
 	
 
+	@Default([])
 	@AllowNull(true)
 	@Column(DataType.JSON)
 	days!: any;
 
+	@Default('')
 	@AllowNull(true)
 	@Column(DataType.STRING)
 	closeTime!: any;
 
 
-
+	@Default('')
 	@AllowNull(true)
 	@Column(DataType.STRING)
 	openingTime!: any;
