@@ -25,20 +25,6 @@ var ProfileType;
     ProfileType["PROFESSIONAL"] = "PROFESSIONAL";
 })(ProfileType || (exports.ProfileType = ProfileType = {}));
 let Profile = class Profile extends sequelize_typescript_1.Model {
-    // @BeforeCreate
-    // static setvalue(instance: Profile) {
-    // 	const stringValue = instance.tag
-    // 	return stringValue ? stringValue.split(',') : null;
-    // }
-    // @BeforeFindAfterExpandIncludeAll
-    // static getValue(instance: Profile) {
-    // 	const arrayValue = instance.tag ? instance.tag.join(',') : '';
-    // 	return arrayValue;
-    // 	// this.setDataValue('studentIds', arrayValue);
-    // }
-    static capitalizeName(instance) {
-        instance.tag = instance.tag.toLowerCase();
-    }
 };
 exports.Profile = Profile;
 __decorate([
@@ -47,10 +33,29 @@ __decorate([
     __metadata("design:type", String)
 ], Profile.prototype, "business_name", void 0);
 __decorate([
+    (0, sequelize_typescript_1.Default)([]),
+    (0, sequelize_typescript_1.AllowNull)(true),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.JSON),
+    __metadata("design:type", Object)
+], Profile.prototype, "tag", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Default)([]),
+    (0, sequelize_typescript_1.AllowNull)(true),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.JSON),
+    __metadata("design:type", Object)
+], Profile.prototype, "days", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Default)(''),
     (0, sequelize_typescript_1.AllowNull)(true),
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
     __metadata("design:type", Object)
-], Profile.prototype, "tag", void 0);
+], Profile.prototype, "closeTime", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Default)(''),
+    (0, sequelize_typescript_1.AllowNull)(true),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
+    __metadata("design:type", Object)
+], Profile.prototype, "openingTime", void 0);
 __decorate([
     (0, sequelize_typescript_1.AllowNull)(false),
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
@@ -114,12 +119,6 @@ __decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => LanLog_1.LanLog, { onDelete: 'CASCADE' }),
     __metadata("design:type", LanLog_1.LanLog)
 ], Profile.prototype, "lanlog", void 0);
-__decorate([
-    sequelize_typescript_1.BeforeCreate,
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Profile]),
-    __metadata("design:returntype", void 0)
-], Profile, "capitalizeName", null);
 exports.Profile = Profile = __decorate([
     (0, sequelize_typescript_1.Table)({ timestamps: true, tableName: 'profile' })
 ], Profile);

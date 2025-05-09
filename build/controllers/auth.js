@@ -110,17 +110,20 @@ const verifyOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.verifyOtp = verifyOtp;
 const googleLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
-    let { accessToken } = req.body;
+    let { accessToken, type, fcmToken } = req.body;
     const response = yield axios_1.default.get("https://www.googleapis.com/oauth2/v2/userinfo", {
         headers: { Authorization: `Bearer ${accessToken}` },
     });
     const user = yield Users_1.Users.findOne({ where: { email: (_a = response === null || response === void 0 ? void 0 : response.data) === null || _a === void 0 ? void 0 : _a.email } });
     if (!user)
         return (0, utility_1.errorResponse)(res, "User does not exist");
+    if (user.type != Users_1.UserType.VENDOR && type == Users_1.UserType.VENDOR)
+        return (0, utility_1.errorResponse)(res, "You don't have access to a Vendor Account");
     const match = yield (0, bcryptjs_1.compare)((_b = response === null || response === void 0 ? void 0 : response.data) === null || _b === void 0 ? void 0 : _b.id, user.password);
     if (!match)
         return (0, utility_1.errorResponse)(res, "Invalid Credentials");
     let token = (0, jsonwebtoken_1.sign)({ id: user.id, email: user.email }, TOKEN_SECRET);
+    yield user.update({ fcmToken });
     return (0, utility_1.successResponse)(res, "Success login", { token, type: user.type });
 });
 exports.googleLogin = googleLogin;
@@ -170,6 +173,7 @@ const validateReg = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         return (0, utility_1.errorResponse)(res, "Email doesn't exist");
     const serviceId = (0, utility_1.randomId)(12);
     const codeEmail = String(Math.floor(1000 + Math.random() * 9000));
+    console.log(codeEmail);
     yield Verify_1.Verify.create({
         serviceId,
         code: codeEmail,
@@ -179,20 +183,23 @@ const validateReg = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         type,
         secret_key: (0, utility_1.createRandomRef)(12, "foodtruck"),
     });
-    console.log(codeEmail);
     const emailResult = yield (0, sms_1.sendEmailResend)(email, "Foodtruck otp code", (0, template_1.templateEmail)("OTP CODE", codeEmail.toString()));
     return (0, utility_1.successResponse)(res, "Successful", serviceId);
 });
 exports.validateReg = validateReg;
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let { email, password } = req.body;
+    let { email, password, type, fcmToken } = req.body;
     const user = yield Users_1.Users.findOne({ where: { email } });
     if (!user)
         return (0, utility_1.errorResponse)(res, "User does not exist");
+    console.log(user.type);
+    if (user.type != Users_1.UserType.VENDOR && type == Users_1.UserType.VENDOR)
+        return (0, utility_1.errorResponse)(res, "You don't have access to a Vendor Account");
     const match = yield (0, bcryptjs_1.compare)(password, user.password);
     if (!match)
         return (0, utility_1.errorResponse)(res, "Invalid Credentials");
     let token = (0, jsonwebtoken_1.sign)({ id: user.id, email: user.email }, TOKEN_SECRET);
+    yield user.update({ fcmToken });
     return (0, utility_1.successResponse)(res, "Success login", { token, type: user.type });
 });
 exports.login = login;

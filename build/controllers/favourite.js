@@ -13,13 +13,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.search = exports.deleteFavourite = exports.getp = exports.postOrderV2 = exports.postOrder = exports.postFavourite = exports.notifyOrderV2 = exports.notifyOrder = exports.getOrderV2 = exports.getOrder = exports.getFavourite = void 0;
+exports.search = exports.deleteFavourite = exports.getp = exports.postOrderV2 = exports.postOrder = exports.postFavourite = exports.notifyOrderV2 = exports.notifyOrder = exports.getOrderV2 = exports.getOrder = exports.getTags = exports.getFavourite = void 0;
 const utility_1 = require("../helpers/utility");
 const LanLog_1 = require("../models/LanLog");
 const Profile_1 = require("../models/Profile");
 const stripe_1 = __importDefault(require("stripe"));
 const Users_1 = require("../models/Users");
 const Menus_1 = require("../models/Menus");
+const Tag_1 = require("../models/Tag");
 const configSetup_1 = __importDefault(require("../config/configSetup"));
 const Favourite_1 = require("../models/Favourite");
 const sequelize_1 = require("sequelize");
@@ -43,6 +44,11 @@ const getFavourite = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     return (0, utility_1.successResponse)(res, "Fetched Successfully", favourite);
 });
 exports.getFavourite = getFavourite;
+const getTags = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const tags = yield Tag_1.Tag.findAll();
+    return (0, utility_1.successResponse)(res, "Fetched Successfully", tags);
+});
+exports.getTags = getTags;
 const getOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.user;
     const order = yield Order_1.Order.findAll({
@@ -96,7 +102,7 @@ const notifyOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 });
 exports.notifyOrder = notifyOrder;
 const notifyOrderV2 = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { status, orderid } = req.query;
+    const { status, orderid } = req.body;
     const order = yield OrderV2_1.OrderV2.findOne({
         where: { id: orderid },
         include: [

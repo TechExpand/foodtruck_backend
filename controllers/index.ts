@@ -464,18 +464,10 @@ export const getVendorByTag = async (req: Request, res: Response) => {
   const cleanTag = tag.replace(/[%&*]/g, "");
   let distance_list = [];
   const vendors = await Profile.findAll({
-    where: {
-      [Op.or]: [
-        {
-          tag: {
-            [Op.like]: "%" + `${cleanTag.toString().toLowerCase()}` + "%",
-          },
-        },
-      ],
-    },
-    include: [{ model: Users }, { model: LanLog }],
+    where: Sequelize.literal(`LOWER(tag) LIKE '%${cleanTag.toString().toLowerCase()}%'`),
+    include: [{ model: Users }, { model: LanLog }
+    ],
   });
-
   for (let vendor of vendors) {
     const profile = vendor.dataValues;
     const distance = getDistanceFromLatLonInKm(
@@ -485,7 +477,7 @@ export const getVendorByTag = async (req: Request, res: Response) => {
       Number(log)
     );
 
-    if (distance <= Number(1500000000)) {
+    if (distance <= Number(15000000000)) {
       if (vendor.user.dataValues.type == UserType.VENDOR) {
         distance_list.push({
           ...vendor.dataValues.lanlog.dataValues,

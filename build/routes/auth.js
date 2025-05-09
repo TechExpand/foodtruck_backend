@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const controllers_1 = require("../controllers");
 const auth_1 = require("../controllers/auth");
-const upload_1 = require("../helpers/upload");
 const routes = (0, express_1.Router)();
 /*************************************************************************
 API CALL START
@@ -17,7 +16,7 @@ routes.post('/google/register', auth_1.googleRegister);
 routes.post('/google/login', auth_1.googleLogin);
 routes.post('/token/login/', auth_1.login);
 routes.post('/users/validate/', auth_1.validateReg);
-routes.post('/lanlog', controllers_1.createLocation);
-routes.post('/createprofile/', upload_1.uploads.single("pro_pic"), controllers_1.createProfile);
+routes.post('/lanlog', controllers_1.updateLocation);
+routes.post('/createprofile/', controllers_1.createProfile);
 exports.default = routes;
 //# sourceMappingURL=auth.js.map
