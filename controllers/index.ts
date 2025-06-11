@@ -5,6 +5,7 @@ import {
   getDistanceFromLatLonInKm,
   estimateCarCityTimeRange,
   successResponse,
+  formatStripeTimestamp,
 } from "../helpers/utility";
 import { Request, Response } from "express";
 import { LanLog } from "../models/LanLog";
@@ -18,7 +19,7 @@ import { Menu } from "../models/Menus";
 import { Events } from "../models/Event";
 import { PopularVendor } from "../models/Popular";
 import { Tag } from "../models/Tag";
-import { HomeTag } from "../models/HomeTag";
+import { SpecialTag } from "../models/SpecialTag";
 import { Favourite } from "../models/Favourite";
 import { AllTag } from "../models/Alltags";
 import { Op, Sequelize } from "sequelize";
@@ -30,7 +31,9 @@ import { templateEmail } from "../config/template";
 import { sendToken } from "../services/notification";
 import { Rating } from "../models/Rate";
 import { OrderV2 } from "../models/OrderV2";
-import { successResponse } from '../helpers/utility';
+import { successResponse } from "../helpers/utility";
+import { ProfileViews } from "../models/ProfileViews";
+import { FeaturedEventTrucks } from "../models/FeaturedEventTrucks";
 
 const cloudinary = require("cloudinary").v2;
 const stripe = new Stripe(config.STRIPE_SK, {
@@ -71,7 +74,8 @@ export const createProfile = async (req: Request, res: Response) => {
   const user = await Users.findOne({ where: { id } });
   const lanlog = await LanLog.findOne({ where: { userId: id } });
   const profileExist = await Profile.findOne({ where: { userId: id } });
-  if (profileExist && user && lanlog) return errorResponse(res, "Profile Already Exist");
+  if (profileExist && user && lanlog)
+    return errorResponse(res, "Profile Already Exist");
   const location = await LanLog.create({
     Lan: lan,
     Log: log,
@@ -106,44 +110,21 @@ export const updateToken = async (req: Request, res: Response) => {
 };
 
 export const updateProfile = async (req: Request, res: Response) => {
-  let { business_name, unique_detail, detail, phone, tag } = req.body;
+  let { business_name, unique_detail, detail, phone, tag, pro_pic } = req.body;
   let { id } = req.user;
-  if (req.file) {
-    const result = await cloudinary.uploader.upload(
-      req.file.path.replace(/ /g, "_")
-    );
-    const location = await LanLog.findOne({ where: { userId: id } });
-    const profile = await Profile.findOne({ where: { userId: id } });
-    await profile?.update({
-      business_name: business_name ?? profile.business_name,
-      unique_detail: unique_detail ?? profile.unique_detail,
-      detail: detail ?? profile.detail,
-      phone: phone ?? profile.phone,
-      lanlogId: location!.id,
-      userId: id,
-      pro_pic: result.secure_url,
-      tag: tag ?? profile.tag,
-    });
-    return res
-      .status(200)
-      .send({ message: "Updated Successfully", status: true });
-  } else {
-    const location = await LanLog.findOne({ where: { userId: id } });
-    const profile = await Profile.findOne({ where: { userId: id } });
-    await profile?.update({
-      business_name: business_name ?? profile.business_name,
-      unique_detail: unique_detail ?? profile.unique_detail,
-      detail: detail ?? profile.detail,
-      phone: phone ?? profile.phone,
-      lanlogId: location!.id,
-      userId: id,
-      pro_pic: profile.pro_pic,
-      tag: tag ?? profile.tag,
-    });
-    return res
-      .status(200)
-      .send({ message: "Updated Successfully", status: true });
-  }
+  const location = await LanLog.findOne({ where: { userId: id } });
+  const profile = await Profile.findOne({ where: { userId: id } });
+  await profile?.update({
+    business_name: business_name ?? profile.business_name,
+    unique_detail: unique_detail ?? profile.unique_detail,
+    detail: detail ?? profile.detail,
+    phone: phone ?? profile.phone,
+    lanlogId: location!.id,
+    userId: id,
+    pro_pic: pro_pic ?? profile.pro_pic,
+    tag: tag ?? profile.tag,
+  });
+  return successResponse(res, "Updated Successfully");
 };
 
 export const createSubscription = async (req: Request, res: Response) => {
@@ -186,14 +167,12 @@ export const createSubscription = async (req: Request, res: Response) => {
     });
     await profile?.update({ subcription_id: subscription.id });
     if (subscription.latest_invoice.payment_intent) {
-      return successResponse(res, "Subscribe Successfully")
+      return successResponse(res, "Subscribe Successfully");
     } else {
-      return successResponse(res, "Subscribe Successfully")
+      return successResponse(res, "Subscribe Successfully");
     }
   } catch (e) {
-    return errorResponse(res, e.message)
-    
-    
+    return errorResponse(res, e.message);
   }
 };
 
@@ -202,14 +181,14 @@ export const cancelSubscription = async (req: Request, res: Response) => {
   const user = await Users.findOne({ where: { id } });
   const subscription = await stripe.subscriptions.cancel(user!.subscription_id);
   const status = await stripe.subscriptions.retrieve(user!.subscription_id);
-  return successResponse(res, "Canceled Successfully")
+  return successResponse(res, "Canceled Successfully");
 };
 
 export const reactivateSubscription = async (req: Request, res: Response) => {
   let { id } = req.user;
   const user = await Users.findOne({ where: { id } });
   const subscription = await stripe.subscriptions.resume(user!.subscription_id);
-  return successResponse(res, "You have subscribed to foodtruck.express plan")
+  return successResponse(res, "You have subscribed to foodtruck.express plan");
 };
 
 export const addNewCard = async (req: Request, res: Response) => {
@@ -232,7 +211,7 @@ export const addNewCard = async (req: Request, res: Response) => {
     customer: user!.customer_id,
   });
   await user?.update({ token_id: token.id, card_id: token.card?.id });
-  return successResponse(res, "Added Successfully")
+  return successResponse(res, "Added Successfully");
 };
 
 export const onlineLanlogVendors = async (req: Request, res: Response) => {
@@ -250,8 +229,9 @@ export const onlineLanlogVendors = async (req: Request, res: Response) => {
           type: UserType.VENDOR,
         },
         attributes: ["createdAt", "updatedAt", "email", "type"],
+        required: true,
       },
-      { model: Profile },
+      { model: Profile, required: true },
     ],
   });
 
@@ -356,17 +336,58 @@ export const getProfile = async (req: Request, res: Response) => {
   return res.status(200).send({ message: "Fetched Successfully", profile });
 };
 
-export const getFirstFiveEvents = async (req: Request, res: Response) => {
+export const getHomeEvents = async (req: Request, res: Response) => {
   const currentDate = new Date();
-  const event = await Events.findAll({
+  const {lan, log} = req.query;
+  let event = []
+  const eventFound = await Events.findAll({
     where: {
-      formated_date: {
+      event_date: {
         [Sequelize.Op.gt]: currentDate,
       },
     },
-    include: [{ model: Users, include: [{ model: Profile }] }],
+    include: [
+      {
+        model: FeaturedEventTrucks,
+        include: [
+          {
+            model: Profile,
+            include: [
+              {
+                model: Users,
+              },
+              { model: LanLog },
+            ],
+          },
+        ],
+      },
+    ],
   });
-  return res.status(200).send({ message: "Fetched Successfully", event });
+   
+  for(let value of eventFound){
+    let distance_list = []
+     for(let vendor of value.featured){
+
+         const distance = getDistanceFromLatLonInKm(
+      Number(vendor.dataValues.profile.dataValues.lanlog.dataValues.Lan),
+      Number(vendor.dataValues.profile.dataValues.lanlog.dataValues.Log),
+      Number(lan),
+      Number(log)
+    );
+     distance_list.push({
+          ...vendor.dataValues.profile.dataValues.lanlog.dataValues,
+          user: vendor.dataValues.profile.dataValues.user.dataValues,
+          profile: vendor.dataValues.profile.dataValues,
+          distance,
+          time: estimateCarCityTimeRange(distance),
+        });
+        distance_list.sort(
+          (a, b) => parseFloat(a.distance) - parseFloat(b.distance)
+        );
+     }
+    event.push({...value.dataValues, featured: distance_list})
+  }
+  return successResponse(res, "Fetched Successfully", event);
 };
 
 export const getVendorEvent = async (req: Request, res: Response) => {
@@ -393,6 +414,15 @@ export const getFirstFivePorpular = async (req: Request, res: Response) => {
   return res.status(200).send({ message: "Fetched Successfully", popular });
 };
 
+export const getReviews = async (req: Request, res: Response) => {
+  const { id } = req.query;
+  const ratings = await Rating.findAll({
+    where: { truckId: id },
+    include: [{ model: Users }],
+  });
+  return successResponse(res, "Fetched Successfully", ratings);
+};
+
 export const getCategories = async (req: Request, res: Response) => {
   const tags = await Tag.findAll({});
   return res.status(200).send({ message: "Fetched Successfully", tags });
@@ -400,14 +430,10 @@ export const getCategories = async (req: Request, res: Response) => {
 
 export const getUser = async (req: Request, res: Response) => {
   const { id } = req.user;
-
-  const user = await Users.findAll({
+  const user = await Users.findOne({
     where: { id },
   });
-  return res.status(200).send({
-    message: "Fetched Successfully",
-    user,
-  });
+  return successResponse(res, "Fetched Successfully", user);
 };
 
 export const deleteUser = async (req: Request, res: Response) => {
@@ -446,6 +472,7 @@ export const getVendorUserProfile = async (req: Request, res: Response) => {
       { model: Profile },
     ],
   });
+  await ProfileViews.create({ profileId: vendor?.profile.id, userId: id });
   const distance = getDistanceFromLatLonInKm(
     Number(vendor.Lan),
     Number(vendor.Log),
@@ -460,14 +487,30 @@ export const getVendorUserProfile = async (req: Request, res: Response) => {
 };
 
 export const getVendorByTag = async (req: Request, res: Response) => {
-  const { tag, lan, log } = req.query;
-  const cleanTag = tag.replace(/[%&*]/g, "");
+  const { tagName, lan, log, tagId } = req.query;
+  const cleanTag = tagName.replace(/[%&*]/g, "");
+  let vendors;
   let distance_list = [];
-  const vendors = await Profile.findAll({
-    where: Sequelize.literal(`LOWER(tag) LIKE '%${cleanTag.toString().toLowerCase()}%'`),
-    include: [{ model: Users }, { model: LanLog }
-    ],
+  const specialTag = await SpecialTag.findOne({
+    where: {
+      tagId,
+    },
   });
+  if (specialTag) {
+    vendors = await Profile.findAll({
+      where: {
+        specializedTagId: specialTag.id,
+      },
+      include: [{ model: Users }, { model: LanLog }],
+    });
+  } else {
+    vendors = await Profile.findAll({
+      where: Sequelize.literal(
+        `LOWER(tag) LIKE '%${cleanTag.toString().toLowerCase()}%'`
+      ),
+      include: [{ model: Users }, { model: LanLog }],
+    });
+  }
   for (let vendor of vendors) {
     const profile = vendor.dataValues;
     const distance = getDistanceFromLatLonInKm(
@@ -492,7 +535,6 @@ export const getVendorByTag = async (req: Request, res: Response) => {
       }
     }
   }
-  console.log(distance_list);
   return successResponse(res, "Vendor Fetched", distance_list);
 };
 
@@ -516,8 +558,6 @@ export const getVendorProfileV2 = async (req: Request, res: Response) => {
   return successResponse(res, "Profile Fetched", profile);
 };
 
-
-
 export const getMainVendorProfile = async (req: Request, res: Response) => {
   const { id } = req.user;
   const profile = await Profile.findOne({
@@ -527,26 +567,37 @@ export const getMainVendorProfile = async (req: Request, res: Response) => {
     include: [
       {
         model: Users,
-       
-      }]
+      },
+      { model: LanLog },
+    ],
   });
-  console.log(profile)
-  return successResponse(res, "Profile Fetched", profile);
+  let subscription: unknown;
+  try {
+    const result = await stripe.subscriptions.retrieve(
+      profile?.user.subscription_id
+    );
+    subscription = {
+      status: result.status,
+      dueDate: formatStripeTimestamp(result.current_period_end),
+    };
+  } catch (error) {
+    subscription = { status: "No Subscription", dueDate: "" };
+  }
+  return successResponse(res, "Profile Fetched", { profile, subscription });
 };
-
 
 export const getVendorOrder = async (req: Request, res: Response) => {
   const { id } = req.params;
   const order = await OrderV2.findAll({
-      where: { profileId: id },
-      include: [
-          { model: Profile, include: [{ model: LanLog }] },
-          { model: Users },
-          { model: CartProduct , include: [{model: Menu}]},
-      ]
+    where: { profileId: id },
+    include: [
+      { model: Profile, include: [{ model: LanLog }] },
+      { model: Users },
+      { model: CartProduct, include: [{ model: Menu }] },
+    ],
   });
-  return successResponse(res, "Fetched Successfully", order)
-}
+  return successResponse(res, "Fetched Successfully", order);
+};
 
 export const getVendorProfile = async (req: Request, res: Response) => {
   const { id } = req.user;
@@ -575,23 +626,6 @@ export const getVendorProfile = async (req: Request, res: Response) => {
   });
 };
 
-export const getSubscription = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.user;
-    const user = await Users.findOne({ where: { id } });
-    const subscription = await stripe.subscriptions.retrieve(
-      user?.subscription_id
-    );
-    return res
-      .status(200)
-      .send({ message: "Fetched Successfully", status: subscription.status });
-  } catch (error) {
-    return res
-      .status(200)
-      .send({ message: "Fetched Successfully", status: "null" });
-  }
-};
-
 export const getLanLog = async (req: Request, res: Response) => {
   const { id } = req.user;
   const lanlog = await LanLog.findAll({
@@ -607,10 +641,11 @@ export const getLanLog = async (req: Request, res: Response) => {
 };
 
 export const updateLanLog = async (req: Request, res: Response) => {
-  const { id, online } = req.body;
-  const lanlog = await LanLog.findOne({ where: { id } });
+  const { online } = req.body;
+  const { id } = req.user;
+  const lanlog = await LanLog.findOne({ where: { userId: id } });
   await lanlog?.update({ online });
-  return res.status(200).send({ message: "Fetched Successfully", lanlog });
+  return successResponse(res, "Fetched Successfully");
 };
 
 export const rateProfile = async (req: Request, res: Response) => {
@@ -742,17 +777,21 @@ export const getMenu = async (req: Request, res: Response) => {
   const { id } = req.user;
   const user = await Users.findOne({ where: { id } });
   console.log(user?.subscription_id);
-  const menus = await Menu.findAll({ where: { userId: id } , include: [{model: Extra}]});
+  const menus = await Menu.findAll({
+    where: { userId: id },
+    include: [{ model: Extra }],
+  });
   return successResponse(res, "Fetched Successfully", menus);
 };
 
 export const getAllCategories = async (req: Request, res: Response) => {
-  const tags = await AllTag.findAll();
+  const tags = await AllTag.findAll({ order: [["createdAt", "ASC"]] });
+  tags.reverse();
   return successResponse(res, "Fetched Successfully", tags);
 };
 
 export const getHomeDetails = async (req: Request, res: Response) => {
-  const tags = await HomeTag.findAll({ include: [{ model: Tag }] });
+  const tags = await SpecialTag.findAll({ include: [{ model: Tag }] });
   const profileSecondTag = await Profile.findAll({
     where: {
       [Op.or]: [
@@ -834,72 +873,73 @@ export const deleteMenu = async (req: Request, res: Response) => {
   const { id } = req.params;
   const menu = await Menu.findOne({ where: { id } });
   await menu?.destroy();
-  return successResponse(res, "Deleted Successfully")
+  return successResponse(res, "Deleted Successfully");
 };
 
 export const createMenu = async (req: Request, res: Response) => {
   const { id } = req.user;
-  const { menu_title, menu_description, menu_price, extra, menu_picture } = req.body;
+  const { menu_title, menu_description, menu_price, extra, menu_picture } =
+    req.body;
   const user = await Users.findOne({ where: { id } });
   const lanlog = await LanLog.findOne({ where: { userId: user?.id } });
-    const menu = await Menu.create({
-      menu_title,
-      menu_description,
-      menu_price,
-      lanlogId: lanlog?.id,
-      userId: user?.id,
-      menu_picture,
-    });
+  const menu = await Menu.create({
+    menu_title,
+    menu_description,
+    menu_price,
+    lanlogId: lanlog?.id,
+    userId: user?.id,
+    menu_picture,
+  });
 
-    let valueExtra = [];
-    for (let value of extra ?? []) {
-      valueExtra.push({
-        extra_title: value.extra_title,
-        extra_description: value.extra_description,
-        extra_price: value.extra_price,
-        menuId: menu.id,
-      });
-    }
-    await Extra.bulkCreate(valueExtra);
-    return successResponse(res, "Created Successfully")
+  let valueExtra = [];
+  for (let value of extra ?? []) {
+    valueExtra.push({
+      extra_title: value.extra_title,
+      extra_description: value.extra_description,
+      extra_price: value.extra_price,
+      menuId: menu.id,
+    });
+  }
+  await Extra.bulkCreate(valueExtra);
+  return successResponse(res, "Created Successfully");
 };
 
 export const updateMenu = async (req: Request, res: Response) => {
   const { id } = req.query;
   // console.log(userId);
-  const { menu_title, menu_description, menu_price, menu_picture, extra } = req.body;
+  const { menu_title, menu_description, menu_price, menu_picture, extra } =
+    req.body;
 
   const user = await Users.findOne({ where: { id: req.user.id } });
   const lanlog = await LanLog.findOne({ where: { userId: user?.id } });
-    const menu = await Menu.findOne({ where: { id } });
-    const extras = await Extra.findAll({ where: {menuId: id }});
- 
-    let ids = [];
-    for (let value of extras ?? []) {
-      ids.push(value.id);
-    }
-  
-    await Extra.destroy({ where: { id: ids } });
-    await menu.update({
-      menu_title: menu_title ?? menu?.menu_title,
-      menu_description: menu_description ?? menu?.menu_description,
-      menu_price: menu_price ?? menu?.menu_price,
-      lanlogId: lanlog?.id,
-      menu_picture: menu_picture ?? menu?.menu_picture,
-      userId: user?.id
+  const menu = await Menu.findOne({ where: { id } });
+  const extras = await Extra.findAll({ where: { menuId: id } });
+
+  let ids = [];
+  for (let value of extras ?? []) {
+    ids.push(value.id);
+  }
+
+  await Extra.destroy({ where: { id: ids } });
+  await menu.update({
+    menu_title: menu_title ?? menu?.menu_title,
+    menu_description: menu_description ?? menu?.menu_description,
+    menu_price: menu_price ?? menu?.menu_price,
+    lanlogId: lanlog?.id,
+    menu_picture: menu_picture ?? menu?.menu_picture,
+    userId: user?.id,
+  });
+  let valueExtra = [];
+  for (let value of extra ?? []) {
+    valueExtra.push({
+      extra_title: value.extra_title,
+      extra_description: value.extra_description,
+      extra_price: value.extra_price,
+      menuId: menu.id,
     });
-    let valueExtra = [];
-    for (let value of extra ?? []) {
-      valueExtra.push({
-        extra_title: value.extra_title,
-        extra_description: value.extra_description,
-        extra_price: value.extra_price,
-        menuId: menu.id,
-      });
-    }
-    await Extra.bulkCreate(valueExtra);
-    return successResponse(res, "Updated Successfully")
-  
+  }
+  await Extra.bulkCreate(valueExtra);
+  return successResponse(res, "Updated Successfully");
 };
 
 export const updateEvent = async (req: Request, res: Response) => {
@@ -976,32 +1016,29 @@ export const sendTestEmailCon = async (req: Request, res: Response) => {
 export const createEvent = async (req: Request, res: Response) => {
   try {
     const { id } = req.user;
-    const { event_title, event_description, event_date, event_address } =
-      req.body;
-    const user = await Users.findOne({ where: { id } });
-    if (req.file) {
-      const result = await cloudinary.uploader.upload(
-        req.file.path.replace(/ /g, "_")
-      );
-      let [day, month, year] = event_date.split("-");
-      day = Number(day) + 1;
-      console.log(event_date);
-      console.log(`${year}-${month}-${day}`);
-      const formattedDate = new Date(`${year}-${month}-${day}`);
+    const {
+      event_title,
+      event_description,
+      event_close_time,
+      event_start_time,
+      menu_picture,
+      event_date,
+      event_address,
+    } = req.body;
 
-      const event = await Events.create({
-        event_title,
-        event_description,
-        event_address,
-        event_date,
-        formated_date: formattedDate,
-        userId: user?.id,
-        menu_picture: result.secure_url,
-      });
-      return res.status(200).send({ message: "Created Successfully", event });
-    } else {
-      return res.status(400).send({ message: "Image is Required" });
-    }
+    let [day, month, year] = event_date.split("-");
+    day = Number(day) + 1;
+    const formattedDate = new Date(`${year}-${month}-${day}`);
+    const event = await Events.create({
+      event_title,
+      event_description,
+      event_address,
+      event_close_time,
+      event_start_time,
+      event_date: formattedDate,
+      menu_picture,
+    });
+    return res.status(200).send({ message: "Created Successfully", event });
   } catch (e) {
     console.log(e);
     return res.status(400).send({ message: "Failed" });

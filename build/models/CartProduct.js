@@ -51,6 +51,10 @@ __decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => Menus_1.Menu, { onDelete: 'CASCADE' }),
     __metadata("design:type", Menus_1.Menu)
 ], CartProduct.prototype, "menu", void 0);
+__decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => OrderV2_1.OrderV2, { onDelete: 'CASCADE' }),
+    __metadata("design:type", OrderV2_1.OrderV2)
+], CartProduct.prototype, "OrderV2", void 0);
 exports.CartProduct = CartProduct = __decorate([
     (0, sequelize_typescript_1.Table)({ timestamps: true, tableName: 'cart_product' })
 ], CartProduct);

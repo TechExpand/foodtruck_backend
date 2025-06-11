@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.estimateCarCityTimeRange = exports.getDistanceFromLatLonInKm = exports.createRandomRef = exports.validateEmail = exports.randomId = exports.errorResponse = exports.successResponse = exports.handleResponse = void 0;
+exports.formatStripeTimestamp = exports.estimateCarCityTimeRange = exports.getDistanceFromLatLonInKm = exports.createRandomRef = exports.validateEmail = exports.randomId = exports.errorResponse = exports.successResponse = exports.handleResponse = void 0;
+const luxon_1 = require("luxon");
 const handleResponse = (res, statusCode, status, message, data) => {
     return res.status(statusCode).json({
         status,
@@ -76,4 +77,21 @@ const estimateCarCityTimeRange = (distanceKm) => {
     return `${minMinutes}-${maxMinutes} mins`;
 };
 exports.estimateCarCityTimeRange = estimateCarCityTimeRange;
+function formatStripeTimestamp(unixTimestamp) {
+    const date = luxon_1.DateTime.fromSeconds(unixTimestamp);
+    const dayWithSuffix = `${date.day}${getDaySuffix(date.day)}`;
+    const formatted = `${date.toFormat('cccc')} ${dayWithSuffix} ${date.toFormat('LLL, yyyy')}`;
+    return formatted;
+}
+exports.formatStripeTimestamp = formatStripeTimestamp;
+function getDaySuffix(day) {
+    if (day >= 11 && day <= 13)
+        return 'th';
+    switch (day % 10) {
+        case 1: return 'st';
+        case 2: return 'nd';
+        case 3: return 'rd';
+        default: return 'th';
+    }
+}
 //# sourceMappingURL=utility.js.map

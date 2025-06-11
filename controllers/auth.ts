@@ -215,10 +215,11 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const passwordChange = async (req: Request, res: Response) => {
-  let { newPassword, email } = req.body;
+  let { newPassword, email, oldPassword } = req.body;
   const user = await Users.findOne({ where: { email } });
   if (!user) return errorResponse(res, "User does not exist");
-
+  const match = await compare(oldPassword, user.password);
+  if (!match) return errorResponse(res, "Invalid Credentials");
   hash(newPassword, saltRounds, async function (err, hashedPassword) {
     await user.update({ password: hashedPassword });
     let token = sign({ id: user.id, email: user.email }, TOKEN_SECRET);

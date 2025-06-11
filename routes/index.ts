@@ -10,14 +10,13 @@ import {
   deleteUser,
   fetchRate,
   getAllCategories,
-  getFirstFiveEvents,
+  getHomeEvents,
   getFirstFivePorpular,
   getHomeDetails,
   getLanLog,
   getMainVendorProfile,
   getMenu,
   getProfile,
-  getSubscription,
   getUser,
   getVendorByTag,
   getVendorEvent,
@@ -28,6 +27,7 @@ import {
   onlineLanlogUser,
   onlineLanlogVendors,
   rateProfile,
+  reactivateSubscription,
   sendTestEmailCon,
   updateEvent,
   updateLanLog,
@@ -35,10 +35,13 @@ import {
   updateProfile,
   updateToken,
   vendorEvent,
+  getReviews,
   vendorMenu,
 } from "../controllers";
 import { uploads } from "../helpers/upload";
 import {
+  confirmOrderV2,
+  cancelOrderV2,
   deleteFavourite,
   getFavourite,
   getOrder,
@@ -51,6 +54,8 @@ import {
   postOrder,
   postOrderV2,
   search,
+  getDashboardStats,
+  getNotifications,
 } from "../controllers/favourite";
 
 const routes = Router();
@@ -72,15 +77,16 @@ routes.get("/profileV2", getVendorProfileV2);
 routes.get('/get-vendor-profile', getMainVendorProfile)
 routes.get("/vendor-profile", getVendorUserProfile);
 
-routes.put("/profile", uploads.single("pro_pic"), updateProfile);
+routes.put("/profile", updateProfile);
 routes.get("/locationprofile", getProfile);
 routes.get("/locationmenu", vendorMenu);
 routes.get("/locationevent", vendorEvent);
 routes.get("/menu", getMenu);
 routes.get("/get-home-details", getHomeDetails);
-routes.get("/get-events", getFirstFiveEvents);
+routes.get("/get-events", getHomeEvents);
 routes.get("/get-vendor-event", getVendorEvent);
 routes.get("/get-popular", getFirstFivePorpular);
+routes.get("/get-reviews", getReviews);
 routes.get("/get-favourite", getFavourite);
 routes.post("/add-favourite", postFavourite);
 routes.post("/add-order", postOrder);
@@ -90,6 +96,8 @@ routes.get("/vendor-by-tags", getVendorByTag);
 routes.get("/get-order-v2", getOrderV2);
 routes.get("/notify-order", notifyOrder);
 routes.post("/notify-orderV2", notifyOrderV2);
+routes.post("/confirm-orderV2", confirmOrderV2);
+routes.post("/cancel-orderV2", cancelOrderV2);
 routes.post("/delete-favourite", deleteFavourite);
 routes.get("/get-tags", getTags);
 routes.get("/get-vendor-orders/:id", getVendorOrder)
@@ -103,11 +111,13 @@ routes.get("/rating", fetchRate);
 routes.get("/lanlog", getLanLog);
 routes.get("/search", search);
 routes.get("/getp", getp);
-routes.get("/subscription", getSubscription);
 routes.get("/cancelsubscription", cancelSubscription);
 routes.get("/activesubscription", createSubscription);
+routes.get('/resumesubcription',  reactivateSubscription)
 routes.put("/lanlog", updateLanLog);
 routes.get("/token", updateToken);
+routes.get("/notifications", getNotifications);
+routes.get("/dashboard-stats", getDashboardStats)
 
 routes.post("/sendTest", sendTestEmailCon);
 

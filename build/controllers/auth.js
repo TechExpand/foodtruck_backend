@@ -204,10 +204,13 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.login = login;
 const passwordChange = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let { newPassword, email } = req.body;
+    let { newPassword, email, oldPassword } = req.body;
     const user = yield Users_1.Users.findOne({ where: { email } });
     if (!user)
         return (0, utility_1.errorResponse)(res, "User does not exist");
+    const match = yield (0, bcryptjs_1.compare)(oldPassword, user.password);
+    if (!match)
+        return (0, utility_1.errorResponse)(res, "Invalid Credentials");
     (0, bcryptjs_1.hash)(newPassword, saltRounds, function (err, hashedPassword) {
         return __awaiter(this, void 0, void 0, function* () {
             yield user.update({ password: hashedPassword });

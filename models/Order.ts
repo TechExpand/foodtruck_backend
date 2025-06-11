@@ -1,60 +1,71 @@
-import { Table, Model, Column, DataType, HasOne, BelongsToMany, HasMany, AllowNull, Unique, Default, Index, BelongsTo, ForeignKey } from 'sequelize-typescript';
-import { Users } from './Users';
+import {
+  Table,
+  Model,
+  Column,
+  DataType,
+  HasOne,
+  BelongsToMany,
+  HasMany,
+  AllowNull,
+  Unique,
+  Default,
+  Index,
+  BelongsTo,
+  ForeignKey,
+} from "sequelize-typescript";
+import { Users } from "./Users";
 // import { Professional } from './Professional';
-import { LanLog } from './LanLog';
-import { Profile } from './Profile';
-import { Menu } from './Menus';
+import { LanLog } from "./LanLog";
+import { Profile } from "./Profile";
+import { Menu } from "./Menus";
 
-enum OrderType  {
-    COMPLETED = "COMPLETED",
-    PENDING = "PENDING"
+enum OrderType {
+  CONFIRM_COMPLETION = "CONFIRM_COMPLETION",
+  COMPLETED = "COMPLETED",
+  CANCELED = "CANCELED",
+  PENDING = "PENDING",
 }
 
-@Table({ timestamps: true, tableName: 'order' })
+@Table({ timestamps: true, tableName: "order" })
 export class Order extends Model {
- 
+  @ForeignKey(() => Profile)
+  @AllowNull(true)
+  @Column(DataType.INTEGER)
+  profileId!: number;
 
-	@ForeignKey(() => Profile)
-	@AllowNull(true)
-	@Column(DataType.INTEGER)
-    profileId!: number;
+  @AllowNull(true)
+  @Default([])
+  @Column(DataType.JSON)
+  extras!: any;
 
+  @ForeignKey(() => Users)
+  @AllowNull(true)
+  @Column(DataType.INTEGER)
+  userId!: number;
 
+  @ForeignKey(() => Menu)
+  @AllowNull(true)
+  @Column(DataType.INTEGER)
+  menuId!: number;
 
-    
-	@AllowNull(true)
-	@Default([])
-	@Column(DataType.JSON)
-	extras!: any;
+  @Default(OrderType.PENDING)
+  @AllowNull(true)
+  @Column(
+    DataType.ENUM(
+      OrderType.COMPLETED,
+      OrderType.PENDING,
+      OrderType.CONFIRM_COMPLETION,
+      OrderType.CANCELED
+    )
+  )
+  status!: OrderType;
 
+  @BelongsTo(() => Profile, { onDelete: "CASCADE" })
+  profile!: Profile;
 
+  @BelongsTo(() => Users, { onDelete: "CASCADE" })
+  user!: Users;
 
-    @ForeignKey(() => Users)
-	@AllowNull(true)
-	@Column(DataType.INTEGER)
-    userId!: number;
-
-
-    @ForeignKey(() => Menu)
-	@AllowNull(true)
-	@Column(DataType.INTEGER)
-    menuId!: number;
-
-    @Default(OrderType.PENDING)
-	@AllowNull(true)
-	@Column(DataType.ENUM(OrderType.COMPLETED, OrderType.PENDING))
-	status!: OrderType;
-
-
-	@BelongsTo(() => Profile, { onDelete: 'CASCADE' })
-	profile!: Profile;
-
-
-    @BelongsTo(() => Users, { onDelete: 'CASCADE' })
-	user!: Users;
-
-
-	@BelongsTo(() => Menu, { onDelete: 'CASCADE' })
-	menu!: Menu;
-
+  @BelongsTo(() => Menu, { onDelete: "CASCADE" })
+  menu!: Menu;
 }

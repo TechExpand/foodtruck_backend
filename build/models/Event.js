@@ -11,7 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Events = exports.ProfileType = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
-const Users_1 = require("./Users");
+const FeaturedEventTrucks_1 = require("./FeaturedEventTrucks");
 // export enum UserGender {
 // 	MALE = 'MALE',
 // 	FEMALE = 'FEMALE',
@@ -36,21 +36,26 @@ __decorate([
     __metadata("design:type", String)
 ], Events.prototype, "event_description", void 0);
 __decorate([
+    (0, sequelize_typescript_1.AllowNull)(false),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
+    __metadata("design:type", String)
+], Events.prototype, "event_start_time", void 0);
+__decorate([
+    (0, sequelize_typescript_1.AllowNull)(false),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
+    __metadata("design:type", String)
+], Events.prototype, "event_close_time", void 0);
+__decorate([
     (0, sequelize_typescript_1.AllowNull)(true),
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
     __metadata("design:type", String)
 ], Events.prototype, "event_address", void 0);
 __decorate([
-    (0, sequelize_typescript_1.AllowNull)(true),
-    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
-    __metadata("design:type", String)
-], Events.prototype, "event_date", void 0);
-__decorate([
     (0, sequelize_typescript_1.Default)(new Date()),
     (0, sequelize_typescript_1.AllowNull)(true),
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.DATE),
     __metadata("design:type", String)
-], Events.prototype, "formated_date", void 0);
+], Events.prototype, "event_date", void 0);
 __decorate([
     (0, sequelize_typescript_1.AllowNull)(false),
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
@@ -67,15 +72,9 @@ __decorate([
     __metadata("design:type", String)
 ], Events.prototype, "Log", void 0);
 __decorate([
-    (0, sequelize_typescript_1.ForeignKey)(() => Users_1.Users),
-    (0, sequelize_typescript_1.AllowNull)(false),
-    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.INTEGER),
-    __metadata("design:type", Number)
-], Events.prototype, "userId", void 0);
-__decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => Users_1.Users, { onDelete: 'CASCADE' }),
-    __metadata("design:type", Users_1.Users)
-], Events.prototype, "user", void 0);
+    (0, sequelize_typescript_1.HasMany)(() => FeaturedEventTrucks_1.FeaturedEventTrucks, { onDelete: 'CASCADE' }),
+    __metadata("design:type", Array)
+], Events.prototype, "featured", void 0);
 exports.Events = Events = __decorate([
     (0, sequelize_typescript_1.Table)({ timestamps: true, tableName: 'event' })
 ], Events);

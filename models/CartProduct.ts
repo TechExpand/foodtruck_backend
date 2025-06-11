@@ -42,4 +42,7 @@ export class CartProduct extends Model {
 
 	@BelongsTo(() => Menu, { onDelete: 'CASCADE' })
 	menu!: Menu;
+
+	@BelongsTo(() => OrderV2, { onDelete: 'CASCADE' })
+	OrderV2!: OrderV2;
 }

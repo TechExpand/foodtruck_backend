@@ -2,6 +2,7 @@ import { Table, Model, Column, DataType, HasOne, BelongsToMany, HasMany, AllowNu
 import { Users } from './Users';
 // import { Professional } from './Professional';
 import { LanLog } from './LanLog';
+import { FeaturedEventTrucks } from './FeaturedEventTrucks';
 
 
 // export enum UserGender {
@@ -26,21 +27,24 @@ export class Events extends Model {
 	@Column(DataType.STRING)
 	event_description!: string;
 
+    @AllowNull(false)
+	@Column(DataType.STRING)
+	event_start_time!: string;
+
+    @AllowNull(false)
+	@Column(DataType.STRING)
+	event_close_time!: string;
+
 
 	@AllowNull(true)
 	@Column(DataType.STRING)
 	event_address!: string;
 
 
-	@AllowNull(true)
-	@Column(DataType.STRING)
-	event_date!: string;
-
-
 	@Default(new Date())
 	@AllowNull(true)
 	@Column(DataType.DATE)
-	formated_date!: string;
+	event_date!: string;
 
 
 	@AllowNull(false)
@@ -58,16 +62,7 @@ export class Events extends Model {
 	Log!: string;
 
 
-	@ForeignKey(() => Users)
-	@AllowNull(false)
-	@Column(DataType.INTEGER)
-	userId!: number;
-
-
-	@BelongsTo(() => Users, { onDelete: 'CASCADE' })
-	user!: Users;
-
-
-
+    @HasMany(() => FeaturedEventTrucks, { onDelete: 'CASCADE' })
+    featured!: FeaturedEventTrucks[];
 
 }

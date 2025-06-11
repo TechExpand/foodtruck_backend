@@ -16,7 +16,9 @@ const Profile_1 = require("./Profile");
 const Menus_1 = require("./Menus");
 var OrderType;
 (function (OrderType) {
+    OrderType["CONFIRM_COMPLETION"] = "CONFIRM_COMPLETION";
     OrderType["COMPLETED"] = "COMPLETED";
+    OrderType["CANCELED"] = "CANCELED";
     OrderType["PENDING"] = "PENDING";
 })(OrderType || (OrderType = {}));
 let Order = class Order extends sequelize_typescript_1.Model {
@@ -49,22 +51,22 @@ __decorate([
 __decorate([
     (0, sequelize_typescript_1.Default)(OrderType.PENDING),
     (0, sequelize_typescript_1.AllowNull)(true),
-    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.ENUM(OrderType.COMPLETED, OrderType.PENDING)),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.ENUM(OrderType.COMPLETED, OrderType.PENDING, OrderType.CONFIRM_COMPLETION, OrderType.CANCELED)),
     __metadata("design:type", String)
 ], Order.prototype, "status", void 0);
 __decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => Profile_1.Profile, { onDelete: 'CASCADE' }),
+    (0, sequelize_typescript_1.BelongsTo)(() => Profile_1.Profile, { onDelete: "CASCADE" }),
     __metadata("design:type", Profile_1.Profile)
 ], Order.prototype, "profile", void 0);
 __decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => Users_1.Users, { onDelete: 'CASCADE' }),
+    (0, sequelize_typescript_1.BelongsTo)(() => Users_1.Users, { onDelete: "CASCADE" }),
     __metadata("design:type", Users_1.Users)
 ], Order.prototype, "user", void 0);
 __decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => Menus_1.Menu, { onDelete: 'CASCADE' }),
+    (0, sequelize_typescript_1.BelongsTo)(() => Menus_1.Menu, { onDelete: "CASCADE" }),
     __metadata("design:type", Menus_1.Menu)
 ], Order.prototype, "menu", void 0);
 exports.Order = Order = __decorate([
-    (0, sequelize_typescript_1.Table)({ timestamps: true, tableName: 'order' })
+    (0, sequelize_typescript_1.Table)({ timestamps: true, tableName: "order" })
 ], Order);
 //# sourceMappingURL=Order.js.map

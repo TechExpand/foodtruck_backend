@@ -1,36 +1,46 @@
-import { Table, Model, Column, DataType, HasOne, BelongsToMany, HasMany, AllowNull, Unique, Default, Index, BelongsTo, ForeignKey } from 'sequelize-typescript';
-import { Profile } from './Profile';
-import { Users } from './Users';
+import {
+  Table,
+  Model,
+  Column,
+  DataType,
+  HasOne,
+  BelongsToMany,
+  HasMany,
+  AllowNull,
+  Unique,
+  Default,
+  Index,
+  BelongsTo,
+  ForeignKey,
+} from "sequelize-typescript";
+import { Profile } from "./Profile";
+import { Users } from "./Users";
 
-
-@Table({ timestamps: true, tableName: 'rate' })
+@Table({ timestamps: true, tableName: "rate" })
 export class Rating extends Model {
+  @AllowNull(true)
+  @Column(DataType.STRING)
+  rate!: string;
 
-    @AllowNull(true)
-    @Column(DataType.STRING)
-    rate!: string;
+  @AllowNull(true)
+  @Column(DataType.STRING)
+  comment!: string;
 
+  @ForeignKey(() => Profile)
+  @AllowNull(true)
+  @Column(DataType.INTEGER)
+  profileId!: number;
 
-    @ForeignKey(() => Profile)
-    @AllowNull(true)
-    @Column(DataType.INTEGER)
-    profileId!: number;
+  @ForeignKey(() => Users)
+  @AllowNull(true)
+  @Column(DataType.INTEGER)
+  truckId!: number;
 
-    @ForeignKey(() => Users)
-    @AllowNull(true)
-    @Column(DataType.INTEGER)
-    truckId!: number;
+  @ForeignKey(() => Users)
+  @AllowNull(true)
+  @Column(DataType.INTEGER)
+  userId!: number;
 
-
-    @ForeignKey(() => Users)
-    @AllowNull(true)
-    @Column(DataType.INTEGER)
-    userId!: number;
-
-
-    // @BelongsTo(() => Users, { onDelete: 'CASCADE' })
-    // user!: Users;
-
-    // relationships
-
+  @BelongsTo(() => Users, { onDelete: "CASCADE" })
+  user!: Users;
 }

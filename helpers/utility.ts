@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import config from '../config/configSetup';
-import moment from 'moment';
+import { DateTime } from 'luxon';
 
 export const handleResponse = (res: any, statusCode: number, status: boolean, message: string, data?: any) => {
 	return res.status(statusCode).json({
@@ -92,4 +92,24 @@ export const getDistanceFromLatLonInKm = (lat1: number, lon1:number, lat2: numbe
     const maxMinutes = Math.ceil(worstTimeMinutes);
 
     return `${minMinutes}-${maxMinutes} mins`;
+}
+
+
+export function formatStripeTimestamp(unixTimestamp: number): string {
+  const date = DateTime.fromSeconds(unixTimestamp);
+
+  const dayWithSuffix = `${date.day}${getDaySuffix(date.day)}`;
+  const formatted = `${date.toFormat('cccc')} ${dayWithSuffix} ${date.toFormat('LLL, yyyy')}`;
+
+  return formatted;
+}
+
+function getDaySuffix(day: number): string {
+  if (day >= 11 && day <= 13) return 'th';
+  switch (day % 10) {
+    case 1: return 'st';
+    case 2: return 'nd';
+    case 3: return 'rd';
+    default: return 'th';
+  }
 }

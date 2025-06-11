@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createEvent = exports.sendTestEmailCon = exports.deleteEvent = exports.getEvent = exports.updateEvent = exports.updateMenu = exports.createMenu = exports.deleteMenu = exports.getHomeDetails = exports.getAllCategories = exports.getMenu = exports.vendorEvent = exports.vendorMenu = exports.fetchRate = exports.rateProfile = exports.updateLanLog = exports.getLanLog = exports.getSubscription = exports.getVendorProfile = exports.getVendorOrder = exports.getMainVendorProfile = exports.getVendorProfileV2 = exports.getVendorByTag = exports.getVendorUserProfile = exports.deleteUser = exports.getUser = exports.getCategories = exports.getFirstFivePorpular = exports.filterVendorBytag = exports.getVendorEvent = exports.getFirstFiveEvents = exports.getProfile = exports.onlineLanlogUser = exports.onlineLanlogVendors = exports.addNewCard = exports.reactivateSubscription = exports.cancelSubscription = exports.createSubscription = exports.updateProfile = exports.updateToken = exports.createProfile = exports.updateLocation = exports.apiIndex = void 0;
+exports.createEvent = exports.sendTestEmailCon = exports.deleteEvent = exports.getEvent = exports.updateEvent = exports.updateMenu = exports.createMenu = exports.deleteMenu = exports.getHomeDetails = exports.getAllCategories = exports.getMenu = exports.vendorEvent = exports.vendorMenu = exports.fetchRate = exports.rateProfile = exports.updateLanLog = exports.getLanLog = exports.getVendorProfile = exports.getVendorOrder = exports.getMainVendorProfile = exports.getVendorProfileV2 = exports.getVendorByTag = exports.getVendorUserProfile = exports.deleteUser = exports.getUser = exports.getCategories = exports.getReviews = exports.getFirstFivePorpular = exports.filterVendorBytag = exports.getVendorEvent = exports.getHomeEvents = exports.getProfile = exports.onlineLanlogUser = exports.onlineLanlogVendors = exports.addNewCard = exports.reactivateSubscription = exports.cancelSubscription = exports.createSubscription = exports.updateProfile = exports.updateToken = exports.createProfile = exports.updateLocation = exports.apiIndex = void 0;
 const utility_1 = require("../helpers/utility");
 const LanLog_1 = require("../models/LanLog");
 const Profile_1 = require("../models/Profile");
@@ -25,7 +25,7 @@ const Menus_1 = require("../models/Menus");
 const Event_1 = require("../models/Event");
 const Popular_1 = require("../models/Popular");
 const Tag_1 = require("../models/Tag");
-const HomeTag_1 = require("../models/HomeTag");
+const SpecialTag_1 = require("../models/SpecialTag");
 const Alltags_1 = require("../models/Alltags");
 const sequelize_1 = require("sequelize");
 const Order_1 = require("../models/Order");
@@ -34,6 +34,8 @@ const sms_1 = require("../services/sms");
 const template_1 = require("../config/template");
 const Rate_1 = require("../models/Rate");
 const OrderV2_1 = require("../models/OrderV2");
+const ProfileViews_1 = require("../models/ProfileViews");
+const FeaturedEventTrucks_1 = require("../models/FeaturedEventTrucks");
 const cloudinary = require("cloudinary").v2;
 const stripe = new stripe_1.default(configSetup_1.default.STRIPE_SK, {
     apiVersion: "2023-08-16",
@@ -93,43 +95,21 @@ const updateToken = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 });
 exports.updateToken = updateToken;
 const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let { business_name, unique_detail, detail, phone, tag } = req.body;
+    let { business_name, unique_detail, detail, phone, tag, pro_pic } = req.body;
     let { id } = req.user;
-    if (req.file) {
-        const result = yield cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"));
-        const location = yield LanLog_1.LanLog.findOne({ where: { userId: id } });
-        const profile = yield Profile_1.Profile.findOne({ where: { userId: id } });
-        yield (profile === null || profile === void 0 ? void 0 : profile.update({
-            business_name: business_name !== null && business_name !== void 0 ? business_name : profile.business_name,
-            unique_detail: unique_detail !== null && unique_detail !== void 0 ? unique_detail : profile.unique_detail,
-            detail: detail !== null && detail !== void 0 ? detail : profile.detail,
-            phone: phone !== null && phone !== void 0 ? phone : profile.phone,
-            lanlogId: location.id,
-            userId: id,
-            pro_pic: result.secure_url,
-            tag: tag !== null && tag !== void 0 ? tag : profile.tag,
-        }));
-        return res
-            .status(200)
-            .send({ message: "Updated Successfully", status: true });
-    }
-    else {
-        const location = yield LanLog_1.LanLog.findOne({ where: { userId: id } });
-        const profile = yield Profile_1.Profile.findOne({ where: { userId: id } });
-        yield (profile === null || profile === void 0 ? void 0 : profile.update({
-            business_name: business_name !== null && business_name !== void 0 ? business_name : profile.business_name,
-            unique_detail: unique_detail !== null && unique_detail !== void 0 ? unique_detail : profile.unique_detail,
-            detail: detail !== null && detail !== void 0 ? detail : profile.detail,
-            phone: phone !== null && phone !== void 0 ? phone : profile.phone,
-            lanlogId: location.id,
-            userId: id,
-            pro_pic: profile.pro_pic,
-            tag: tag !== null && tag !== void 0 ? tag : profile.tag,
-        }));
-        return res
-            .status(200)
-            .send({ message: "Updated Successfully", status: true });
-    }
+    const location = yield LanLog_1.LanLog.findOne({ where: { userId: id } });
+    const profile = yield Profile_1.Profile.findOne({ where: { userId: id } });
+    yield (profile === null || profile === void 0 ? void 0 : profile.update({
+        business_name: business_name !== null && business_name !== void 0 ? business_name : profile.business_name,
+        unique_detail: unique_detail !== null && unique_detail !== void 0 ? unique_detail : profile.unique_detail,
+        detail: detail !== null && detail !== void 0 ? detail : profile.detail,
+        phone: phone !== null && phone !== void 0 ? phone : profile.phone,
+        lanlogId: location.id,
+        userId: id,
+        pro_pic: pro_pic !== null && pro_pic !== void 0 ? pro_pic : profile.pro_pic,
+        tag: tag !== null && tag !== void 0 ? tag : profile.tag,
+    }));
+    return (0, utility_1.successResponse)(res, "Updated Successfully");
 });
 exports.updateProfile = updateProfile;
 const createSubscription = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -235,8 +215,9 @@ const onlineLanlogVendors = (req, res) => __awaiter(void 0, void 0, void 0, func
                     type: Users_1.UserType.VENDOR,
                 },
                 attributes: ["createdAt", "updatedAt", "email", "type"],
+                required: true,
             },
-            { model: Profile_1.Profile },
+            { model: Profile_1.Profile, required: true },
         ],
     });
     for (let vendor of lanlog) {
@@ -309,19 +290,45 @@ const getProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     return res.status(200).send({ message: "Fetched Successfully", profile });
 });
 exports.getProfile = getProfile;
-const getFirstFiveEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getHomeEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const currentDate = new Date();
-    const event = yield Event_1.Events.findAll({
+    const { lan, log } = req.query;
+    let event = [];
+    const eventFound = yield Event_1.Events.findAll({
         where: {
-            formated_date: {
+            event_date: {
                 [sequelize_1.Sequelize.Op.gt]: currentDate,
             },
         },
-        include: [{ model: Users_1.Users, include: [{ model: Profile_1.Profile }] }],
+        include: [
+            {
+                model: FeaturedEventTrucks_1.FeaturedEventTrucks,
+                include: [
+                    {
+                        model: Profile_1.Profile,
+                        include: [
+                            {
+                                model: Users_1.Users,
+                            },
+                            { model: LanLog_1.LanLog },
+                        ],
+                    },
+                ],
+            },
+        ],
     });
-    return res.status(200).send({ message: "Fetched Successfully", event });
+    for (let value of eventFound) {
+        let distance_list = [];
+        for (let vendor of value.featured) {
+            const distance = (0, utility_1.getDistanceFromLatLonInKm)(Number(vendor.dataValues.profile.dataValues.lanlog.dataValues.Lan), Number(vendor.dataValues.profile.dataValues.lanlog.dataValues.Log), Number(lan), Number(log));
+            distance_list.push(Object.assign(Object.assign({}, vendor.dataValues.profile.dataValues.lanlog.dataValues), { user: vendor.dataValues.profile.dataValues.user.dataValues, profile: vendor.dataValues.profile.dataValues, distance, time: (0, utility_1.estimateCarCityTimeRange)(distance) }));
+            distance_list.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+        }
+        event.push(Object.assign(Object.assign({}, value.dataValues), { featured: distance_list }));
+    }
+    return (0, utility_1.successResponse)(res, "Fetched Successfully", event);
 });
-exports.getFirstFiveEvents = getFirstFiveEvents;
+exports.getHomeEvents = getHomeEvents;
 const getVendorEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.user;
     const event = yield Event_1.Events.findAll({
@@ -346,6 +353,15 @@ const getFirstFivePorpular = (req, res) => __awaiter(void 0, void 0, void 0, fun
     return res.status(200).send({ message: "Fetched Successfully", popular });
 });
 exports.getFirstFivePorpular = getFirstFivePorpular;
+const getReviews = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.query;
+    const ratings = yield Rate_1.Rating.findAll({
+        where: { truckId: id },
+        include: [{ model: Users_1.Users }],
+    });
+    return (0, utility_1.successResponse)(res, "Fetched Successfully", ratings);
+});
+exports.getReviews = getReviews;
 const getCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const tags = yield Tag_1.Tag.findAll({});
     return res.status(200).send({ message: "Fetched Successfully", tags });
@@ -353,13 +369,10 @@ const getCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 exports.getCategories = getCategories;
 const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.user;
-    const user = yield Users_1.Users.findAll({
+    const user = yield Users_1.Users.findOne({
         where: { id },
     });
-    return res.status(200).send({
-        message: "Fetched Successfully",
-        user,
-    });
+    return (0, utility_1.successResponse)(res, "Fetched Successfully", user);
 });
 exports.getUser = getUser;
 const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -399,19 +412,35 @@ const getVendorUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, fun
             { model: Profile_1.Profile },
         ],
     });
+    yield ProfileViews_1.ProfileViews.create({ profileId: vendor === null || vendor === void 0 ? void 0 : vendor.profile.id, userId: id });
     const distance = (0, utility_1.getDistanceFromLatLonInKm)(Number(vendor.Lan), Number(vendor.Log), Number(lan), Number(log));
     return (0, utility_1.successResponse)(res, "Profile Fetched", Object.assign(Object.assign({}, vendor === null || vendor === void 0 ? void 0 : vendor.dataValues), { distance, time: (0, utility_1.estimateCarCityTimeRange)(distance) }));
 });
 exports.getVendorUserProfile = getVendorUserProfile;
 const getVendorByTag = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { tag, lan, log } = req.query;
-    const cleanTag = tag.replace(/[%&*]/g, "");
+    const { tagName, lan, log, tagId } = req.query;
+    const cleanTag = tagName.replace(/[%&*]/g, "");
+    let vendors;
     let distance_list = [];
-    const vendors = yield Profile_1.Profile.findAll({
-        where: sequelize_1.Sequelize.literal(`LOWER(tag) LIKE '%${cleanTag.toString().toLowerCase()}%'`),
-        include: [{ model: Users_1.Users }, { model: LanLog_1.LanLog }
-        ],
+    const specialTag = yield SpecialTag_1.SpecialTag.findOne({
+        where: {
+            tagId,
+        },
     });
+    if (specialTag) {
+        vendors = yield Profile_1.Profile.findAll({
+            where: {
+                specializedTagId: specialTag.id,
+            },
+            include: [{ model: Users_1.Users }, { model: LanLog_1.LanLog }],
+        });
+    }
+    else {
+        vendors = yield Profile_1.Profile.findAll({
+            where: sequelize_1.Sequelize.literal(`LOWER(tag) LIKE '%${cleanTag.toString().toLowerCase()}%'`),
+            include: [{ model: Users_1.Users }, { model: LanLog_1.LanLog }],
+        });
+    }
     for (let vendor of vendors) {
         const profile = vendor.dataValues;
         const distance = (0, utility_1.getDistanceFromLatLonInKm)(Number(vendor.dataValues.lanlog.dataValues.Lan), Number(vendor.dataValues.lanlog.dataValues.Log), Number(lan), Number(log));
@@ -423,7 +452,6 @@ const getVendorByTag = (req, res) => __awaiter(void 0, void 0, void 0, function*
             }
         }
     }
-    console.log(distance_list);
     return (0, utility_1.successResponse)(res, "Vendor Fetched", distance_list);
 });
 exports.getVendorByTag = getVendorByTag;
@@ -456,11 +484,22 @@ const getMainVendorProfile = (req, res) => __awaiter(void 0, void 0, void 0, fun
         include: [
             {
                 model: Users_1.Users,
-            }
-        ]
+            },
+            { model: LanLog_1.LanLog },
+        ],
     });
-    console.log(profile);
-    return (0, utility_1.successResponse)(res, "Profile Fetched", profile);
+    let subscription;
+    try {
+        const result = yield stripe.subscriptions.retrieve(profile === null || profile === void 0 ? void 0 : profile.user.subscription_id);
+        subscription = {
+            status: result.status,
+            dueDate: (0, utility_1.formatStripeTimestamp)(result.current_period_end),
+        };
+    }
+    catch (error) {
+        subscription = { status: "No Subscription", dueDate: "" };
+    }
+    return (0, utility_1.successResponse)(res, "Profile Fetched", { profile, subscription });
 });
 exports.getMainVendorProfile = getMainVendorProfile;
 const getVendorOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -471,7 +510,7 @@ const getVendorOrder = (req, res) => __awaiter(void 0, void 0, void 0, function*
             { model: Profile_1.Profile, include: [{ model: LanLog_1.LanLog }] },
             { model: Users_1.Users },
             { model: CartProduct_1.CartProduct, include: [{ model: Menus_1.Menu }] },
-        ]
+        ],
     });
     return (0, utility_1.successResponse)(res, "Fetched Successfully", order);
 });
@@ -502,22 +541,6 @@ const getVendorProfile = (req, res) => __awaiter(void 0, void 0, void 0, functio
     });
 });
 exports.getVendorProfile = getVendorProfile;
-const getSubscription = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { id } = req.user;
-        const user = yield Users_1.Users.findOne({ where: { id } });
-        const subscription = yield stripe.subscriptions.retrieve(user === null || user === void 0 ? void 0 : user.subscription_id);
-        return res
-            .status(200)
-            .send({ message: "Fetched Successfully", status: subscription.status });
-    }
-    catch (error) {
-        return res
-            .status(200)
-            .send({ message: "Fetched Successfully", status: "null" });
-    }
-});
-exports.getSubscription = getSubscription;
 const getLanLog = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.user;
     const lanlog = yield LanLog_1.LanLog.findAll({
@@ -533,10 +556,11 @@ const getLanLog = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.getLanLog = getLanLog;
 const updateLanLog = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id, online } = req.body;
-    const lanlog = yield LanLog_1.LanLog.findOne({ where: { id } });
+    const { online } = req.body;
+    const { id } = req.user;
+    const lanlog = yield LanLog_1.LanLog.findOne({ where: { userId: id } });
     yield (lanlog === null || lanlog === void 0 ? void 0 : lanlog.update({ online }));
-    return res.status(200).send({ message: "Fetched Successfully", lanlog });
+    return (0, utility_1.successResponse)(res, "Fetched Successfully");
 });
 exports.updateLanLog = updateLanLog;
 const rateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -661,18 +685,22 @@ const getMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.user;
     const user = yield Users_1.Users.findOne({ where: { id } });
     console.log(user === null || user === void 0 ? void 0 : user.subscription_id);
-    const menus = yield Menus_1.Menu.findAll({ where: { userId: id }, include: [{ model: Extras_1.Extra }] });
+    const menus = yield Menus_1.Menu.findAll({
+        where: { userId: id },
+        include: [{ model: Extras_1.Extra }],
+    });
     return (0, utility_1.successResponse)(res, "Fetched Successfully", menus);
 });
 exports.getMenu = getMenu;
 const getAllCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const tags = yield Alltags_1.AllTag.findAll();
+    const tags = yield Alltags_1.AllTag.findAll({ order: [["createdAt", "ASC"]] });
+    tags.reverse();
     return (0, utility_1.successResponse)(res, "Fetched Successfully", tags);
 });
 exports.getAllCategories = getAllCategories;
 const getHomeDetails = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _b, _c;
-    const tags = yield HomeTag_1.HomeTag.findAll({ include: [{ model: Tag_1.Tag }] });
+    const tags = yield SpecialTag_1.SpecialTag.findAll({ include: [{ model: Tag_1.Tag }] });
     const profileSecondTag = yield Profile_1.Profile.findAll({
         where: {
             [sequelize_1.Op.or]: [
@@ -791,7 +819,7 @@ const updateMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         menu_price: menu_price !== null && menu_price !== void 0 ? menu_price : menu === null || menu === void 0 ? void 0 : menu.menu_price,
         lanlogId: lanlog === null || lanlog === void 0 ? void 0 : lanlog.id,
         menu_picture: menu_picture !== null && menu_picture !== void 0 ? menu_picture : menu === null || menu === void 0 ? void 0 : menu.menu_picture,
-        userId: user === null || user === void 0 ? void 0 : user.id
+        userId: user === null || user === void 0 ? void 0 : user.id,
     });
     let valueExtra = [];
     for (let value of extra !== null && extra !== void 0 ? extra : []) {
@@ -866,29 +894,20 @@ exports.sendTestEmailCon = sendTestEmailCon;
 const createEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.user;
-        const { event_title, event_description, event_date, event_address } = req.body;
-        const user = yield Users_1.Users.findOne({ where: { id } });
-        if (req.file) {
-            const result = yield cloudinary.uploader.upload(req.file.path.replace(/ /g, "_"));
-            let [day, month, year] = event_date.split("-");
-            day = Number(day) + 1;
-            console.log(event_date);
-            console.log(`${year}-${month}-${day}`);
-            const formattedDate = new Date(`${year}-${month}-${day}`);
-            const event = yield Event_1.Events.create({
-                event_title,
-                event_description,
-                event_address,
-                event_date,
-                formated_date: formattedDate,
-                userId: user === null || user === void 0 ? void 0 : user.id,
-                menu_picture: result.secure_url,
-            });
-            return res.status(200).send({ message: "Created Successfully", event });
-        }
-        else {
-            return res.status(400).send({ message: "Image is Required" });
-        }
+        const { event_title, event_description, event_close_time, event_start_time, menu_picture, event_date, event_address, } = req.body;
+        let [day, month, year] = event_date.split("-");
+        day = Number(day) + 1;
+        const formattedDate = new Date(`${year}-${month}-${day}`);
+        const event = yield Event_1.Events.create({
+            event_title,
+            event_description,
+            event_address,
+            event_close_time,
+            event_start_time,
+            event_date: formattedDate,
+            menu_picture,
+        });
+        return res.status(200).send({ message: "Created Successfully", event });
     }
     catch (e) {
         console.log(e);

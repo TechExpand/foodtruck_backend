@@ -9,23 +9,26 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SpecialTag = void 0;
+exports.ProfileViews = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
-const Tag_1 = require("./Tag");
-let SpecialTag = class SpecialTag extends sequelize_typescript_1.Model {
+const Profile_1 = require("./Profile");
+const Users_1 = require("./Users");
+let ProfileViews = class ProfileViews extends sequelize_typescript_1.Model {
 };
-exports.SpecialTag = SpecialTag;
+exports.ProfileViews = ProfileViews;
 __decorate([
-    (0, sequelize_typescript_1.ForeignKey)(() => Tag_1.Tag),
-    (0, sequelize_typescript_1.AllowNull)(false),
+    (0, sequelize_typescript_1.ForeignKey)(() => Profile_1.Profile),
+    (0, sequelize_typescript_1.AllowNull)(true),
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.INTEGER),
     __metadata("design:type", Number)
-], SpecialTag.prototype, "tagId", void 0);
+], ProfileViews.prototype, "profileId", void 0);
 __decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => Tag_1.Tag, { onDelete: 'CASCADE' }),
-    __metadata("design:type", Tag_1.Tag)
-], SpecialTag.prototype, "tag", void 0);
-exports.SpecialTag = SpecialTag = __decorate([
-    (0, sequelize_typescript_1.Table)({ timestamps: true, tableName: 'SpecialTag' })
-], SpecialTag);
-//# sourceMappingURL=SpecialTag.js.map
+    (0, sequelize_typescript_1.ForeignKey)(() => Users_1.Users),
+    (0, sequelize_typescript_1.AllowNull)(true),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.INTEGER),
+    __metadata("design:type", Number)
+], ProfileViews.prototype, "userId", void 0);
+exports.ProfileViews = ProfileViews = __decorate([
+    (0, sequelize_typescript_1.Table)({ timestamps: true, tableName: 'profile_view' })
+], ProfileViews);
+//# sourceMappingURL=ProfileViews.js.map

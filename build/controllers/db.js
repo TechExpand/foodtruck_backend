@@ -27,7 +27,7 @@ const LanLog_1 = require("../models/LanLog");
 const Event_1 = require("../models/Event");
 const Tag_1 = require("../models/Tag");
 const Popular_1 = require("../models/Popular");
-const HomeTag_1 = require("../models/HomeTag");
+const SpecialTag_1 = require("../models/SpecialTag");
 const Favourite_1 = require("../models/Favourite");
 const Alltags_1 = require("../models/Alltags");
 const Order_1 = require("../models/Order");
@@ -35,7 +35,9 @@ const Extras_1 = require("../models/Extras");
 const Rate_1 = require("../models/Rate");
 const CartProduct_1 = require("../models/CartProduct");
 const OrderV2_1 = require("../models/OrderV2");
-// import { Sector } from '../models/Sector';
+const ProfileViews_1 = require("../models/ProfileViews");
+const Notification_1 = require("../models/Notification");
+const FeaturedEventTrucks_1 = require("../models/FeaturedEventTrucks");
 const sequelize = new sequelize_typescript_1.Sequelize(configSetup_1.default.DBNAME, configSetup_1.default.DBUSERNAME, configSetup_1.default.DBPASSWORD, {
     host: configSetup_1.default.DBHOST,
     port: configSetup_1.default.DBPORT,
@@ -47,13 +49,15 @@ const sequelize = new sequelize_typescript_1.Sequelize(configSetup_1.default.DBN
     },
     models: [
         Users_1.Users,
+        FeaturedEventTrucks_1.FeaturedEventTrucks,
         Alltags_1.AllTag,
+        Notification_1.Notification,
         Verify_1.Verify,
         Rate_1.Rating,
         Favourite_1.Favourite,
         Menus_1.Menu,
         CartProduct_1.CartProduct,
-        HomeTag_1.HomeTag,
+        SpecialTag_1.SpecialTag,
         OrderV2_1.OrderV2,
         Extras_1.Extra,
         Order_1.Order,
@@ -61,7 +65,8 @@ const sequelize = new sequelize_typescript_1.Sequelize(configSetup_1.default.DBN
         LanLog_1.LanLog,
         Event_1.Events,
         Profile_1.Profile,
-        Tag_1.Tag
+        Tag_1.Tag,
+        ProfileViews_1.ProfileViews
     ],
 });
 exports.sequelize = sequelize;

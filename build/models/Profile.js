@@ -12,8 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Profile = exports.ProfileType = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
 const Users_1 = require("./Users");
-// import { Professional } from './Professional';
 const LanLog_1 = require("./LanLog");
+const SpecialTag_1 = require("./SpecialTag");
 // export enum UserGender {
 // 	MALE = 'MALE',
 // 	FEMALE = 'FEMALE',
@@ -78,6 +78,12 @@ __decorate([
     __metadata("design:type", Number)
 ], Profile.prototype, "lanlogId", void 0);
 __decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => SpecialTag_1.SpecialTag),
+    (0, sequelize_typescript_1.AllowNull)(true),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.INTEGER),
+    __metadata("design:type", Number)
+], Profile.prototype, "specializedTagId", void 0);
+__decorate([
     (0, sequelize_typescript_1.AllowNull)(true),
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
     __metadata("design:type", String)
@@ -106,6 +112,12 @@ __decorate([
     __metadata("design:type", String)
 ], Profile.prototype, "totalRate", void 0);
 __decorate([
+    (0, sequelize_typescript_1.Default)(0),
+    (0, sequelize_typescript_1.AllowNull)(false),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.INTEGER),
+    __metadata("design:type", String)
+], Profile.prototype, "views", void 0);
+__decorate([
     (0, sequelize_typescript_1.ForeignKey)(() => Users_1.Users),
     (0, sequelize_typescript_1.AllowNull)(false),
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.INTEGER),
@@ -115,6 +127,10 @@ __decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => Users_1.Users, { onDelete: 'CASCADE' }),
     __metadata("design:type", Users_1.Users)
 ], Profile.prototype, "user", void 0);
+__decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => SpecialTag_1.SpecialTag),
+    __metadata("design:type", SpecialTag_1.SpecialTag)
+], Profile.prototype, "specialTag", void 0);
 __decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => LanLog_1.LanLog, { onDelete: 'CASCADE' }),
     __metadata("design:type", LanLog_1.LanLog)

@@ -1,8 +1,7 @@
 import { Table, Model, Column, DataType, HasOne, BelongsToMany, HasMany, AllowNull, Unique, Default, Index, BelongsTo, ForeignKey, BeforeUpdate, BeforeCreate, BeforeFind, BeforeFindAfterExpandIncludeAll } from 'sequelize-typescript';
 import { Users } from './Users';
-// import { Professional } from './Professional';
 import { LanLog } from './LanLog';
-import { DataTypes } from 'sequelize';
+import { SpecialTag } from './SpecialTag';
 
 
 // export enum UserGender {
@@ -79,6 +78,11 @@ export class Profile extends Model {
 	lanlogId!: number;
 
 
+	@ForeignKey(() => SpecialTag)
+	@AllowNull(true)
+	@Column(DataType.INTEGER)
+	specializedTagId!: number;
+
 
 	@AllowNull(true)
 	@Column(DataType.STRING)
@@ -113,6 +117,14 @@ export class Profile extends Model {
 
 
 
+	@Default(0)
+	@AllowNull(false)
+	@Column(DataType.INTEGER)
+	views!: string;
+
+
+
+
 	@ForeignKey(() => Users)
 	@AllowNull(false)
 	@Column(DataType.INTEGER)
@@ -121,6 +133,9 @@ export class Profile extends Model {
 
 	@BelongsTo(() => Users, { onDelete: 'CASCADE' })
 	user!: Users;
+
+	@BelongsTo(() => SpecialTag)
+	specialTag!: SpecialTag;
 
 	@BelongsTo(() => LanLog, { onDelete: 'CASCADE' })
 	lanlog!: LanLog;

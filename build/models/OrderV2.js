@@ -12,12 +12,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrderV2 = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
 const Users_1 = require("./Users");
+// import { Professional } from './Professional';
 const Profile_1 = require("./Profile");
 const CartProduct_1 = require("./CartProduct");
+const sequelize_typescript_2 = require("sequelize-typescript");
 var OrderType;
 (function (OrderType) {
     OrderType["COMPLETED"] = "COMPLETED";
+    OrderType["CONFIRM_COMPLETION"] = "CONFIRM_COMPLETION";
+    OrderType["CANCELED"] = "CANCELED";
     OrderType["PENDING"] = "PENDING";
+    OrderType["PROCESSING"] = "PROCESSING";
 })(OrderType || (OrderType = {}));
 let OrderV2 = class OrderV2 extends sequelize_typescript_1.Model {
 };
@@ -35,9 +40,9 @@ __decorate([
     __metadata("design:type", Number)
 ], OrderV2.prototype, "userId", void 0);
 __decorate([
-    (0, sequelize_typescript_1.Default)(OrderType.PENDING),
+    (0, sequelize_typescript_2.Default)(OrderType.PENDING),
     (0, sequelize_typescript_1.AllowNull)(true),
-    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.ENUM(OrderType.COMPLETED, OrderType.PENDING)),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.ENUM(OrderType.COMPLETED, OrderType.PENDING, OrderType.CONFIRM_COMPLETION, OrderType.CANCELED, OrderType.PROCESSING)),
     __metadata("design:type", String)
 ], OrderV2.prototype, "status", void 0);
 __decorate([
@@ -46,18 +51,34 @@ __decorate([
     __metadata("design:type", String)
 ], OrderV2.prototype, "phone", void 0);
 __decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => Profile_1.Profile, { onDelete: 'CASCADE' }),
+    (0, sequelize_typescript_2.Default)("0"),
+    (0, sequelize_typescript_1.AllowNull)(false),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
+    __metadata("design:type", String)
+], OrderV2.prototype, "total", void 0);
+__decorate([
+    (0, sequelize_typescript_1.AllowNull)(true),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
+    __metadata("design:type", String)
+], OrderV2.prototype, "note", void 0);
+__decorate([
+    (0, sequelize_typescript_1.AllowNull)(true),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.JSON),
+    __metadata("design:type", Object)
+], OrderV2.prototype, "extras", void 0);
+__decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => Profile_1.Profile, { onDelete: "CASCADE" }),
     __metadata("design:type", Profile_1.Profile)
 ], OrderV2.prototype, "profile", void 0);
 __decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => Users_1.Users, { onDelete: 'CASCADE' }),
+    (0, sequelize_typescript_1.BelongsTo)(() => Users_1.Users, { onDelete: "CASCADE" }),
     __metadata("design:type", Users_1.Users)
 ], OrderV2.prototype, "user", void 0);
 __decorate([
-    (0, sequelize_typescript_1.HasMany)(() => CartProduct_1.CartProduct, { onDelete: 'CASCADE' }),
+    (0, sequelize_typescript_1.HasMany)(() => CartProduct_1.CartProduct, { onDelete: "CASCADE" }),
     __metadata("design:type", Array)
 ], OrderV2.prototype, "menu", void 0);
 exports.OrderV2 = OrderV2 = __decorate([
-    (0, sequelize_typescript_1.Table)({ timestamps: true, tableName: 'order_v2' })
+    (0, sequelize_typescript_1.Table)({ timestamps: true, tableName: "order_v2" })
 ], OrderV2);
 //# sourceMappingURL=OrderV2.js.map
