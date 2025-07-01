@@ -1,0 +1,364 @@
+<!-- Menu -->
+<aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+    <div class="app-brand demo">
+        <a href="/" class="app-brand-link">
+            <span class="app-brand-logo demo">
+                <svg width="25" viewBox="0 0 25 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <defs>
+                        <path d="M13.7918663,0.358365126 L3.39788168,7.44144159 C0.566865006,9.69408886 -0.379795268,12.4788597 0.557900856,15.7960551 C0.933988085,16.7494556 1.58107913,17.5587821 2.31759991,18.1215703 L2.31759991,18.1215703 C2.68917157,18.3790435 3.09367278,18.581 3.5,18.581 C3.90632722,18.581 4.31082843,18.3790435 4.68240009,18.1215703 L4.68240009,18.1215703 C5.41892087,17.5587821 6.06601192,16.7494556 6.44209914,15.7960551 C7.37879544,12.4788597 6.39513499,9.69408886 3.56213501,7.44144159 L13.7918663,0.358365126 Z" id="path-1"></path>
+                        <path d="M13.7918663,0.358365126 L3.39788168,7.44144159 C0.566865006,9.69408886 -0.379795268,12.4788597 0.557900856,15.7960551 C0.933988085,16.7494556 1.58107913,17.5587821 2.31759991,18.1215703 L2.31759991,18.1215703 C2.68917157,18.3790435 3.09367278,18.581 3.5,18.581 C3.90632722,18.581 4.31082843,18.3790435 4.68240009,18.1215703 L4.68240009,18.1215703 C5.41892087,17.5587821 6.06601192,16.7494556 6.44209914,15.7960551 C7.37879544,12.4788597 6.39513499,9.69408886 3.56213501,7.44144159 L13.7918663,0.358365126 Z" id="path-2"></path>
+                    </defs>
+                    <g id="g-app-brand" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="Brand-Logo" transform="translate(-27.000000, -15.000000)">
+                            <g id="Icon" transform="translate(27.000000, 15.000000)">
+                                <path d="M13.7918663,0.358365126 L3.39788168,7.44144159 C0.566865006,9.69408886 -0.379795268,12.4788597 0.557900856,15.7960551 C0.933988085,16.7494556 1.58107913,17.5587821 2.31759991,18.1215703 L2.31759991,18.1215703 C2.68917157,18.3790435 3.09367278,18.581 3.5,18.581 C3.90632722,18.581 4.31082843,18.3790435 4.68240009,18.1215703 L4.68240009,18.1215703 C5.41892087,17.5587821 6.06601192,16.7494556 6.44209914,15.7960551 C7.37879544,12.4788597 6.39513499,9.69408886 3.56213501,7.44144159 L13.7918663,0.358365126 Z" id="Shape" fill="#696cff"></path>
+                                <path d="M13.7918663,0.358365126 L3.39788168,7.44144159 C0.566865006,9.69408886 -0.379795268,12.4788597 0.557900856,15.7960551 C0.933988085,16.7494556 1.58107913,17.5587821 2.31759991,18.1215703 L2.31759991,18.1215703 C2.68917157,18.3790435 3.09367278,18.581 3.5,18.581 C3.90632722,18.581 4.31082843,18.3790435 4.68240009,18.1215703 L4.68240009,18.1215703 C5.41892087,17.5587821 6.06601192,16.7494556 6.44209914,15.7960551 C7.37879544,12.4788597 6.39513499,9.69408886 3.56213501,7.44144159 L13.7918663,0.358365126 Z" id="Shape" fill="#696cff"></path>
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+            </span>
+            <span class="app-brand-text demo menu-text fw-bolder ms-2">FoodTruck</span>
+        </a>
+
+        <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+            <i class="bx bx-chevron-left bx-sm align-middle"></i>
+        </a>
+    </div>
+
+    <div class="menu-inner-shadow"></div>
+
+    <ul class="menu-inner py-1">
+        <!-- Dashboard -->
+        <li class="menu-item <%= locals.activePage === 'dashboard' ? 'active' : '' %>">
+            <a href="/" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                <div data-i18n="Analytics">Dashboard</div>
+            </a>
+        </li>
+
+        <!-- Layouts -->
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-layout"></i>
+                <div data-i18n="Layouts">Layouts</div>
+            </a>
+
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="/layouts/without-menu" class="menu-link">
+                        <div data-i18n="Without menu">Without menu</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/layouts/without-navbar" class="menu-link">
+                        <div data-i18n="Without navbar">Without navbar</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/layouts/container" class="menu-link">
+                        <div data-i18n="Container">Container</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/layouts/fluid" class="menu-link">
+                        <div data-i18n="Fluid">Fluid</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/layouts/blank" class="menu-link">
+                        <div data-i18n="Blank">Blank</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Pages</span>
+        </li>
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-dock-top"></i>
+                <div data-i18n="Account Settings">Account Settings</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="/pages/account-settings-account" class="menu-link">
+                        <div data-i18n="Account">Account</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/pages/account-settings-notifications" class="menu-link">
+                        <div data-i18n="Notifications">Notifications</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/pages/account-settings-connections" class="menu-link">
+                        <div data-i18n="Connections">Connections</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-help-circle"></i>
+                <div data-i18n="Authentications">Authentications</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="/auth/login-basic" class="menu-link" target="_blank">
+                        <div data-i18n="Basic">Login</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/auth/register-basic" class="menu-link" target="_blank">
+                        <div data-i18n="Basic">Register</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/auth/forgot-password-basic" class="menu-link" target="_blank">
+                        <div data-i18n="Basic">Forgot Password</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-file"></i>
+                <div data-i18n="Misc">Misc</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="/pages/misc-error" class="menu-link">
+                        <div data-i18n="Error">Error</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/pages/misc-under-maintenance" class="menu-link">
+                        <div data-i18n="Under Maintenance">Under Maintenance</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <!-- Components -->
+        <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Components</span>
+        </li>
+        <!-- Cards -->
+        <li class="menu-item">
+            <a href="/components/cards-basic" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-collection"></i>
+                <div data-i18n="Basic">Cards</div>
+            </a>
+        </li>
+        <!-- User interface -->
+        <li class="menu-item">
+            <a href="javascript:void(0)" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-box"></i>
+                <div data-i18n="User interface">User interface</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="/components/ui-accordion" class="menu-link">
+                        <div data-i18n="Accordion">Accordion</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/components/ui-alerts" class="menu-link">
+                        <div data-i18n="Alerts">Alerts</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/components/ui-badges" class="menu-link">
+                        <div data-i18n="Badges">Badges</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/components/ui-buttons" class="menu-link">
+                        <div data-i18n="Buttons">Buttons</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/components/ui-carousel" class="menu-link">
+                        <div data-i18n="Carousel">Carousel</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/components/ui-collapse" class="menu-link">
+                        <div data-i18n="Collapse">Collapse</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/components/ui-dropdowns" class="menu-link">
+                        <div data-i18n="Dropdowns">Dropdowns</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/components/ui-footer" class="menu-link">
+                        <div data-i18n="Footer">Footer</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/components/ui-list-groups" class="menu-link">
+                        <div data-i18n="List Groups">List groups</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/components/ui-modals" class="menu-link">
+                        <div data-i18n="Modals">Modals</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/components/ui-navbar" class="menu-link">
+                        <div data-i18n="Navbar">Navbar</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/components/ui-offcanvas" class="menu-link">
+                        <div data-i18n="Offcanvas">Offcanvas</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/components/ui-pagination-breadcrumbs" class="menu-link">
+                        <div data-i18n="Pagination &amp; Breadcrumbs">Pagination &amp; Breadcrumbs</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/components/ui-progress" class="menu-link">
+                        <div data-i18n="Progress">Progress</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/components/ui-spinners" class="menu-link">
+                        <div data-i18n="Spinners">Spinners</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/components/ui-tabs-pills" class="menu-link">
+                        <div data-i18n="Tabs &amp; Pills">Tabs &amp; Pills</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/components/ui-toasts" class="menu-link">
+                        <div data-i18n="Toasts">Toasts</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/components/ui-tooltips-popovers" class="menu-link">
+                        <div data-i18n="Tooltips &amp; Popovers">Tooltips &amp; popovers</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/components/ui-typography" class="menu-link">
+                        <div data-i18n="Typography">Typography</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <!-- Extended components -->
+        <li class="menu-item">
+            <a href="javascript:void(0)" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-copy-alt"></i>
+                <div data-i18n="Extended UI">Extended UI</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="/extended/ui-perfect-scrollbar" class="menu-link">
+                        <div data-i18n="Perfect Scrollbar">Perfect scrollbar</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/extended/ui-text-divider" class="menu-link">
+                        <div data-i18n="Text Divider">Text Divider</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="menu-item">
+            <a href="javascript:void(0)" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-detail"></i>
+                <div data-i18n="Forms &amp; Tables">Forms &amp; Tables</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="/forms/form-elements" class="menu-link">
+                        <div data-i18n="Form Elements">Form Elements</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/forms/form-layouts" class="menu-link">
+                        <div data-i18n="Form Layouts">Form Layouts</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/forms/form-validation" class="menu-link">
+                        <div data-i18n="Form Validation">Form Validation</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/forms/form-wizard" class="menu-link">
+                        <div data-i18n="Form Wizard">Form Wizard</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/tables/tables-basic" class="menu-link">
+                        <div data-i18n="Tables">Tables</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/tables/tables-datatables" class="menu-link">
+                        <div data-i18n="DataTables">DataTables</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <!-- Charts & Maps -->
+        <li class="menu-item">
+            <a href="javascript:void(0)" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-chart"></i>
+                <div data-i18n="Charts &amp; Maps">Charts &amp; Maps</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="/charts/charts-apex" class="menu-link">
+                        <div data-i18n="Apex">Apex</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/charts/charts-chartjs" class="menu-link">
+                        <div data-i18n="ChartJS">ChartJS</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/maps/maps-google" class="menu-link">
+                        <div data-i18n="Google Maps">Google Maps</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/maps/maps-vectormap" class="menu-link">
+                        <div data-i18n="Vector Map">Vector Map</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <!-- Misc -->
+        <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Misc</span>
+        </li>
+        <li class="menu-item">
+            <a href="https://github.com/themeselection/sneat-html-admin-template-free/issues" target="_blank" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-support"></i>
+                <div data-i18n="Support">Support</div>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="https://themeselection.com/demo/sneat-bootstrap-html-admin-template/documentation/" target="_blank" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-file-doc"></i>
+                <div data-i18n="Documentation">Documentation</div>
+            </a>
+        </li>
+    </ul>
+</aside>
+<!-- / Menu --> 
