@@ -2,7 +2,7 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import path from 'path';
-import expressLayouts from 'express-ejs-layouts';
+// import expressLayouts from 'express-ejs-layouts';
 import config from './config/configSetup';
 
 import { initDB } from './controllers/db';
@@ -31,10 +31,6 @@ app.use(cors({ origin: true }));
 // Set up EJS view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.use(expressLayouts);
-app.set('layout', 'layout');
-app.set("layout extractScripts", true);
-app.set("layout extractStyles", true);
 
 // Serve static assets from public directory at root
 app.use(express.static(path.join(__dirname, 'public')));

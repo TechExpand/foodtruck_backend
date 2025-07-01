@@ -37,6 +37,12 @@ router.get('/maps/:map?', ViewsController.maps);
 // Widget pages
 router.get('/widgets/:widget?', ViewsController.widgets);
 
+// Vendors page
+router.get('/vendors', ViewsController.vendors);
+
+// Add Event page
+router.get('/add-event', ViewsController.addEvent);
+
 // Error pages
 router.get('/error/404', ViewsController.error404);
 router.get('/error/500', ViewsController.error500);

@@ -4,7 +4,7 @@ export class ViewsController {
     // Dashboard
     static async dashboard(req: Request, res: Response) {
         try {
-            res.render('pages/dashboard', {
+            res.render('index', {
                 title: 'Dashboard - FoodTruck Express',
                 activePage: 'dashboard',
                 user: req.user || null
@@ -18,9 +18,8 @@ export class ViewsController {
     // Auth pages
     static async login(req: Request, res: Response) {
         try {
-            res.render('auth/login', {
-                title: 'Login - FoodTruck Express',
-                layout: 'auth-layout'
+            res.render('auth-basic-login', {
+                title: 'Login - FoodTruck Express'
             });
         } catch (error) {
             console.error('Error rendering login:', error);
@@ -30,9 +29,8 @@ export class ViewsController {
 
     static async register(req: Request, res: Response) {
         try {
-            res.render('auth/register', {
-                title: 'Register - FoodTruck Express',
-                layout: 'auth-layout'
+            res.render('auth-basic-register', {
+                title: 'Register - FoodTruck Express'
             });
         } catch (error) {
             console.error('Error rendering register:', error);
@@ -42,9 +40,8 @@ export class ViewsController {
 
     static async forgotPassword(req: Request, res: Response) {
         try {
-            res.render('auth/forgot-password', {
-                title: 'Forgot Password - FoodTruck Express',
-                layout: 'auth-layout'
+            res.render('auth-basic-forgot-password', {
+                title: 'Forgot Password - FoodTruck Express'
             });
         } catch (error) {
             console.error('Error rendering forgot password:', error);
@@ -55,7 +52,7 @@ export class ViewsController {
     // User pages
     static async profile(req: Request, res: Response) {
         try {
-            res.render('pages/profile', {
+            res.render('user-profile', {
                 title: 'Profile - FoodTruck Express',
                 activePage: 'profile',
                 user: req.user || null
@@ -68,7 +65,7 @@ export class ViewsController {
 
     static async users(req: Request, res: Response) {
         try {
-            res.render('pages/users', {
+            res.render('users', {
                 title: 'Users - FoodTruck Express',
                 activePage: 'users',
                 user: req.user || null
@@ -82,7 +79,7 @@ export class ViewsController {
     // Ecommerce pages
     static async products(req: Request, res: Response) {
         try {
-            res.render('ecommerce/products', {
+            res.render('ecommerce-products', {
                 title: 'Products - FoodTruck Express',
                 activePage: 'products',
                 user: req.user || null
@@ -95,7 +92,7 @@ export class ViewsController {
 
     static async orders(req: Request, res: Response) {
         try {
-            res.render('ecommerce/orders', {
+            res.render('ecommerce-orders', {
                 title: 'Orders - FoodTruck Express',
                 activePage: 'orders',
                 user: req.user || null
@@ -110,7 +107,7 @@ export class ViewsController {
     static async components(req: Request, res: Response) {
         try {
             const component = req.params.component || 'buttons';
-            res.render(`components/${component}`, {
+            res.render(`component-${component}`, {
                 title: `${component.charAt(0).toUpperCase() + component.slice(1)} - FoodTruck Express`,
                 activePage: 'components',
                 user: req.user || null
@@ -125,7 +122,7 @@ export class ViewsController {
     static async forms(req: Request, res: Response) {
         try {
             const form = req.params.form || 'elements';
-            res.render(`forms/${form}`, {
+            res.render(`form-${form}`, {
                 title: `${form.charAt(0).toUpperCase() + form.slice(1)} - FoodTruck Express`,
                 activePage: 'forms',
                 user: req.user || null
@@ -139,8 +136,8 @@ export class ViewsController {
     // Table pages
     static async tables(req: Request, res: Response) {
         try {
-            const table = req.params.table || 'basic';
-            res.render(`tables/${table}`, {
+            const table = req.params.table || 'basic-table';
+            res.render(`table-${table}`, {
                 title: `${table.charAt(0).toUpperCase() + table.slice(1)} Tables - FoodTruck Express`,
                 activePage: 'tables',
                 user: req.user || null
@@ -154,8 +151,8 @@ export class ViewsController {
     // Chart pages
     static async charts(req: Request, res: Response) {
         try {
-            const chart = req.params.chart || 'apex';
-            res.render(`charts/${chart}`, {
+            const chart = req.params.chart || 'apex-chart';
+            res.render(`charts-${chart}`, {
                 title: `${chart.charAt(0).toUpperCase() + chart.slice(1)} Charts - FoodTruck Express`,
                 activePage: 'charts',
                 user: req.user || null
@@ -169,8 +166,8 @@ export class ViewsController {
     // Map pages
     static async maps(req: Request, res: Response) {
         try {
-            const map = req.params.map || 'google';
-            res.render(`maps/${map}`, {
+            const map = req.params.map || 'google-maps';
+            res.render(`map-${map}`, {
                 title: `${map.charAt(0).toUpperCase() + map.slice(1)} Maps - FoodTruck Express`,
                 activePage: 'maps',
                 user: req.user || null
@@ -185,7 +182,7 @@ export class ViewsController {
     static async widgets(req: Request, res: Response) {
         try {
             const widget = req.params.widget || 'data';
-            res.render(`widgets/${widget}`, {
+            res.render(`widgets-${widget}`, {
                 title: `${widget.charAt(0).toUpperCase() + widget.slice(1)} Widgets - FoodTruck Express`,
                 activePage: 'widgets',
                 user: req.user || null
@@ -199,9 +196,8 @@ export class ViewsController {
     // Error pages
     static async error404(req: Request, res: Response) {
         try {
-            res.status(404).render('pages/error-404', {
-                title: '404 Not Found - FoodTruck Express',
-                layout: 'error-layout'
+            res.status(404).render('pages-error-404', {
+                title: '404 Not Found - FoodTruck Express'
             });
         } catch (error) {
             console.error('Error rendering 404:', error);
@@ -211,12 +207,37 @@ export class ViewsController {
 
     static async error500(req: Request, res: Response) {
         try {
-            res.status(500).render('pages/error-500', {
-                title: '500 Server Error - FoodTruck Express',
-                layout: 'error-layout'
+            res.status(500).render('pages-error-505', {
+                title: '500 Server Error - FoodTruck Express'
             });
         } catch (error) {
             console.error('Error rendering 500:', error);
+            res.status(500).render('error', { error: 'Internal Server Error' });
+        }
+    }
+
+    static async vendors(req: Request, res: Response) {
+        try {
+            res.render('vendors', {
+                title: 'Vendors - FoodTruck Express',
+                activePage: 'vendors',
+                user: req.user || null
+            });
+        } catch (error) {
+            console.error('Error rendering vendors:', error);
+            res.status(500).render('error', { error: 'Internal Server Error' });
+        }
+    }
+
+    static async addEvent(req: Request, res: Response) {
+        try {
+            res.render('add-event', {
+                title: 'Add Event - FoodTruck Express',
+                activePage: 'add-event',
+                user: req.user || null
+            });
+        } catch (error) {
+            console.error('Error rendering add-event:', error);
             res.status(500).render('error', { error: 'Internal Server Error' });
         }
     }
