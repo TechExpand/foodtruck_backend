@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FTE | Vendors</title>
   <!--favicon-->
-	<link rel="icon" href="images/favicon-32x32.png" type="image/png">
+	<link rel="icon" href="images/truckmarkerBlue.png" type="image/png">
 
   <!--plugins-->
   <link href="plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet">
@@ -601,10 +601,10 @@
  <aside class="sidebar-wrapper">
   <div class="sidebar-header">
     <div class="logo-icon">
-      <img src="/images/logo-icon.png" class="logo-img" alt="">
+      <img src="/images/top-logo.png" class="logo-img" alt="" width="120">
     </div>
     <div class="logo-name flex-grow-1">
-      <h5 class="mb-0">FTE CTRL</h5>
+      <h5 class="mb-0" style="color: #008cff;">ctrl</h5>
     </div>
     <div class="sidebar-close">
       <span class="material-icons-outlined">close</span>
@@ -615,7 +615,7 @@
       <!--navigation-->
       <ul class="metismenu" id="sidenav">
         <li>
-          <a href="index.html" class="has-arrow">
+          <a href="/" class="has-arrow">
             <div class="parent-icon"><i class="material-icons-outlined">home</i>
             </div>
             <div class="menu-title">Dashboard</div>
@@ -629,14 +629,14 @@
         <li class="menu-label">CTRL Elements</li>
 
         <li>
-          <a href="vendors.html">
+          <a href="/vendors">
             <div class="parent-icon"><i class="bi bi-truck"></i>
             </div>
             <div class="menu-title">Vendors</div>
           </a>
         </li> 
         <li>
-          <a href="users.html">
+          <a href="/users">
             <div class="parent-icon"><i class="material-icons-outlined">person</i>
             </div>
             <div class="menu-title">Users</div>
@@ -644,7 +644,15 @@
         </li>
 
         <li>
-          <a href="app-fullcalender.html">
+          <a href="/tags">
+            <div class="parent-icon"><i class="material-icons-outlined">label</i>
+            </div>
+            <div class="menu-title">Tags</div>
+          </a>
+        </li>
+
+        <li>
+          <a href="/calendar">
             <div class="parent-icon"><i class="material-icons-outlined">apps</i>
             </div>
             <div class="menu-title">Calendar</div>
@@ -728,9 +736,9 @@
       <!--end breadcrumb-->
 
       <div class="product-count d-flex align-items-center gap-3 gap-lg-4 mb-4 fw-medium flex-wrap font-text1">
-        <a href="javascript:;"><span class="me-1">All</span><span class="text-secondary">(88754)</span></a>
-        <a href="javascript:;"><span class="me-1">ONLINE</span><span class="text-secondary">(56242)</span></a>
-        <a href="javascript:;"><span class="me-1">Subscribed</span><span class="text-secondary">(17)</span></a>
+        <a href="javascript:;"><span class="me-1">All</span><span class="text-secondary">(<%= allCount %>)</span></a>
+        <a href="javascript:;"><span class="me-1">ONLINE</span><span class="text-secondary">(<%= onlineCount %>)</span></a>
+        <a href="javascript:;"><span class="me-1">Subscribed</span><span class="text-secondary">(<%= subscribedCount %>)</span></a>
        
       </div>
 
@@ -761,7 +769,7 @@
                 Vendors
               </button>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="users.html">Users</a></li>
+                <li><a class="dropdown-item" href="/users">Users</a></li>
               </ul>
             </div>
             <div class="btn-group position-static">
@@ -770,6 +778,7 @@
                 Tags
               </button>
               <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/tags">Manage Tags</a></li>
                 <li><a class="dropdown-item" href="javascript:;">Add Tag</a></li>
                 <li><a class="dropdown-item" href="javascript:;">Remove Tag</a></li>
             
@@ -798,7 +807,8 @@
                     <th>Vendor Name</th>
                     <th>Followers</th>
                     <th>City</th>
-                    <th>Tags</th>
+                    <th>Food Categories</th>
+                    <th>Special Tags</th>
                     <th>Rating</th>
                     <th>Email</th>
                     <th>Date Joined</th>
@@ -806,253 +816,76 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>
-                      <input class="form-check-input" type="checkbox">
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center gap-3">
-                        <div class="product-box">
-                          <img src="/images/orders/01.png" width="70" class="rounded-3" alt="">
-                        </div>
-                        <div class="product-info">
-                          <a href="javascript:;" class="product-title">FoodTruck Name</a>
-                          <p class="mb-0 product-category">Category : Fashion</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>78</td>
-                    <td>Albuquerque</td>
-                    <td>
-                      <div class="product-tags">
-                        <a href="javascript:;" class="btn-tags">Pizza</a>
-                        <a href="javascript:;" class="btn-tags">Burgers</a>
-                        <a href="javascript:;" class="btn-tags">Beverages</a>
-                        
-                      </div>
-                    </td>
-                    <td>
-                      <div class="product-rating">
-                        <i class="bi bi-star-fill text-warning me-2"></i><span>5.0</span>
-                      </div>
-                    </td>
-                    <td>
-                      <a href="javascript:;">Michle@foodtruckname.com</a>
-                    </td>
-                    <td>
-                      Nov 12, 10:45 PM
-                    </td>
-                    <td>
-                      <div class="dropdown">
-                        <button class="btn btn-sm btn-filter dropdown-toggle dropdown-toggle-nocaret"
-                          type="button" data-bs-toggle="dropdown">
-                          <i class="bi bi-three-dots"></i>
-                        </button>
-                        <ul class="dropdown-menu">
-                          <li><a class="dropdown-item" href="user-profile.html">Edit</a></li>
-                          <li><a class="dropdown-item" href="#">Remove</a></li>
-                        </ul>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <input class="form-check-input" type="checkbox">
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center gap-3">
-                        <div class="product-box">
-                          <img src="/images/orders/02.png" width="70" class="rounded-3" alt="">
-                        </div>
-                        <div class="product-info">
-                          <a href="javascript:;" class="product-title">FoodTruck Name</a>
-                          <p class="mb-0 product-category">Category : Fashion</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>78</td>
-                    <td>Albuquerque</td>
-                    <td>
-                      <div class="product-tags">
-                        <a href="javascript:;" class="btn-tags">Pizza</a>
-                        <a href="javascript:;" class="btn-tags">Burgers</a>
-                        <a href="javascript:;" class="btn-tags">Beverages</a>
-                        
-                      </div>
-                    </td>
-                    <td>
-                      <div class="product-rating">
-                        <i class="bi bi-star-fill text-warning me-2"></i><span>5.0</span>
-                      </div>
-                    </td>
-                    <td>
-                      <a href="javascript:;">Michle@foodtruckname.com</a>
-                    </td>
-                    <td>
-                      Nov 12, 10:45 PM
-                    </td>
-                    <td>
-                      <div class="dropdown">
-                        <button class="btn btn-sm btn-filter dropdown-toggle dropdown-toggle-nocaret"
-                          type="button" data-bs-toggle="dropdown">
-                          <i class="bi bi-three-dots"></i>
-                        </button>
-                        <ul class="dropdown-menu">
-                          <li><a class="dropdown-item" href="user-profile.html">Edit</a></li>
-                          <li><a class="dropdown-item" href="#">Remove</a></li>
-                        </ul>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <input class="form-check-input" type="checkbox">
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center gap-3">
-                        <div class="product-box">
-                          <img src="/images/orders/03.png" width="70" class="rounded-3" alt="">
-                        </div>
-                        <div class="product-info">
-                          <a href="javascript:;" class="product-title">FoodTruck Name</a>
-                          <p class="mb-0 product-category">Category : Fashion</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>78</td>
-                    <td>Albuquerque</td>
-                    <td>
-                      <div class="product-tags">
-                        <a href="javascript:;" class="btn-tags">Pizza</a>
-                        <a href="javascript:;" class="btn-tags">Burgers</a>
-                        <a href="javascript:;" class="btn-tags">Beverages</a>
-                        
-                      </div>
-                    </td>
-                    <td>
-                      <div class="product-rating">
-                        <i class="bi bi-star-fill text-warning me-2"></i><span>5.0</span>
-                      </div>
-                    </td>
-                    <td>
-                      <a href="javascript:;">Michle@foodtruckname.com</a>
-                    </td>
-                    <td>
-                      Nov 12, 10:45 PM
-                    </td>
-                    <td>
-                      <div class="dropdown">
-                        <button class="btn btn-sm btn-filter dropdown-toggle dropdown-toggle-nocaret"
-                          type="button" data-bs-toggle="dropdown">
-                          <i class="bi bi-three-dots"></i>
-                        </button>
-                        <ul class="dropdown-menu">
-                          <li><a class="dropdown-item" href="user-profile.html">Edit</a></li>
-                          <li><a class="dropdown-item" href="#">Remove</a></li>
-                        </ul>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <input class="form-check-input" type="checkbox">
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center gap-3">
-                        <div class="product-box">
-                          <img src="/images/orders/04.png" width="70" class="rounded-3" alt="">
-                        </div>
-                        <div class="product-info">
-                          <a href="javascript:;" class="product-title">FoodTruck Name</a>
-                          <p class="mb-0 product-category">Category : Fashion</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>78</td>
-                    <td>Albuquerque</td>
-                    <td>
-                      <div class="product-tags">
-                        <a href="javascript:;" class="btn-tags">Pizza</a>
-                        <a href="javascript:;" class="btn-tags">Burgers</a>
-                        <a href="javascript:;" class="btn-tags">Beverages</a>
-                        
-                      </div>
-                    </td>
-                    <td>
-                      <div class="product-rating">
-                        <i class="bi bi-star-fill text-warning me-2"></i><span>5.0</span>
-                      </div>
-                    </td>
-                    <td>
-                      <a href="javascript:;">Michle@foodtruckname.com</a>
-                    </td>
-                    <td>
-                      Nov 12, 10:45 PM
-                    </td>
-                    <td>
-                      <div class="dropdown">
-                        <button class="btn btn-sm btn-filter dropdown-toggle dropdown-toggle-nocaret"
-                          type="button" data-bs-toggle="dropdown">
-                          <i class="bi bi-three-dots"></i>
-                        </button>
-                        <ul class="dropdown-menu">
-                          <li><a class="dropdown-item" href="user-profile.html">Edit</a></li>
-                          <li><a class="dropdown-item" href="#">Remove</a></li>
-                        </ul>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <input class="form-check-input" type="checkbox">
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center gap-3">
-                        <div class="product-box">
-                          <img src="/images/orders/05.png" width="70" class="rounded-3" alt="">
-                        </div>
-                        <div class="product-info">
-                          <a href="javascript:;" class="product-title">FoodTruck Name</a>
-                          <p class="mb-0 product-category">Category : Fashion</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>78</td>
-                    <td>Albuquerque</td>
-                    <td>
-                      <div class="product-tags">
-                        <a href="javascript:;" class="btn-tags">Pizza</a>
-                        <a href="javascript:;" class="btn-tags">Burgers</a>
-                        <a href="javascript:;" class="btn-tags">Beverages</a>
-                        
-                      </div>
-                    </td>
-                    <td>
-                      <div class="product-rating">
-                        <i class="bi bi-star-fill text-warning me-2"></i><span>5.0</span>
-                      </div>
-                    </td>
-                    <td>
-                      <a href="javascript:;">Michle@foodtruckname.com</a>
-                    </td>
-                    <td>
-                      Nov 12, 10:45 PM
-                    </td>
-                    <td>
-                      <div class="dropdown">
-                        <button class="btn btn-sm btn-filter dropdown-toggle dropdown-toggle-nocaret"
-                          type="button" data-bs-toggle="dropdown">
-                          <i class="bi bi-three-dots"></i>
-                        </button>
-                        <ul class="dropdown-menu">
-                          <li><a class="dropdown-item" href="user-profile.html">Edit</a></li>
-                          <li><a class="dropdown-item" href="#">Remove</a></li>
-                        </ul>
-                      </div>
-                    </td>
-                  </tr>
-                  
-          
+                  <% if (vendors && vendors.length > 0) { %>
+                    <% vendors.forEach(function(vendor) { %>
+                      <tr>
+                        <td>
+                          <input class="form-check-input" type="checkbox">
+                        </td>
+                        <td>
+                          <div class="d-flex align-items-center gap-3">
+                            <div class="product-box">
+                              <img src="<%= vendor.profilePic %>" width="70" class="rounded-3" alt="<%= vendor.businessName %>">
+                            </div>
+                            <div class="product-info">
+                              <a href="javascript:;" class="product-title"><%= vendor.businessName %></a>
+                            </div>
+                          </div>
+                        </td>
+                        <td><%= vendor.followers %></td>
+                        <td><%= vendor.city %></td>
+                        <td>
+                          <div class="product-tags">
+                            <% if (Array.isArray(vendor.foodCategories) && vendor.foodCategories.length > 0) { %>
+                              <% vendor.foodCategories.forEach(function(category) { %>
+                                <a href="javascript:;" class="btn-tags"><%= category %></a>
+                              <% }); %>
+                            <% } else { %>
+                              <span class="text-muted">No categories</span>
+                            <% } %>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="product-tags">
+                            <% if (vendor.specialTags && vendor.specialTags.length > 0) { %>
+                              <% vendor.specialTags.forEach(function(specialTag) { %>
+                                <a href="javascript:;" class="btn-tags"><%= specialTag.title %></a>
+                              <% }); %>
+                            <% } %>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="product-rating">
+                            <i class="bi bi-star-fill text-warning me-2"></i><span><%= vendor.rating.toFixed(1) %></span>
+                          </div>
+                        </td>
+                        <td>
+                          <a href="mailto:<%= vendor.email %>"><%= vendor.email %></a>
+                        </td>
+                        <td>
+                          <%= new Date(vendor.dateJoined).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          }) %>
+                        </td>
+                        <td>
+                          <div class="dropdown">
+                            <button class="btn btn-sm btn-filter dropdown-toggle dropdown-toggle-nocaret"
+                              type="button" data-bs-toggle="dropdown">
+                              <i class="bi bi-three-dots"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                              <li><a class="dropdown-item" href="/admin/vendors/<%= vendor.id %>/edit">Edit</a></li>
+                              <li><a class="dropdown-item" href="javascript:;" onclick="deleteVendor(<%= vendor.id %>)">Remove</a></li>
+                            </ul>
+                          </div>
+                        </td>
+                      </tr>
+                    <% }); %>
+                  <% } %>
                 </tbody>
               </table>
             </div>

@@ -1,0 +1,7 @@
+view list of vendors: [profile]- id,business_name,pro_pic,email,phone,unique_detail,detail, tags [tag] - add ,delete, edit - include [user]
+
+view list of "homepage tags" [alltag] - add ,delete, edit
+ -apply/remove "homepage tags" [alltag] to vendor (specialized tagid)
+
+view list of vendors:  [event]
+ - add trucks to event (add profile id to event id)

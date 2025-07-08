@@ -363,9 +363,13 @@ input::placeholder {
   transition: ease-out 0.3s;
   border-right: 1px solid var(--bs-border-color);
 }
+//resized logo
 .sidebar-wrapper .sidebar-header .logo-img {
-  width: 32px;
+  width: 120px;
 }
+/* .sidebar-wrapper .sidebar-header .logo-img {
+  width: 32px;
+} */
 .sidebar-wrapper .sidebar-header .logo-name h5 {
   font-size: 20px;
   text-transform: capitalize;

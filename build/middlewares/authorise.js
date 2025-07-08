@@ -16,7 +16,6 @@ exports.isAuthorized = void 0;
 const configSetup_1 = __importDefault(require("../config/configSetup"));
 const utility_1 = require("../helpers/utility");
 const jsonwebtoken_1 = require("jsonwebtoken");
-const TOKEN_SECRET = "222hwhdhnnjduru838272@@$henncndbdhsjj333n33brnfn";
 const isAuthorized = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     //this is the url without query params
     const route = req.originalUrl.split('?').shift();
@@ -30,7 +29,7 @@ const isAuthorized = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     token = token.split(' ')[1]; // Remove Bearer from string
     if (token === 'null' || !token)
         return (0, utility_1.handleResponse)(res, 401, false, `Unauthorized request`);
-    let verified = (0, jsonwebtoken_1.verify)(token, TOKEN_SECRET);
+    let verified = (0, jsonwebtoken_1.verify)(token, configSetup_1.default.JWTSECRET);
     if (!verified)
         return (0, utility_1.handleResponse)(res, 401, false, `Unauthorized request`);
     req.user = verified;

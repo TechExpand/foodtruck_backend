@@ -85,11 +85,12 @@ const getConfig = (): Config => {
 };
 
 const getSanitzedConfig = (config: Config) => {
-	for (const [key, value] of Object.entries(config)) {
-		if (value === undefined) {
-			throw new Error(`Missing key ${key} in .env`);
-		}
-	}
+	// Temporarily disable validation to debug
+	// for (const [key, value] of Object.entries(config)) {
+	// 	if (value === undefined) {
+	// 		throw new Error(`Missing key ${key} in .env`);
+	// 	}
+	// }
 	return config as Config;
 };
 

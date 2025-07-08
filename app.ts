@@ -2,18 +2,15 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import path from 'path';
-// import expressLayouts from 'express-ejs-layouts';
+import expressLayouts from 'express-ejs-layouts';
 import config from './config/configSetup';
 
 import { initDB } from './controllers/db';
 import index from './routes/index';
 import auth from './routes/auth';
 import views from './routes/views';
-// const formidable = require('express-formidable');
-import userAuth from './routes/auth';
-// import vendorAuth from './vendorRoutes/auth';
+import admin from './routes/admin';
 import { isAuthorized } from './middlewares/authorise';
-
 
 const app: Application = express();
 
@@ -23,35 +20,48 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// app.use(formidable())
-
 // ENABLE CORS AND START SERVER
 app.use(cors({ origin: true }));
 
 // Set up EJS view engine
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(process.cwd(), 'views'));
+// Disabled layout system since templates are standalone
+// app.use(expressLayouts);
+// app.set('layout', 'layout');
+// app.set("layout extractScripts", true);
+// app.set("layout extractStyles", true);
 
 // Serve static assets from public directory at root
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(process.cwd(), 'public')));
 
-initDB();
-app.listen(config.PORT || 8000, () => {
-	console.log(`Server started on port ${config.PORT || 8000}`);
-});
+// Simple test route
+// app.get("/", (req, res) => {
+// 	res.send("Hello World - Server is working!");
+// });
 
 // View routes (no authorization required)
 app.use("/", views);
 
+// Redirect /views/ to /
+app.get("/views/", (req, res) => {
+	res.redirect("/");
+});
+
+// Admin routes (no authorization required for local access)
+app.use("/admin", admin);
+
 // API routes (with authorization)
-app.all('*', isAuthorized);
-app.use("/foodtruck", auth);
-app.use("/foodtruck", index);
+app.use("/foodtruck", isAuthorized, auth);
+app.use("/foodtruck", isAuthorized, index);
 
+// Initialize database
+initDB();
 
-// app.all('*', isAuthorized);
-// app.use("/foodtruck", auth);
-// app.use("/foodtruck", index);
+app.listen(config.PORT || 3000, '0.0.0.0', () => {
+	console.log(`Server started on port ${config.PORT || 3000}`);
+	console.log(`Try: http://localhost:${config.PORT || 3000}`);
+});
 
 
 

@@ -55,8 +55,11 @@ $(function() {
   }
   };
 
-  var chart = new ApexCharts(document.querySelector("#chart1"), options);
-  chart.render();
+  var el1 = document.querySelector("#chart1");
+  if (el1) {
+    var chart = new ApexCharts(el1, options);
+    chart.render();
+  }
 
 
 
@@ -119,8 +122,11 @@ $(function() {
       }
       };
 
-      var chart = new ApexCharts(document.querySelector("#chart2"), options);
-      chart.render();
+      var el2 = document.querySelector("#chart2");
+      if (el2) {
+        var chart = new ApexCharts(el2, options);
+        chart.render();
+      }
     
 
 
@@ -177,8 +183,11 @@ $(function() {
       }
       };
 
-      var chart = new ApexCharts(document.querySelector("#chart3"), options);
-      chart.render();
+      var el3 = document.querySelector("#chart3");
+      if (el3) {
+        var chart = new ApexCharts(el3, options);
+        chart.render();
+      }
 
 
     // chart 4
@@ -208,8 +217,11 @@ $(function() {
         }]
     };
 
-    var chart = new ApexCharts(document.querySelector("#chart4"), options);
-    chart.render();
+    var el4 = document.querySelector("#chart4");
+    if (el4) {
+        var chart = new ApexCharts(el4, options);
+        chart.render();
+    }
 
 
 
@@ -241,8 +253,11 @@ var options = {
     }]
 };
 
-var chart = new ApexCharts(document.querySelector("#chart5"), options);
-chart.render();
+var el5 = document.querySelector("#chart5");
+if (el5) {
+    var chart = new ApexCharts(el5, options);
+    chart.render();
+}
 
 
 
@@ -331,8 +346,11 @@ var options = {
   labels: ['Total Leads'],
   };
   
-  var chart = new ApexCharts(document.querySelector("#chart6"), options);
-  chart.render();
+  var el6 = document.querySelector("#chart6");
+  if (el6) {
+    var chart = new ApexCharts(el6, options);
+    chart.render();
+  }
   
   
 
@@ -383,8 +401,11 @@ var options = {
   labels: ['Median Ratio'],
   };
 
-  var chart = new ApexCharts(document.querySelector("#chart7"), options);
-  chart.render();
+  var el7 = document.querySelector("#chart7");
+  if (el7) {
+    var chart = new ApexCharts(el7, options);
+    chart.render();
+  }
 
 
 

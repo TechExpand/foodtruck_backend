@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Foodtruck Express  | CTRL</title>
   <!--favicon-->
-	<link rel="icon" href="/images/favicon-32x32.png" type="image/png">
+	<link rel="icon" href="/images/truckmarkerBlue.png" type="image/png">
 
   <!--plugins-->
   <link href="/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet">
@@ -24,6 +24,15 @@
   <link href="/sass/semi-dark.css" rel="stylesheet">
   <link href="/sass/bordered-theme.css" rel="stylesheet">
   <link href="/sass/responsive.css" rel="stylesheet">
+
+  <style>
+    .bg-gradient-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .opacity-75 {
+      opacity: 0.75;
+    }
+  </style>
 
 </head>
 
@@ -602,10 +611,10 @@
   <aside class="sidebar-wrapper">
     <div class="sidebar-header">
       <div class="logo-icon">
-        <img src="/images/logo-icon.png" class="logo-img" alt="">
+        <img src="/images/top-logo.png" class="logo-img" alt="" width="120">
       </div>
       <div class="logo-name flex-grow-1">
-        <h5 class="mb-0">FTE CTRL</h5>
+        <h5 class="mb-0" style="color: #008cff;">ctrl</h5>
       </div>
       <div class="sidebar-close">
         <span class="material-icons-outlined">close</span>
@@ -645,7 +654,15 @@
           </li>
 
           <li>
-            <a href="/app/fullcalender">
+            <a href="/tags">
+              <div class="parent-icon"><i class="material-icons-outlined">local_offer</i>
+              </div>
+              <div class="menu-title">Tags</div>
+            </a>
+          </li>
+
+          <li>
+            <a href="/calendar">
               <div class="parent-icon"><i class="material-icons-outlined">apps</i>
               </div>
               <div class="menu-title">Calendar</div>
@@ -727,141 +744,214 @@
 				</div>
 				<!--end breadcrumb-->
 
-
-        <div class="row">
-          <div class="col-12 col-xl-4 d-flex">
-             <div class="card rounded-4 w-100">
-               <div class="card-body">
-                 <div class="d-flex align-items-center gap-3 mb-2">
-                    <div class="">
-                      <h2 class="mb-0">9,568</h2>
+        <!-- Welcome Section -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="card rounded-4 text-white" style="background: linear-gradient(90deg, #0d6efd 0%, #3ec6fd 100%);">
+              <div class="card-body p-4">
+                <div class="row align-items-center">
+                  <div class="col-md-8">
+                    <h3 class="mb-2" style="color: #fff;">Welcome to FoodTruck Express Admin!</h3>
+                    <p class="mb-0 opacity-75" style="color: #fff;">Manage your food truck platform with ease. Monitor vendors, users, and system performance from this comprehensive dashboard.</p>
+                  </div>
+                  <div class="col-md-4 text-md-end">
+                    <div class="d-flex align-items-center justify-content-md-end gap-3">
+                      <div class="text-center">
+                        <h4 class="mb-0" style="color: #fff;"><%= userCount.toLocaleString() %></h4>
+                        <small class="opacity-75" style="color: #fff;">Total Users</small>
+                      </div>
+                      <div class="text-center">
+                        <h4 class="mb-0" style="color: #fff;"><%= vendorCount.toLocaleString() %></h4>
+                        <small class="opacity-75" style="color: #fff;">Total Vendors</small>
+                      </div>
                     </div>
-                    <div class="">
-                      <p class="dash-lable d-flex align-items-center gap-1 rounded mb-0 bg-danger text-danger bg-opacity-10"><span class="material-icons-outlined fs-6">arrow_downward</span>8.6%</p>
-                    </div>
                   </div>
-                  <p class="mb-0">Average Weekly Views</p>
-                   <div id="chart1"></div>
-               </div>
-             </div>
-          </div>
-          <div class="col-12 col-xl-8 d-flex">
-            <div class="card rounded-4 w-100">
-              <div class="card-body">
-                <div class="d-flex align-items-center justify-content-around flex-wrap gap-4 p-4">
-                  <div class="d-flex flex-column align-items-center justify-content-center gap-2">
-                    <a href="javascript:;" class="mb-2 wh-48 bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="material-icons-outlined">person</i>
-                    </a>
-                    <h3 class="mb-0">85,246</h3>
-                    <p class="mb-0">Users</p>
-                  </div>
-                  <div class="vr"></div>
-                  <div class="d-flex flex-column align-items-center justify-content-center gap-2">
-                    <a href="javascript:;" class="mb-2 wh-48 bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center">
-                      <!-- <i class="material-icons-outlined">man</i> -->
-                      <i class="bi bi-truck"></i>
-                    </a>
-                    <h3 class="mb-0">96,147</h3>
-                    <p class="mb-0">Vendors</p>
-                  </div>
-                
                 </div>
               </div>
             </div>
           </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12 col-xl-3 d-flex">
+             <div class="card rounded-4 w-100">
+               <div class="card-body">
+                 <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="">
+                      <h2 class="mb-0"><%= userCount.toLocaleString() %></h2>
+                    </div>
+                    <div class="">
+                      <p class="dash-lable d-flex align-items-center gap-1 rounded mb-0 bg-success text-success bg-opacity-10"><span class="material-icons-outlined fs-6">arrow_upward</span><%= userGrowth %>%</p>
+                    </div>
+                  </div>
+                  <p class="mb-0">Total Users</p>
+                   <div id="chart1"></div>
+               </div>
+             </div>
+          </div>
+          <div class="col-12 col-xl-3 d-flex">
+             <div class="card rounded-4 w-100">
+               <div class="card-body">
+                 <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="">
+                      <h2 class="mb-0"><%= vendorCount.toLocaleString() %></h2>
+                    </div>
+                    <div class="">
+                      <p class="dash-lable d-flex align-items-center gap-1 rounded mb-0 bg-success text-success bg-opacity-10"><span class="material-icons-outlined fs-6">arrow_upward</span><%= vendorGrowth %>%</p>
+                    </div>
+                  </div>
+                  <p class="mb-0">Total Vendors</p>
+                   <div id="chart2"></div>
+               </div>
+             </div>
+          </div>
+          <div class="col-12 col-xl-3 d-flex">
+             <div class="card rounded-4 w-100">
+               <div class="card-body">
+                 <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="">
+                      <h2 class="mb-0"><%= eventCount.toLocaleString() %></h2>
+                    </div>
+                    <div class="">
+                      <p class="dash-lable d-flex align-items-center gap-1 rounded mb-0 bg-info text-info bg-opacity-10"><span class="material-icons-outlined fs-6">event</span>Events</p>
+                    </div>
+                  </div>
+                  <p class="mb-0">Total Events</p>
+                   <div id="chart3"></div>
+               </div>
+             </div>
+          </div>
+          <div class="col-12 col-xl-3 d-flex">
+             <div class="card rounded-4 w-100">
+               <div class="card-body">
+                 <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="">
+                      <h2 class="mb-0"><%= tagCount.toLocaleString() %></h2>
+                    </div>
+                    <div class="">
+                      <p class="dash-lable d-flex align-items-center gap-1 rounded mb-0 bg-warning text-warning bg-opacity-10"><span class="material-icons-outlined fs-6">local_offer</span>Tags</p>
+                    </div>
+                  </div>
+                  <p class="mb-0">Total Tags</p>
+                   <div id="chart4"></div>
+               </div>
+             </div>
+          </div>
         </div><!--end row-->
         
         <div class="row">
-          <div class="col-12 col-xl-5 col-xxl-4 d-flex">
-            <div class="card rounded-4 w-100 shadow-none bg-transparent border-0">
-               <div class="card-body p-0">
-                 <div class="row g-4">
-                    <div class="col-12 col-xl-6 d-flex">
-                      <div class="card mb-0 rounded-4 w-100">
-                       <div class="card-body">
-                         <div class="d-flex align-items-start justify-content-between mb-3">
-                           <div class="">
-                             <h4 class="mb-0">97.4K</h4>
-                             <p class="mb-0">Total Users</p>
-                           </div>
-                           <div class="dropdown">
-                             <a href="javascript:;" class="dropdown-toggle-nocaret options dropdown-toggle"
-                               data-bs-toggle="dropdown">
-                               <span class="material-icons-outlined fs-5">more_vert</span>
-                             </a>
-                             <ul class="dropdown-menu">
-                               <li><a class="dropdown-item" href="javascript:;">Action</a></li>
-                               <li><a class="dropdown-item" href="javascript:;">Another action</a></li>
-                               <li><a class="dropdown-item" href="javascript:;">Something else here</a></li>
-                             </ul>
-                           </div>
-                         </div>
-                         <div class="chart-container2">
-                           <div id="chart3"></div>
-                         </div>
-                         <div class="text-center">
-                          <p class="mb-0"><span class="text-success me-1">12.5%</span> from last month</p>
-                        </div>
-                       </div>
-                      </div>
+          <div class="col-12 col-xl-4 d-flex">
+            <div class="card rounded-4 w-100">
+               <div class="card-body">
+                 <div class="d-flex align-items-start justify-content-between mb-3">
+                   <div class="">
+                     <h5 class="mb-0 fw-bold">Recent Vendors</h5>
                    </div>
-                   <div class="col-12 col-xl-6 d-flex">
-                    <div class="card mb-0 rounded-4 w-100">
-                     <div class="card-body">
-                       <div class="d-flex align-items-start justify-content-between mb-1">
-                         <div class="">
-                           <h4 class="mb-0">42.5K</h4>
-                           <p class="mb-0">Online Users</p>
-                         </div>
-                         <div class="dropdown">
-                           <a href="javascript:;" class="dropdown-toggle-nocaret options dropdown-toggle"
-                             data-bs-toggle="dropdown">
-                             <span class="material-icons-outlined fs-5">more_vert</span>
-                           </a>
-                           <ul class="dropdown-menu">
-                             <li><a class="dropdown-item" href="javascript:;">Action</a></li>
-                             <li><a class="dropdown-item" href="javascript:;">Another action</a></li>
-                             <li><a class="dropdown-item" href="javascript:;">Something else here</a></li>
-                           </ul>
-                         </div>
-                       </div>
-                       <div class="chart-container2">
-                         <div id="chart2"></div>
-                       </div>
-                       <div class="text-center">
-                         <p class="mb-0">24K users increased from last month</p>
-                       </div>
-                     </div>
-                    </div>
+                   <div class="dropdown">
+                     <a href="/vendors" class="btn btn-sm btn-primary">View All</a>
+                   </div>
                  </div>
-                   <div class="col-12 col-xl-12">
-                    <div class="card rounded-4 mb-0">
-                      <div class="card-body">
-                        <div class="d-flex align-items-center gap-3 mb-2">
-                           <div class="">
-                             <h2 class="mb-0">65,129</h2>
-                           </div>
-                           <div class="">
-                             <p class="dash-lable d-flex align-items-center gap-1 rounded mb-0 bg-success text-success bg-opacity-10"><span class="material-icons-outlined fs-6">arrow_upward</span>8.6%</p>
-                           </div>
+                 <div class="d-flex flex-column gap-3">
+                   <% if (recentVendors && recentVendors.length > 0) { %>
+                     <% recentVendors.forEach(vendor => { %>
+                       <div class="d-flex align-items-center gap-3">
+                         <div class="wh-48 d-flex align-items-center justify-content-center rounded-3 bg-primary bg-opacity-10">
+                           <i class="bi bi-truck text-primary"></i>
                          </div>
-                         <p class="mb-0">Downloads This Year</p>
-                          <div class="mt-4">
-                            <p class="mb-2 d-flex align-items-center justify-content-between">285 left to Goal<span class="">78%</span></p>
-                            <div class="progress w-100" style="height: 7px;">
-                              <div class="progress-bar bg-primary" style="width: 65%"></div>
-                            </div>
-                          </div>
-                          
-                      </div>
-                    </div>
-                  </div>
-
-                 </div><!--end row-->
+                         <div class="flex-grow-1">
+                           <h6 class="mb-0 fw-bold"><%= vendor.business_name || 'Unnamed Business' %></h6>
+                           <p class="mb-0 text-muted"><%= vendor.user ? vendor.user.username : 'Unknown User' %></p>
+                         </div>
+                         <div class="text-end">
+                           <small class="text-muted"><%= new Date(vendor.createdAt).toLocaleDateString() %></small>
+                         </div>
+                       </div>
+                     <% }); %>
+                   <% } else { %>
+                     <p class="text-muted mb-0">No recent vendors</p>
+                   <% } %>
+                 </div>
                </div>
-            </div>  
-          </div> 
+             </div>
+          </div>
+          <div class="col-12 col-xl-4 d-flex">
+            <div class="card rounded-4 w-100">
+               <div class="card-body">
+                 <div class="d-flex align-items-start justify-content-between mb-3">
+                   <div class="">
+                     <h5 class="mb-0 fw-bold">Recent Users</h5>
+                   </div>
+                   <div class="dropdown">
+                     <a href="/users" class="btn btn-sm btn-primary">View All</a>
+                   </div>
+                 </div>
+                 <div class="d-flex flex-column gap-3">
+                   <% if (recentUsers && recentUsers.length > 0) { %>
+                     <% recentUsers.forEach(user => { %>
+                       <div class="d-flex align-items-center gap-3">
+                         <div class="wh-48 d-flex align-items-center justify-content-center rounded-3 bg-success bg-opacity-10">
+                           <i class="material-icons-outlined text-success">person</i>
+                         </div>
+                         <div class="flex-grow-1">
+                           <h6 class="mb-0 fw-bold"><%= user.username || 'Unknown User' %></h6>
+                           <p class="mb-0 text-muted"><%= user.email %></p>
+                         </div>
+                         <div class="text-end">
+                           <small class="text-muted"><%= new Date(user.createdAt).toLocaleDateString() %></small>
+                         </div>
+                       </div>
+                     <% }); %>
+                   <% } else { %>
+                     <p class="text-muted mb-0">No recent users</p>
+                   <% } %>
+                 </div>
+               </div>
+             </div>
+          </div>
+          <div class="col-12 col-xl-4 d-flex">
+            <div class="card rounded-4 w-100">
+               <div class="card-body">
+                 <div class="d-flex align-items-start justify-content-between mb-3">
+                   <div class="">
+                     <h5 class="mb-0 fw-bold">Quick Actions</h5>
+                   </div>
+                 </div>
+                 <div class="d-flex flex-column gap-3">
+                   <a href="/vendors" class="d-flex align-items-center gap-3 p-3 rounded-3 border text-decoration-none">
+                     <div class="wh-48 d-flex align-items-center justify-content-center rounded-3 bg-primary bg-opacity-10">
+                       <i class="bi bi-truck text-primary"></i>
+                     </div>
+                     <div class="flex-grow-1">
+                       <h6 class="mb-0 fw-bold">Manage Vendors</h6>
+                       <p class="mb-0 text-muted">View and manage food truck vendors</p>
+                     </div>
+                     <i class="material-icons-outlined text-muted">arrow_forward_ios</i>
+                   </a>
+                   <a href="/users" class="d-flex align-items-center gap-3 p-3 rounded-3 border text-decoration-none">
+                     <div class="wh-48 d-flex align-items-center justify-content-center rounded-3 bg-success bg-opacity-10">
+                       <i class="material-icons-outlined text-success">person</i>
+                     </div>
+                     <div class="flex-grow-1">
+                       <h6 class="mb-0 fw-bold">Manage Users</h6>
+                       <p class="mb-0 text-muted">View and manage user accounts</p>
+                     </div>
+                     <i class="material-icons-outlined text-muted">arrow_forward_ios</i>
+                   </a>
+                   <a href="/tags" class="d-flex align-items-center gap-3 p-3 rounded-3 border text-decoration-none">
+                     <div class="wh-48 d-flex align-items-center justify-content-center rounded-3 bg-warning bg-opacity-10">
+                       <i class="material-icons-outlined text-warning">local_offer</i>
+                     </div>
+                     <div class="flex-grow-1">
+                       <h6 class="mb-0 fw-bold">Manage Tags</h6>
+                       <p class="mb-0 text-muted">Manage food categories and special tags</p>
+                     </div>
+                     <i class="material-icons-outlined text-muted">arrow_forward_ios</i>
+                   </a>
+                 </div>
+               </div>
+             </div>
+          </div>
+        </div><!--end row--> 
           <div class="col-12 col-xl-7 col-xxl-8 d-flex">
             <div class="card w-100 rounded-4">
                <div class="card-body">
@@ -917,149 +1007,88 @@
         </div><!--end row-->
 
         <div class="row">
-           <!-- <div class="col-12 col-xl-4 d-flex">
+          <div class="col-12 col-xl-4 d-flex">
             <div class="card w-100 rounded-4">
                <div class="card-body">
-                <div class="d-flex align-items-start justify-content-between mb-3">
-                  <div class="">
-                    <h5 class="mb-0 fw-bold">Ongoing Projects</h5>
+                 <div class="d-flex align-items-start justify-content-between mb-3">
+                   <div class="">
+                     <h5 class="mb-0 fw-bold">System Status</h5>
+                   </div>
+                   <div class="dropdown">
+                     <a href="javascript:;" class="dropdown-toggle-nocaret options dropdown-toggle"
+                       data-bs-toggle="dropdown">
+                       <span class="material-icons-outlined fs-5">more_vert</span>
+                     </a>
+                     <ul class="dropdown-menu">
+                       <li><a class="dropdown-item" href="javascript:;">Refresh</a></li>
+                       <li><a class="dropdown-item" href="javascript:;">View Details</a></li>
+                     </ul>
+                   </div>
                   </div>
-                  <div class="dropdown">
-                    <a href="javascript:;" class="dropdown-toggle-nocaret options dropdown-toggle"
-                      data-bs-toggle="dropdown">
-                      <span class="material-icons-outlined fs-5">more_vert</span>
-                    </a>
-                    <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="javascript:;">Action</a></li>
-                      <li><a class="dropdown-item" href="javascript:;">Another action</a></li>
-                      <li><a class="dropdown-item" href="javascript:;">Something else here</a></li>
-                    </ul>
-                  </div>
-                 </div>
-                  <div class="d-flex flex-column gap-4">
-                     <div class="d-flex align-items-center gap-4">
-                       <div class="d-flex align-items-center gap-3 flex-grow-1 flex-shrink-0">
-                        <div class="wh-48 d-flex align-items-center justify-content-center rounded-3 border">
-                          <img src="/images/projects/angular.png" width="30" alt="">
-                        </div>
-                          <div class="">
-                            <h6 class="mb-0 fw-bold">Angular 12</h6>
-                            <p class="mb-0">Admin Template</p>
+                    <div class="d-flex flex-column gap-4">
+                       <div class="d-flex align-items-center gap-4">
+                         <div class="d-flex align-items-center gap-3 flex-grow-1 flex-shrink-0">
+                          <div class="wh-48 d-flex align-items-center justify-content-center rounded-3 bg-success bg-opacity-10">
+                            <i class="material-icons-outlined text-success">check_circle</i>
                           </div>
-                       </div>
-                       <div class="progress w-25" style="height: 5px;">
-                          <div class="progress-bar bg-danger" style="width: 95%"></div>
-                       </div>
-                       <div class="">
-                        <p class="mb-0 fs-6">95%</p>
-                       </div>
-                     </div>
-                     <div class="d-flex align-items-center gap-4">
-                      <div class="d-flex align-items-center gap-3 flex-grow-1 flex-shrink-0">
-                       <div class="wh-48 d-flex align-items-center justify-content-center rounded-3 border">
-                         <img src="/images/projects/react.png" width="30" alt="">
-                       </div>
-                         <div class="">
-                           <h6 class="mb-0 fw-bold">React Js</h6>
-                           <p class="mb-0">eCommerce Admin</p>
+                            <div class="">
+                              <h6 class="mb-0 fw-bold">Server Status</h6>
+                              <p class="mb-0">All systems operational</p>
+                            </div>
                          </div>
-                      </div>
-                      <div class="progress w-25" style="height: 5px;">
-                         <div class="progress-bar bg-info" style="width: 90%"></div>
-                      </div>
-                      <div class="">
-                       <p class="mb-0 fs-6">90%</p>
-                      </div>
-                    </div>
-                    <div class="d-flex align-items-center gap-4">
-                      <div class="d-flex align-items-center gap-3 flex-grow-1 flex-shrink-0">
-                       <div class="wh-48 d-flex align-items-center justify-content-center rounded-3 border">
-                         <img src="/images/projects/vue.png" width="30" alt="">
-                       </div>
                          <div class="">
-                           <h6 class="mb-0 fw-bold">Vue Js</h6>
-                           <p class="mb-0">Dashboard Template</p>
+                          <span class="badge bg-success">Online</span>
                          </div>
-                      </div>
-                      <div class="progress w-25" style="height: 5px;">
-                         <div class="progress-bar bg-success" style="width: 85%"></div>
-                      </div>
-                      <div class="">
-                       <p class="mb-0 fs-6">85%</p>
-                      </div>
-                    </div>
-                    <div class="d-flex align-items-center gap-4">
-                      <div class="d-flex align-items-center gap-3 flex-grow-1 flex-shrink-0">
-                       <div class="wh-48 d-flex align-items-center justify-content-center rounded-3 border">
-                         <img src="/images/projects/bootstrap.png" width="30" alt="">
                        </div>
-                         <div class="">
-                           <h6 class="mb-0 fw-bold">Bootstrap 5</h6>
-                           <p class="mb-0">Corporate Website</p>
+                       <div class="d-flex align-items-center gap-4">
+                        <div class="d-flex align-items-center gap-3 flex-grow-1 flex-shrink-0">
+                         <div class="wh-48 d-flex align-items-center justify-content-center rounded-3 bg-info bg-opacity-10">
+                           <i class="material-icons-outlined text-info">storage</i>
                          </div>
+                             <div class="">
+                               <h6 class="mb-0 fw-bold">Database</h6>
+                               <p class="mb-0">MySQL connection active</p>
+                             </div>
+                          </div>
+                          <div class="">
+                           <span class="badge bg-success">Connected</span>
+                          </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-4">
+                          <div class="d-flex align-items-center gap-3 flex-grow-1 flex-shrink-0">
+                           <div class="wh-48 d-flex align-items-center justify-content-center rounded-3 bg-warning bg-opacity-10">
+                             <i class="material-icons-outlined text-warning">memory</i>
+                           </div>
+                               <div class="">
+                                 <h6 class="mb-0 fw-bold">Memory Usage</h6>
+                                 <p class="mb-0">System resources normal</p>
+                               </div>
+                            </div>
+                            <div class="">
+                             <span class="badge bg-warning">Normal</span>
+                            </div>
+                          </div>
+                          <div class="d-flex align-items-center gap-4">
+                            <div class="d-flex align-items-center gap-3 flex-grow-1 flex-shrink-0">
+                             <div class="wh-48 d-flex align-items-center justify-content-center rounded-3 bg-primary bg-opacity-10">
+                               <i class="material-icons-outlined text-primary">schedule</i>
+                             </div>
+                               <div class="">
+                                 <h6 class="mb-0 fw-bold">Uptime</h6>
+                                 <p class="mb-0">Server running smoothly</p>
+                               </div>
+                            </div>
+                            <div class="">
+                             <span class="badge bg-primary">99.9%</span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div class="progress w-25" style="height: 5px;">
-                         <div class="progress-bar bg-voilet" style="width: 75%"></div>
-                      </div>
-                      <div class="">
-                       <p class="mb-0 fs-6">75%</p>
-                      </div>
-                    </div>
-                    <div class="d-flex align-items-center gap-4">
-                      <div class="d-flex align-items-center gap-3 flex-grow-1 flex-shrink-0">
-                       <div class="wh-48 d-flex align-items-center justify-content-center rounded-3 border">
-                         <img src="/images/projects/magento.png" width="30" alt="">
-                       </div>
-                         <div class="">
-                           <h6 class="mb-0 fw-bold">Magento</h6>
-                           <p class="mb-0">Shoping Portal</p>
-                         </div>
-                      </div>
-                      <div class="progress w-25" style="height: 5px;">
-                         <div class="progress-bar bg-orange" style="width: 65%"></div>
-                      </div>
-                      <div class="">
-                       <p class="mb-0 fs-6">65%</p>
-                      </div>
-                    </div>
-                    <div class="d-flex align-items-center gap-4">
-                      <div class="d-flex align-items-center gap-3 flex-grow-1 flex-shrink-0">
-                       <div class="wh-48 d-flex align-items-center justify-content-center rounded-3 border">
-                         <img src="/images/projects/django.png" width="30" alt="">
-                       </div>
-                         <div class="">
-                           <h6 class="mb-0 fw-bold">Django</h6>
-                           <p class="mb-0">Backend Admin</p>
-                         </div>
-                      </div>
-                      <div class="progress w-25" style="height: 5px;">
-                         <div class="progress-bar bg-cyne" style="width: 55%"></div>
-                      </div>
-                      <div class="">
-                       <p class="mb-0 fs-6">55%</p>
-                      </div>
-                    </div>
-                    <div class="d-flex align-items-center gap-4">
-                      <div class="d-flex align-items-center gap-3 flex-grow-1 flex-shrink-0">
-                       <div class="wh-48 d-flex align-items-center justify-content-center rounded-3 border">
-                         <img src="/images/projects/python.png" width="30" alt="">
-                       </div>
-                         <div class="">
-                           <h6 class="mb-0 fw-bold">Python</h6>
-                           <p class="mb-0">User Panel</p>
-                         </div>
-                      </div>
-                      <div class="progress w-25" style="height: 5px;">
-                         <div class="progress-bar" style="width: 45%"></div>
-                      </div>
-                      <div class="">
-                       <p class="mb-0 fs-6">45%</p>
-                      </div>
-                    </div>
-                  </div>
+                   </div>
+                 </div>
                </div>
              </div>
-           </div> -->
+           </div>
 
            <div class="col-12 col-xl-4 d-flex">
             <div class="card w-100 rounded-4">
@@ -1157,77 +1186,22 @@
                 </div>
                </div>
               <div class="d-flex flex-column gap-4">
-                <div class="d-flex align-items-center gap-3">
-                  <img src="/images/orders/01.png" width="78" class="rounded-3" alt="">
-                  <div class="flex-grow-1">
-                    <h6 class="mb-0 fw-bold">Apple Hand Watch</h6>
-                    <!-- <p class="mb-0">Sale: 258</p> -->
-                  </div>
-                  <div class="">
-                    <h6 class="mb-0">199</h6>
-                  </div>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                  <img src="/images/orders/08.png" width="78" class="rounded-3" alt="">
-                  <div class="flex-grow-1">
-                    <h6 class="mb-0 fw-bold">Mobile Phone Set</h6>
-                    <!-- <p class="mb-0">Sale: 169</p> -->
-                  </div>
-                  <div class="">
-                    <h6 class="mb-0">159</h6>
-                  </div>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                  <img src="/images/orders/03.png" width="78" class="rounded-3" alt="">
-                  <div class="flex-grow-1">
-                    <h6 class="mb-0 fw-bold">Fancy Chair</h6>
-                    <!-- <p class="mb-0">Sale: 268</p> -->
-                  </div>
-                  <div class="">
-                    <h6 class="mb-0">678</h6>
-                  </div>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                  <img src="/images/orders/04.png" width="78" class="rounded-3" alt="">
-                  <div class="flex-grow-1">
-                    <h6 class="mb-0 fw-bold">Blue Shoes Pair</h6>
-                    <!-- <p class="mb-0">Sale: 859</p> -->
-                  </div>
-                  <div class="">
-                    <h6 class="mb-0">279</h6>
-                  </div>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                  <img src="/images/orders/05.png" width="78" class="rounded-3" alt="">
-                  <div class="flex-grow-1">
-                    <h6 class="mb-0 fw-bold">Blue Yoga Mat</h6>
-                    <!-- <p class="mb-0">Sale: 328</p> -->
-                  </div>
-                  <div class="">
-                    <h6 class="mb-0">389</h6>
-                  </div>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                  <img src="/images/orders/06.png" width="75" class="rounded-3" alt="">
-                  <div class="flex-grow-1">
-                    <h6 class="mb-0 fw-bold">White water Bottle</h6>
-                    <!-- <p class="mb-0">Sale: 992</p> -->
-                  </div>
-                  <div class="">
-                    <h6 class="mb-0">584</h6>
-                  </div>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                  <img src="/images/orders/07.png" width="78" class="rounded-3" alt="">
-                  <div class="flex-grow-1">
-                    <h6 class="mb-0 fw-bold">Laptop Full HD</h6>
-                    <!-- <p class="mb-0">Sale: 489</p> -->
-                  </div>
-                  <div class="">
-                    <h6 class="mb-0">398</h6>
-                  </div>
-                </div>
-                
+                <% if (popularVendors && popularVendors.length > 0) { %>
+                  <% popularVendors.forEach(function(vendor) { %>
+                    <div class="d-flex align-items-center gap-3">
+                      <img src="/images/avatars/01.png" width="48" class="rounded-3" alt="Vendor">
+                      <div class="flex-grow-1">
+                        <h6 class="mb-0 fw-bold"><%= vendor.business_name || 'Unnamed Business' %></h6>
+                        <p class="mb-0 text-muted"><%= vendor.user ? vendor.user.username : 'Unknown User' %></p>
+                      </div>
+                      <div class="text-end">
+                        <small class="text-muted"><%= new Date(vendor.createdAt).toLocaleDateString() %></small>
+                      </div>
+                    </div>
+                  <% }); %>
+                <% } else { %>
+                  <p class="text-muted mb-0">No popular vendors</p>
+                <% } %>
               </div>
             </div>
           </div>

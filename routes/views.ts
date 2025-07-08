@@ -3,6 +3,11 @@ import { ViewsController } from '../controllers/views';
 
 const router = Router();
 
+// Admin pages
+router.get('/admin-vendors', ViewsController.adminVendors);
+router.get('/admin-tags', ViewsController.adminTags);
+router.get('/admin-events', ViewsController.adminEvents);
+
 // Dashboard
 router.get('/', ViewsController.dashboard);
 
@@ -40,11 +45,23 @@ router.get('/widgets/:widget?', ViewsController.widgets);
 // Vendors page
 router.get('/vendors', ViewsController.vendors);
 
+// Tags page
+router.get('/tags', ViewsController.adminTags);
+
 // Add Event page
 router.get('/add-event', ViewsController.addEvent);
 
 // Error pages
 router.get('/error/404', ViewsController.error404);
 router.get('/error/500', ViewsController.error500);
+
+// Calendar events API
+router.get('/calendar/events', ViewsController.calendarEvents);
+
+// Calendar page
+router.get('/calendar', ViewsController.calendar);
+
+// Event detail page
+router.get('/calendar/event/:id', ViewsController.eventDetail);
 
 export default router; 

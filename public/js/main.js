@@ -1,14 +1,18 @@
-
-
 $(function () {
   "use strict";
 
 
   /* scrollar */
 
-  new PerfectScrollbar(".notify-list")
+  var psElement = document.querySelector('.notify-list');
+  if (psElement) {
+    new PerfectScrollbar(psElement);
+  }
 
-  new PerfectScrollbar(".search-content")
+  var psElement = document.querySelector('.search-content');
+  if (psElement) {
+    new PerfectScrollbar(psElement);
+  }
 
   // new PerfectScrollbar(".mega-menu-widgets")
 

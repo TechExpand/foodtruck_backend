@@ -3,7 +3,6 @@ import { NextFunction, Response , Request} from "express";
 import config from "../config/configSetup"
 import { handleResponse } from "../helpers/utility";
 import { verify } from "jsonwebtoken";
-const TOKEN_SECRET = "222hwhdhnnjduru838272@@$henncndbdhsjj333n33brnfn";
 
 
 
@@ -21,7 +20,7 @@ export const isAuthorized = async (req: Request, res: Response, next: NextFuncti
 		token = token.split(' ')[1]; // Remove Bearer from string
 		
 		if (token === 'null' || !token) return handleResponse(res, 401, false, `Unauthorized request`);
-		let verified: any = verify(token, TOKEN_SECRET);
+		let verified: any = verify(token, config.JWTSECRET!);
 		if (!verified) return handleResponse(res, 401, false, `Unauthorized request`);
 	
         req.user = verified;

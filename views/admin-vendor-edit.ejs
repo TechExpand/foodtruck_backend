@@ -1,0 +1,364 @@
+<% // Helper function at the top of the file
+function getTagArray(tag) {
+  if (!tag) return [];
+  if (Array.isArray(tag)) return tag;
+  if (typeof tag === 'string') {
+    // Handle comma-separated tag names (not JSON)
+    return tag.split(',').map(t => t.trim()).filter(Boolean);
+  }
+  return [];
+} %>
+
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Edit Vendor - FoodTruck Express</title>
+  <!--favicon-->
+  <link rel="icon" href="/images/truckmarkerBlue.png" type="image/png">
+  
+  <!--plugins-->
+  <link href="/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="/plugins/metismenu/metisMenu.min.css">
+  <link rel="stylesheet" type="text/css" href="/plugins/metismenu/mm-vertical.css">
+  <link rel="stylesheet" type="text/css" href="/plugins/simplebar/css/simplebar.css">
+  <!--bootstrap css-->
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined" rel="stylesheet">
+  <!--main css-->
+  <link href="/css/bootstrap-extended.css" rel="stylesheet">
+  <link href="/sass/main.css" rel="stylesheet">
+  <link href="/sass/dark-theme.css" rel="stylesheet">
+  <link href="/sass/semi-dark.css" rel="stylesheet">
+  <link href="/sass/bordered-theme.css" rel="stylesheet">
+  <link href="/sass/responsive.css" rel="stylesheet">
+  
+  <!-- Select2 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+</head>
+
+<body>
+  <!--start header-->
+  <header class="top-header">
+    <nav class="navbar navbar-expand align-items-center gap-4">
+      <div class="btn-toggle">
+        <a href="javascript:;"><i class="material-icons-outlined">menu</i></a>
+      </div>
+      <div class="search-bar flex-grow-1">
+        <div class="position-relative">
+          <input class="form-control rounded-5 px-5 search-control d-lg-block d-none" type="text" placeholder="Search">
+          <span class="material-icons-outlined position-absolute d-lg-block d-none ms-3 translate-middle-y start-0 top-50">search</span>
+          <span class="material-icons-outlined position-absolute me-3 translate-middle-y end-0 top-50 search-close">close</span>
+        </div>
+      </div>
+      <ul class="navbar-nav gap-1 nav-right-links align-items-center">
+        <li class="nav-item">
+          <a href="/vendors" class="btn btn-primary">Back to Vendors</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+  <!--end top header-->
+
+  <!--start sidebar-->
+  <aside class="sidebar-wrapper">
+    <div class="sidebar-header">
+      <div class="logo-icon">
+        <img src="/images/top-logo.png" class="logo-img" alt="" width="120">
+      </div>
+      <div class="logo-name flex-grow-1">
+        <h5 class="mb-0" style="color: #008cff;">ctrl</h5>
+      </div>
+      <div class="sidebar-close">
+        <span class="material-icons-outlined">close</span>
+      </div>
+    </div>
+  </aside>
+  <!--end sidebar-->
+
+  <!--start main wrapper-->
+  <main class="main-wrapper">
+    <div class="main-content">
+      <!--breadcrumb-->
+      <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">Vendors</div>
+        <div class="ps-3">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 p-0">
+              <li class="breadcrumb-item"><a href="/vendors"><i class="bx bx-home-alt"></i></a></li>
+              <li class="breadcrumb-item active" aria-current="page">Edit Vendor</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+      <!--end breadcrumb-->
+
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="mb-0">Edit Vendor Details</h4>
+            </div>
+            <div class="card-body">
+              <form id="editVendorForm" method="POST" action="/admin/vendors/<%= vendor.id %>">
+                <div class="row">
+                  <!-- Vendor Information -->
+                  <div class="col-12 col-lg-8">
+                    <div class="card border shadow-none">
+                      <div class="card-header bg-light">
+                        <h6 class="mb-0">Vendor Information</h6>
+                      </div>
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                              <label for="businessName" class="form-label">Business Name</label>
+                              <input type="text" class="form-control" id="businessName" name="business_name" 
+                                     value="<%= vendor.business_name || '' %>" required>
+                            </div>
+                          </div>
+                          <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                              <label for="uniqueDetail" class="form-label">Unique Detail</label>
+                              <input type="text" class="form-control" id="uniqueDetail" name="unique_detail" 
+                                     value="<%= vendor.unique_detail || '' %>">
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div class="row">
+                          <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                              <label for="phone" class="form-label">Phone</label>
+                              <input type="tel" class="form-control" id="phone" name="phone" 
+                                     value="<%= vendor.phone || '' %>">
+                            </div>
+                          </div>
+                          <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                              <label for="email" class="form-label">Email</label>
+                              <input type="email" class="form-control" id="email" name="email" 
+                                     value="<%= vendor.user ? vendor.user.email : '' %>" readonly>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="mb-3">
+                          <label for="detail" class="form-label">Description</label>
+                          <textarea class="form-control" id="detail" name="detail" rows="4"><%= vendor.detail || '' %></textarea>
+                        </div>
+
+                        <div class="row">
+                          <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                              <label for="vendorTags" class="form-label">Tags</label>
+                              <select class="form-select" id="vendorTags" name="tags" multiple data-placeholder="Select tags...">
+                                <% var selectedTagNames = getTagArray(vendor.tag).map(function(t) { return t.toLowerCase(); }); %>
+                                <% allTags.forEach(function(tag) { %>
+                                  <option value="<%= tag.title %>" <%= selectedTagNames.includes(tag.title.toLowerCase()) ? 'selected' : '' %>><%= tag.title %></option>
+                                <% }); %>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                              <label for="vendorSpecialTags" class="form-label">Special Tags</label>
+                              <select class="form-select" id="vendorSpecialTags" name="specializedTagId" data-placeholder="Select special tag...">
+                                <option value="">No special tag</option>
+                                <% specialTags.forEach(function(specialTag) { %>
+                                  <option value="<%= specialTag.id %>" 
+                                    <%= vendor.specializedTagId === specialTag.id ? 'selected' : '' %>>
+                                    <%= specialTag.tag ? specialTag.tag.title : 'Unknown Tag' %>
+                                  </option>
+                                <% }); %>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="row">
+                          <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                              <label for="days" class="form-label">Operating Days</label>
+                              <input type="text" class="form-control" id="days" name="days" 
+                                     value="<%= vendor.days || '' %>" placeholder="e.g., Mon-Fri, Sat-Sun">
+                            </div>
+                          </div>
+                          <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                              <label for="hours" class="form-label">Operating Hours</label>
+                              <input type="text" class="form-control" id="hours" name="hours" 
+                                     value="<%= vendor.hours || '' %>" placeholder="e.g., 9AM-5PM">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Vendor Profile -->
+                  <div class="col-12 col-lg-4">
+                    <div class="card border shadow-none">
+                      <div class="card-header bg-light">
+                        <h6 class="mb-0">Vendor Profile</h6>
+                      </div>
+                      <div class="card-body">
+                        <div class="text-center mb-4">
+                          <div class="position-relative d-inline-block">
+                            <img src="<%= vendor.pro_pic || '/images/avatars/01.png' %>" 
+                                 class="rounded-circle" width="120" height="120" alt="Vendor Profile">
+                            <div class="position-absolute bottom-0 end-0">
+                              <button type="button" class="btn btn-sm btn-primary rounded-circle">
+                                <i class="material-icons-outlined">camera_alt</i>
+                              </button>
+                            </div>
+                          </div>
+                          <h5 class="mt-3 mb-1"><%= vendor.business_name || 'Unnamed Business' %></h5>
+                          <p class="text-muted mb-0"><%= vendor.user ? vendor.user.username : 'Unknown User' %></p>
+                        </div>
+
+                        <div class="mb-3">
+                          <label class="form-label">Current Special Tag</label>
+                          <div class="d-flex align-items-center gap-2">
+                            <% if (vendor.specialTag && vendor.specialTag.tag) { %>
+                              <span class="badge bg-primary"><%= vendor.specialTag.tag.title %></span>
+                            <% } else { %>
+                              <span class="badge bg-secondary">No special tag</span>
+                            <% } %>
+                          </div>
+                        </div>
+
+                        <div class="mb-3">
+                          <label class="form-label">Current Tags</label>
+                          <div class="d-flex flex-wrap gap-1">
+                            <% var tagArr = getTagArray(vendor.tag); %>
+                            <% if (tagArr.length > 0) { %>
+                              <% tagArr.forEach(function(tagName) { %>
+                                <span class="badge bg-info"><%= tagName %></span>
+                              <% }); %>
+                            <% } else { %>
+                              <span class="text-muted">No tags assigned</span>
+                            <% } %>
+                          </div>
+                        </div>
+
+                        <div class="mb-3">
+                          <label class="form-label">Registration Date</label>
+                          <p class="mb-0"><%= new Date(vendor.createdAt).toLocaleDateString() %></p>
+                        </div>
+
+                        <div class="mb-3">
+                          <label class="form-label">Last Updated</label>
+                          <p class="mb-0"><%= new Date(vendor.updatedAt).toLocaleDateString() %></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="row mt-4">
+                  <div class="col-12">
+                    <div class="d-flex gap-2 justify-content-end">
+                      <a href="/vendors" class="btn btn-secondary">Cancel</a>
+                      <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <!--end main wrapper-->
+
+  <!--start overlay-->
+  <div class="overlay btn-toggle"></div>
+  <!--end overlay-->
+
+  <!--start footer-->
+  <footer class="page-footer">
+    <p class="mb-0">Copyright © 2024 Wingu Digital. All right reserved.</p>
+  </footer>
+  <!--top footer-->
+
+  <!--bootstrap js-->
+  <script src="/js/bootstrap.bundle.min.js"></script>
+
+  <!--plugins-->
+  <script src="/js/jquery.min.js"></script>
+  <!--plugins-->
+  <script src="/plugins/perfect-scrollbar/js/perfect-scrollbar.js"></script>
+  <script src="/plugins/metismenu/metisMenu.min.js"></script>
+  <script src="/plugins/simplebar/js/simplebar.min.js"></script>
+  <script src="/js/main.js"></script>
+
+  <!-- Select2 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script>
+    $(function() {
+      // Initialize Select2 for tags (multi-select)
+      $('#vendorTags').select2({
+        theme: "bootstrap-5",
+        width: '100%',
+        placeholder: $('#vendorTags').data('placeholder'),
+        closeOnSelect: false,
+        allowClear: true
+      });
+
+      // Initialize Select2 for special tags (single select)
+      $('#vendorSpecialTags').select2({
+        theme: "bootstrap-5",
+        width: '100%',
+        placeholder: $('#vendorSpecialTags').data('placeholder'),
+        allowClear: true
+      });
+
+      // Form submission
+      $('#editVendorForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        // Build data object directly (avoid FormData for complex types)
+        const data = {
+          business_name: $('#businessName').val(),
+          unique_detail: $('#uniqueDetail').val(),
+          phone: $('#phone').val(),
+          detail: $('#detail').val(),
+          days: $('#days').val(),
+          hours: $('#hours').val(),
+          tags: $('#vendorTags').val() || [],
+          specializedTagId: $('#vendorSpecialTags').val() || null
+        };
+        
+        // Send update request
+        fetch('/admin/vendors/<%= vendor.id %>', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status) {
+            alert('Vendor updated successfully!');
+            window.location.href = '/vendors';
+          } else {
+            alert('Error updating vendor: ' + data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Error updating vendor');
+        });
+      });
+    });
+  </script>
+
+</body>
+</html> 

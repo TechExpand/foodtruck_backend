@@ -47,8 +47,11 @@ $(function() {
       }
       };
 
-      var chart = new ApexCharts(document.querySelector("#chart1"), options);
-      chart.render();
+      var el1 = document.querySelector("#chart1");
+      if (el1) {
+        var chart = new ApexCharts(el1, options);
+        chart.render();
+      }
 
 
 
@@ -99,8 +102,11 @@ $(function() {
       }
       };
 
-      var chart = new ApexCharts(document.querySelector("#chart2"), options);
-      chart.render();
+      var el2 = document.querySelector("#chart2");
+      if (el2) {
+        var chart = new ApexCharts(el2, options);
+        chart.render();
+      }
 
 
 
@@ -150,8 +156,11 @@ $(function() {
       }
       };
 
-      var chart = new ApexCharts(document.querySelector("#chart3"), options);
-      chart.render();
+      var el3 = document.querySelector("#chart3");
+      if (el3) {
+        var chart = new ApexCharts(el3, options);
+        chart.render();
+      }
 
 
 
@@ -200,8 +209,11 @@ $(function() {
       }
       };
 
-      var chart = new ApexCharts(document.querySelector("#chart4"), options);
-      chart.render();
+      var el4 = document.querySelector("#chart4");
+      if (el4) {
+        var chart = new ApexCharts(el4, options);
+        chart.render();
+      }
 
 
 
@@ -261,8 +273,11 @@ $(function() {
       }
       };
 
-      var chart = new ApexCharts(document.querySelector("#chart5"), options);
-      chart.render();
+      var el5 = document.querySelector("#chart5");
+      if (el5) {
+        var chart = new ApexCharts(el5, options);
+        chart.render();
+      }
 
 
 
@@ -304,8 +319,11 @@ $(function() {
       }]
   };
 
-  var chart = new ApexCharts(document.querySelector("#chart6"), options);
-  chart.render();
+  var el6 = document.querySelector("#chart6");
+  if (el6) {
+    var chart = new ApexCharts(el6, options);
+    chart.render();
+  }
   
 
 
@@ -366,8 +384,11 @@ $(function() {
       }
       };
 
-      var chart = new ApexCharts(document.querySelector("#chart7"), options);
-      chart.render();
+      var el7 = document.querySelector("#chart7");
+      if (el7) {
+        var chart = new ApexCharts(el7, options);
+        chart.render();
+      }
 
 
 
@@ -416,8 +437,11 @@ $(function() {
     }
     };
 
-    var chart = new ApexCharts(document.querySelector("#chart8"), options);
-    chart.render();
+    var el8 = document.querySelector("#chart8");
+    if (el8) {
+      var chart = new ApexCharts(el8, options);
+      chart.render();
+    }
 
 
 
@@ -468,8 +492,11 @@ xaxis: {
 }
 };
 
-var chart = new ApexCharts(document.querySelector("#chart9"), options);
-chart.render();
+var el9 = document.querySelector("#chart9");
+if (el9) {
+  var chart = new ApexCharts(el9, options);
+  chart.render();
+}
 
 
 
@@ -556,8 +583,11 @@ stroke: {
 labels: ['Total Leads'],
 };
 
-var chart = new ApexCharts(document.querySelector("#chart10"), options);
-chart.render();
+var el10 = document.querySelector("#chart10");
+if (el10) {
+  var chart = new ApexCharts(el10, options);
+  chart.render();
+}
 
 
 
@@ -614,8 +644,11 @@ chart.render();
     }
     };
 
-    var chart = new ApexCharts(document.querySelector("#chart11"), options);
-    chart.render();
+    var el11 = document.querySelector("#chart11");
+    if (el11) {
+      var chart = new ApexCharts(el11, options);
+      chart.render();
+    }
 
 
 
@@ -703,8 +736,11 @@ stroke: {
 labels: ['Total Orders'],
 };
 
-var chart = new ApexCharts(document.querySelector("#chart12"), options);
-chart.render();
+var el12 = document.querySelector("#chart12");
+if (el12) {
+  var chart = new ApexCharts(el12, options);
+  chart.render();
+}
 
 
 
@@ -746,8 +782,11 @@ pie: {
   }]
 };
 
-var chart = new ApexCharts(document.querySelector("#chart13"), options);
-chart.render();
+var el13 = document.querySelector("#chart13");
+if (el13) {
+  var chart = new ApexCharts(el13, options);
+  chart.render();
+}
 
 
 
