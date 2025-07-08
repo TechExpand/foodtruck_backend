@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { Profile } from '../models/Profile';
 import { Users } from '../models/Users';
 import { Op } from 'sequelize';
+import { SpecialTag } from '../models/SpecialTag';
 
 export class ViewsController {
     // Dashboard
@@ -414,7 +415,7 @@ export class ViewsController {
             });
 
             // Fetch all tags from Tag table for food categories
-            const tagRecords = await Tag.findAll();
+            const tagRecords = await AllTag.findAll();
             
             // Create mapping for food category tag title to id
             const foodTagTitleToId = Object.fromEntries(tagRecords.map(tag => [tag.title?.toLowerCase(), tag.id]));
@@ -546,14 +547,15 @@ export class ViewsController {
             
             // Fetch all tags from both tables
             const allTagRecords = await AllTag.findAll({ order: [['createdAt', 'DESC']] });
-            const tagRecords = await Tag.findAll({ order: [['createdAt', 'DESC']] });
+            // const tagRecords = await Tag.findAll({ order: [['createdAt', 'DESC']] });
             
             // Special Tags = All rows from AllTag table
-            const specialTags = allTagRecords;
+            const allSpecialTags = await SpecialTag.findAll({ order: [['createdAt', 'DESC']] });
             
             // All Tags = All rows from Tag table, excluding any that have matching IDs in AllTag table
-            const allTagIds = allTagRecords.map(tag => tag.id);
-            const regularTags = tagRecords.filter((tag: any) => !allTagIds.includes(tag.id));
+            const specialTagIds = allSpecialTags.map(tag => tag.tagId);
+            const regularTags = allTagRecords.filter((tag: any) => !specialTagIds.includes(tag.id));
+             const specialTags = allTagRecords.filter((tag: any) => !specialTagIds.includes(tag.id));
             
             res.render('admin-tags', {
                 title: 'Admin - Tag Management - FoodTruck Express',
