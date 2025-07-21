@@ -17,6 +17,7 @@ const configSetup_1 = __importDefault(require("../config/configSetup"));
 const utility_1 = require("../helpers/utility");
 const jsonwebtoken_1 = require("jsonwebtoken");
 const isAuthorized = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("Authorisation middleware called", req.headers.authorization);
     //this is the url without query params
     const route = req.originalUrl.split('?').shift();
     let publicRoutes = configSetup_1.default.PUBLIC_ROUTES;

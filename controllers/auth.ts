@@ -5,11 +5,11 @@ import {
   successResponse,
   validateEmail,
 } from "../helpers/utility";
+import config from "../config/configSetup";
 import { Request, Response } from "express";
 import { VerificationType, Verify } from "../models/Verify";
 import { sendEmailResend, sendSMS } from "../services/sms";
 import { UserType, Users } from "../models/Users";
-const TOKEN_SECRET = "222hwhdhnnjduru838272@@$henncndbdhsjj333n33brnfn";
 const saltRounds = 10;
 import { compare, hash } from "bcryptjs";
 import { sign } from "jsonwebtoken";
@@ -67,7 +67,7 @@ export const verifyOtp = async (req: Request, res: Response) => {
             password: hashedPassword,
           });
           await verifyEmailResult?.destroy();
-          let token = sign({ id: user?.id, email: user?.email }, TOKEN_SECRET);
+          let token = sign({ id: user?.id, email: user?.email },  config.JWTSECRET!);
           return successResponse(res, "Successful", token);
         });
       }else{
@@ -96,7 +96,7 @@ export const verifyOtp = async (req: Request, res: Response) => {
             type,
           });
           await verifyEmailResult?.destroy();
-          let token = sign({ id: user.id, email: user.email }, TOKEN_SECRET);
+          let token = sign({ id: user.id, email: user.email },  config.JWTSECRET!);
           return successResponse(res, "Successful", token);
         });
       }
@@ -130,7 +130,7 @@ export const googleLogin = async (req: Request, res: Response) => {
   if(user.type != UserType.VENDOR && type == UserType.VENDOR) return errorResponse(res, "You don't have access to a Vendor Account");
   const match = await compare(response?.data?.id, user.password);
   if (!match) return errorResponse(res, "Invalid Credentials");
-  let token = sign({ id: user.id, email: user.email }, TOKEN_SECRET);
+  let token = sign({ id: user.id, email: user.email },  config.JWTSECRET!);
   await user.update({fcmToken})
   return successResponse(res, "Success login", { token, type: user.type });
 };
@@ -165,7 +165,7 @@ export const googleRegister = async (req: Request, res: Response) => {
             password: hashedPassword,
             type,
           });
-          let token = sign({ id: user.id, email: user.email }, TOKEN_SECRET);
+          let token = sign({ id: user.id, email: user.email },  config.JWTSECRET!);
           return successResponse(res, "Successful", token);
         });
 };
@@ -209,7 +209,7 @@ export const login = async (req: Request, res: Response) => {
   if(user.type != UserType.VENDOR && type == UserType.VENDOR) return errorResponse(res, "You don't have access to a Vendor Account");
   const match = await compare(password, user.password);
   if (!match) return errorResponse(res, "Invalid Credentials");
-  let token = sign({ id: user.id, email: user.email }, TOKEN_SECRET);
+  let token = sign({ id: user.id, email: user.email },  config.JWTSECRET!);
   await user.update({fcmToken})
   return successResponse(res, "Success login", { token, type: user.type });
 };
@@ -222,7 +222,7 @@ export const passwordChange = async (req: Request, res: Response) => {
   if (!match) return errorResponse(res, "Invalid Credentials");
   hash(newPassword, saltRounds, async function (err, hashedPassword) {
     await user.update({ password: hashedPassword });
-    let token = sign({ id: user.id, email: user.email }, TOKEN_SECRET);
+    let token = sign({ id: user.id, email: user.email },  config.JWTSECRET!);
     return successResponse(res, "Successful", {
       status: true,
       message: { ...user.dataValues, token },

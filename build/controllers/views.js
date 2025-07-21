@@ -36,6 +36,7 @@ exports.ViewsController = void 0;
 const Profile_1 = require("../models/Profile");
 const Users_1 = require("../models/Users");
 const sequelize_1 = require("sequelize");
+const SpecialTag_1 = require("../models/SpecialTag");
 class ViewsController {
     // Dashboard
     static dashboard(req, res) {
@@ -466,7 +467,7 @@ class ViewsController {
                     order: [['createdAt', 'DESC']]
                 });
                 // Fetch all tags from Tag table for food categories
-                const tagRecords = yield Tag.findAll();
+                const tagRecords = yield AllTag.findAll();
                 // Create mapping for food category tag title to id
                 const foodTagTitleToId = Object.fromEntries(tagRecords.map(tag => { var _a; return [(_a = tag.title) === null || _a === void 0 ? void 0 : _a.toLowerCase(), tag.id]; }));
                 // Format vendor data for template
@@ -602,12 +603,13 @@ class ViewsController {
                 const { Tag } = yield Promise.resolve().then(() => __importStar(require('../models/Tag')));
                 // Fetch all tags from both tables
                 const allTagRecords = yield AllTag.findAll({ order: [['createdAt', 'DESC']] });
-                const tagRecords = yield Tag.findAll({ order: [['createdAt', 'DESC']] });
+                // const tagRecords = await Tag.findAll({ order: [['createdAt', 'DESC']] });
                 // Special Tags = All rows from AllTag table
-                const specialTags = allTagRecords;
+                const allSpecialTags = yield SpecialTag_1.SpecialTag.findAll({ order: [['createdAt', 'DESC']] });
                 // All Tags = All rows from Tag table, excluding any that have matching IDs in AllTag table
-                const allTagIds = allTagRecords.map(tag => tag.id);
-                const regularTags = tagRecords.filter((tag) => !allTagIds.includes(tag.id));
+                const specialTagIds = allSpecialTags.map(tag => tag.tagId);
+                const regularTags = allTagRecords.filter((tag) => !specialTagIds.includes(tag.id));
+                const specialTags = allTagRecords.filter((tag) => !specialTagIds.includes(tag.id));
                 res.render('admin-tags', {
                     title: 'Admin - Tag Management - FoodTruck Express',
                     activePage: 'admin-tags',

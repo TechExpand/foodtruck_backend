@@ -70,19 +70,22 @@ export const createProfile = async (req: Request, res: Response) => {
     closeTime,
     openingTime,
   } = req.body;
+  try{
   let { id } = req.user;
   const user = await Users.findOne({ where: { id } });
   const lanlog = await LanLog.findOne({ where: { userId: id } });
   const profileExist = await Profile.findOne({ where: { userId: id } });
-  if (profileExist && user && lanlog)
+
+  if (profileExist){
     return errorResponse(res, "Profile Already Exist");
+  }
   const location = await LanLog.create({
     Lan: lan,
     Log: log,
     address,
     online: true,
     userId: id,
-    type: user?.type,
+    type: UserType.VENDOR,
   });
 
   const profile = await Profile.create({
@@ -98,8 +101,12 @@ export const createProfile = async (req: Request, res: Response) => {
     pro_pic,
     tag,
   });
-  return successResponse(res, "Created Successfully");
+  return successResponse(res, "Created Successfully", profile);
+  } catch (error) {
+    return errorResponse(res, "Failed to Create Profile");
+  }
 };
+
 
 export const updateToken = async (req: Request, res: Response) => {
   let { id } = req.user;

@@ -14,10 +14,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.passwordChange = exports.login = exports.validateReg = exports.googleRegister = exports.googleLogin = exports.verifyOtp = exports.sendOtp = void 0;
 const utility_1 = require("../helpers/utility");
+const configSetup_1 = __importDefault(require("../config/configSetup"));
 const Verify_1 = require("../models/Verify");
 const sms_1 = require("../services/sms");
 const Users_1 = require("../models/Users");
-const TOKEN_SECRET = "222hwhdhnnjduru838272@@$henncndbdhsjj333n33brnfn";
 const saltRounds = 10;
 const bcryptjs_1 = require("bcryptjs");
 const jsonwebtoken_1 = require("jsonwebtoken");
@@ -61,7 +61,7 @@ const verifyOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                             password: hashedPassword,
                         }));
                         yield (verifyEmailResult === null || verifyEmailResult === void 0 ? void 0 : verifyEmailResult.destroy());
-                        let token = (0, jsonwebtoken_1.sign)({ id: user === null || user === void 0 ? void 0 : user.id, email: user === null || user === void 0 ? void 0 : user.email }, TOKEN_SECRET);
+                        let token = (0, jsonwebtoken_1.sign)({ id: user === null || user === void 0 ? void 0 : user.id, email: user === null || user === void 0 ? void 0 : user.email }, configSetup_1.default.JWTSECRET);
                         return (0, utility_1.successResponse)(res, "Successful", token);
                     });
                 });
@@ -87,7 +87,7 @@ const verifyOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                             type,
                         });
                         yield (verifyEmailResult === null || verifyEmailResult === void 0 ? void 0 : verifyEmailResult.destroy());
-                        let token = (0, jsonwebtoken_1.sign)({ id: user.id, email: user.email }, TOKEN_SECRET);
+                        let token = (0, jsonwebtoken_1.sign)({ id: user.id, email: user.email }, configSetup_1.default.JWTSECRET);
                         return (0, utility_1.successResponse)(res, "Successful", token);
                     });
                 });
@@ -122,7 +122,7 @@ const googleLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     const match = yield (0, bcryptjs_1.compare)((_b = response === null || response === void 0 ? void 0 : response.data) === null || _b === void 0 ? void 0 : _b.id, user.password);
     if (!match)
         return (0, utility_1.errorResponse)(res, "Invalid Credentials");
-    let token = (0, jsonwebtoken_1.sign)({ id: user.id, email: user.email }, TOKEN_SECRET);
+    let token = (0, jsonwebtoken_1.sign)({ id: user.id, email: user.email }, configSetup_1.default.JWTSECRET);
     yield user.update({ fcmToken });
     return (0, utility_1.successResponse)(res, "Success login", { token, type: user.type });
 });
@@ -153,7 +153,7 @@ const googleRegister = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 password: hashedPassword,
                 type,
             });
-            let token = (0, jsonwebtoken_1.sign)({ id: user.id, email: user.email }, TOKEN_SECRET);
+            let token = (0, jsonwebtoken_1.sign)({ id: user.id, email: user.email }, configSetup_1.default.JWTSECRET);
             return (0, utility_1.successResponse)(res, "Successful", token);
         });
     });
@@ -198,7 +198,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const match = yield (0, bcryptjs_1.compare)(password, user.password);
     if (!match)
         return (0, utility_1.errorResponse)(res, "Invalid Credentials");
-    let token = (0, jsonwebtoken_1.sign)({ id: user.id, email: user.email }, TOKEN_SECRET);
+    let token = (0, jsonwebtoken_1.sign)({ id: user.id, email: user.email }, configSetup_1.default.JWTSECRET);
     yield user.update({ fcmToken });
     return (0, utility_1.successResponse)(res, "Success login", { token, type: user.type });
 });
@@ -214,7 +214,7 @@ const passwordChange = (req, res) => __awaiter(void 0, void 0, void 0, function*
     (0, bcryptjs_1.hash)(newPassword, saltRounds, function (err, hashedPassword) {
         return __awaiter(this, void 0, void 0, function* () {
             yield user.update({ password: hashedPassword });
-            let token = (0, jsonwebtoken_1.sign)({ id: user.id, email: user.email }, TOKEN_SECRET);
+            let token = (0, jsonwebtoken_1.sign)({ id: user.id, email: user.email }, configSetup_1.default.JWTSECRET);
             return (0, utility_1.successResponse)(res, "Successful", {
                 status: true,
                 message: Object.assign(Object.assign({}, user.dataValues), { token }),

@@ -56,34 +56,40 @@ const updateLocation = (req, res) => __awaiter(void 0, void 0, void 0, function*
 exports.updateLocation = updateLocation;
 const createProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let { business_name, unique_detail, detail, phone, tag, pro_pic, address, lan, log, days, closeTime, openingTime, } = req.body;
-    let { id } = req.user;
-    const user = yield Users_1.Users.findOne({ where: { id } });
-    const lanlog = yield LanLog_1.LanLog.findOne({ where: { userId: id } });
-    const profileExist = yield Profile_1.Profile.findOne({ where: { userId: id } });
-    if (profileExist && user && lanlog)
-        return (0, utility_1.errorResponse)(res, "Profile Already Exist");
-    const location = yield LanLog_1.LanLog.create({
-        Lan: lan,
-        Log: log,
-        address,
-        online: true,
-        userId: id,
-        type: user === null || user === void 0 ? void 0 : user.type,
-    });
-    const profile = yield Profile_1.Profile.create({
-        business_name,
-        unique_detail,
-        detail,
-        phone,
-        lanlogId: location.id,
-        userId: id,
-        days,
-        closeTime,
-        openingTime,
-        pro_pic,
-        tag,
-    });
-    return (0, utility_1.successResponse)(res, "Created Successfully");
+    try {
+        let { id } = req.user;
+        const user = yield Users_1.Users.findOne({ where: { id } });
+        const lanlog = yield LanLog_1.LanLog.findOne({ where: { userId: id } });
+        const profileExist = yield Profile_1.Profile.findOne({ where: { userId: id } });
+        if (profileExist) {
+            return (0, utility_1.errorResponse)(res, "Profile Already Exist");
+        }
+        const location = yield LanLog_1.LanLog.create({
+            Lan: lan,
+            Log: log,
+            address,
+            online: true,
+            userId: id,
+            type: Users_1.UserType.VENDOR,
+        });
+        const profile = yield Profile_1.Profile.create({
+            business_name,
+            unique_detail,
+            detail,
+            phone,
+            lanlogId: location.id,
+            userId: id,
+            days,
+            closeTime,
+            openingTime,
+            pro_pic,
+            tag,
+        });
+        return (0, utility_1.successResponse)(res, "Created Successfully", profile);
+    }
+    catch (error) {
+        return (0, utility_1.errorResponse)(res, "Failed to Create Profile");
+    }
 });
 exports.createProfile = createProfile;
 const updateToken = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
