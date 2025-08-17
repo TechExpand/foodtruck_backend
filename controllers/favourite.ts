@@ -752,7 +752,6 @@ export const getDashboardStats = async (req: Request, res: Response) => {
     const change = ((current - previous) / previous) * 100;
     return { change: Math.abs(change), good: change >= 0 };
   };
-
   return successResponse(res, "successful", {
     totalOrders: {
       value: totalOrders,
@@ -767,7 +766,7 @@ export const getDashboardStats = async (req: Request, res: Response) => {
       ...percentageChange(profileViews, lastMonthProfileViews),
     },
     totalProfileViews: {
-      value: lastMonthProfileViews || 0,
+      value: profileViews || 0,
     },
     todaySales: {
       value: parseFloat(todaySales),

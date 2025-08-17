@@ -63,7 +63,6 @@ const getConfig = (): Config => {
 			'/foodtruck/locationprofile',
 			'/foodtruck/locationevent',
 			'/foodtruck/locationmenu',
-			'/foodtruck/dashboard-stats',
 			'/foodtruck/vendor-profile',
 			'/foodtruck/google/login/',
 			'/foodtruck/all-categories',

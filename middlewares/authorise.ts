@@ -7,7 +7,7 @@ import { verify } from "jsonwebtoken";
 
 
 export const isAuthorized = async (req: Request, res: Response, next: NextFunction) => {
-		console.log("Authorisation middleware called", req.headers.authorization);
+		// console.log("Authorisation middleware called", req.headers.authorization);
 	//this is the url without query params
 	const route: any = req.originalUrl.split('?').shift();
 	let publicRoutes: string[] = config.PUBLIC_ROUTES!;
