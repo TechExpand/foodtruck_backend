@@ -26,12 +26,12 @@ export class Verify extends Model {
 
 	@AllowNull(false)
 	@Column(DataType.STRING)
-	type!: string;
+	type?: string;
 
 
 	@AllowNull(false)
 	@Column(DataType.STRING)
-	username!: string;
+	username?: string;
 
 
 	@AllowNull(true)
@@ -41,7 +41,7 @@ export class Verify extends Model {
 
 	@AllowNull(true)
 	@Column(DataType.STRING)
-	client!: string;
+	client?: string;
 
 
     @Default(false)

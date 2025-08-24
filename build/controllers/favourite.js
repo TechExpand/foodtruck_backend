@@ -591,7 +591,7 @@ const getDashboardStats = (req, res) => __awaiter(void 0, void 0, void 0, functi
         completedOrders: Object.assign({ value: completedOrders }, percentageChange(completedOrders, lastMonthCompletedOrders)),
         profileViews: Object.assign({ value: profileViews || 0 }, percentageChange(profileViews, lastMonthProfileViews)),
         totalProfileViews: {
-            value: lastMonthProfileViews || 0,
+            value: profileViews || 0,
         },
         todaySales: Object.assign({ value: parseFloat(todaySales) }, percentageChange(todaySales, yesterdayTodaySales)),
         totalSales: Object.assign({ value: totalSales || 0 }, percentageChange(totalSales, lastMonthTodaySales)),

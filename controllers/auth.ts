@@ -29,7 +29,7 @@ export const sendOtp = async (req: Request, res: Response) => {
   const { email } = req.body;
   const serviceId = randomId(12);
   const codeEmail = String(Math.floor(1000 + Math.random() * 9000));
-  console.log(codeEmail);
+  console.log(email);
   console.log(codeEmail);
 
   await Verify.create({
