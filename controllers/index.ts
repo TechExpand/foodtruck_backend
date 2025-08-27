@@ -486,10 +486,23 @@ export const getVendorUserProfile = async (req: Request, res: Response) => {
     Number(lan),
     Number(log)
   );
+  let subscription: unknown;
+  try {
+    const result = await stripe.subscriptions.retrieve(
+      vendor?.user?.subscription_id
+    );
+    subscription = {
+      status: result.status,
+      dueDate: formatStripeTimestamp(result.current_period_end),
+    };
+  } catch (error) {
+    subscription = { status: "No Subscription", dueDate: "" };
+  }
   return successResponse(res, "Profile Fetched", {
     ...vendor?.dataValues,
     distance,
     time: estimateCarCityTimeRange(distance),
+    subscription
   });
 };
 

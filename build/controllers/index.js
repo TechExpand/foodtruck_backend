@@ -402,6 +402,7 @@ const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 exports.deleteUser = deleteUser;
 const getVendorUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _b;
     const { id, lan, log } = req.query;
     const vendor = yield LanLog_1.LanLog.findOne({
         where: {
@@ -420,7 +421,18 @@ const getVendorUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, fun
     });
     yield ProfileViews_1.ProfileViews.create({ profileId: vendor === null || vendor === void 0 ? void 0 : vendor.profile.id, userId: id });
     const distance = (0, utility_1.getDistanceFromLatLonInKm)(Number(vendor.Lan), Number(vendor.Log), Number(lan), Number(log));
-    return (0, utility_1.successResponse)(res, "Profile Fetched", Object.assign(Object.assign({}, vendor === null || vendor === void 0 ? void 0 : vendor.dataValues), { distance, time: (0, utility_1.estimateCarCityTimeRange)(distance) }));
+    let subscription;
+    try {
+        const result = yield stripe.subscriptions.retrieve((_b = vendor === null || vendor === void 0 ? void 0 : vendor.user) === null || _b === void 0 ? void 0 : _b.subscription_id);
+        subscription = {
+            status: result.status,
+            dueDate: (0, utility_1.formatStripeTimestamp)(result.current_period_end),
+        };
+    }
+    catch (error) {
+        subscription = { status: "No Subscription", dueDate: "" };
+    }
+    return (0, utility_1.successResponse)(res, "Profile Fetched", Object.assign(Object.assign({}, vendor === null || vendor === void 0 ? void 0 : vendor.dataValues), { distance, time: (0, utility_1.estimateCarCityTimeRange)(distance), subscription }));
 });
 exports.getVendorUserProfile = getVendorUserProfile;
 const getVendorByTag = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -705,7 +717,7 @@ const getAllCategories = (req, res) => __awaiter(void 0, void 0, void 0, functio
 });
 exports.getAllCategories = getAllCategories;
 const getHomeDetails = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _b, _c;
+    var _c, _d;
     const tags = yield SpecialTag_1.SpecialTag.findAll({ include: [{ model: Tag_1.Tag }] });
     const profileSecondTag = yield Profile_1.Profile.findAll({
         where: {
@@ -713,7 +725,7 @@ const getHomeDetails = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 {
                     tag: {
                         [sequelize_1.Op.like]: "%" +
-                            `${(_b = tags[0].dataValues.tag.title) === null || _b === void 0 ? void 0 : _b.toString().toLowerCase()}` +
+                            `${(_c = tags[0].dataValues.tag.title) === null || _c === void 0 ? void 0 : _c.toString().toLowerCase()}` +
                             "%",
                     },
                 },
@@ -727,7 +739,7 @@ const getHomeDetails = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 {
                     tag: {
                         [sequelize_1.Op.like]: "%" +
-                            `${(_c = tags[1].dataValues.tag.title) === null || _c === void 0 ? void 0 : _c.toString().toLowerCase()}` +
+                            `${(_d = tags[1].dataValues.tag.title) === null || _d === void 0 ? void 0 : _d.toString().toLowerCase()}` +
                             "%",
                     },
                 },

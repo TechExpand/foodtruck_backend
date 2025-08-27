@@ -29,7 +29,7 @@ const sendOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email } = req.body;
     const serviceId = (0, utility_1.randomId)(12);
     const codeEmail = String(Math.floor(1000 + Math.random() * 9000));
-    console.log(codeEmail);
+    console.log(email);
     console.log(codeEmail);
     yield Verify_1.Verify.create({
         serviceId,
