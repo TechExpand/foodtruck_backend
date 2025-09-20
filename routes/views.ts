@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { ViewsController } from '../controllers/views';
+import { requirePassword, logout } from '../middlewares/passwordProtection';
 
 const router = Router();
 
@@ -8,8 +9,12 @@ router.get('/admin-vendors', ViewsController.adminVendors);
 router.get('/admin-tags', ViewsController.adminTags);
 router.get('/admin-events', ViewsController.adminEvents);
 
-// Dashboard
-router.get('/', ViewsController.dashboard);
+// Dashboard (password protected)
+router.get('/', requirePassword, ViewsController.dashboard);
+router.post('/', requirePassword, ViewsController.dashboard);
+
+// Logout route
+router.get('/logout', logout);
 
 // Auth pages
 router.get('/auth/login', ViewsController.login);
