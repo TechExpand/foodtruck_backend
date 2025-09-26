@@ -3,6 +3,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import path from 'path';
 import expressLayouts from 'express-ejs-layouts';
+import session from 'express-session';
 import config from './config/configSetup';
 
 import { initDB } from './controllers/db';
@@ -19,6 +20,17 @@ app.use(morgan('dev'));
 // PARSE JSON
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// SESSION CONFIGURATION
+app.use(session({
+	secret: process.env.SESSION_SECRET || 'foodtruck-session-secret-key',
+	resave: false,
+	saveUninitialized: false,
+	cookie: {
+		secure: process.env.NODE_ENV === 'production',
+		maxAge: 24 * 60 * 60 * 1000 // 24 hours
+	}
+}));
 
 // ENABLE CORS AND START SERVER
 app.use(cors({ origin: true }));
