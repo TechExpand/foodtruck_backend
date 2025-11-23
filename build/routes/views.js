@@ -2,13 +2,17 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const views_1 = require("../controllers/views");
+const passwordProtection_1 = require("../middlewares/passwordProtection");
 const router = (0, express_1.Router)();
 // Admin pages
 router.get('/admin-vendors', views_1.ViewsController.adminVendors);
 router.get('/admin-tags', views_1.ViewsController.adminTags);
 router.get('/admin-events', views_1.ViewsController.adminEvents);
-// Dashboard
-router.get('/', views_1.ViewsController.dashboard);
+// Dashboard (password protected)
+router.get('/', passwordProtection_1.requirePassword, views_1.ViewsController.dashboard);
+router.post('/', passwordProtection_1.requirePassword, views_1.ViewsController.dashboard);
+// Logout route
+router.get('/logout', passwordProtection_1.logout);
 // Auth pages
 router.get('/auth/login', views_1.ViewsController.login);
 router.get('/auth/register', views_1.ViewsController.register);

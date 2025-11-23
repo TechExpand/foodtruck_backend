@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createEvent = exports.sendTestEmailCon = exports.deleteEvent = exports.getEvent = exports.updateEvent = exports.updateMenu = exports.createMenu = exports.deleteMenu = exports.getHomeDetails = exports.getAllCategories = exports.getMenu = exports.vendorEvent = exports.vendorMenu = exports.fetchRate = exports.rateProfile = exports.updateLanLog = exports.getLanLog = exports.getVendorProfile = exports.getVendorOrder = exports.getMainVendorProfile = exports.getVendorProfileV2 = exports.getVendorByTag = exports.getVendorUserProfile = exports.deleteUser = exports.getUser = exports.getCategories = exports.getReviews = exports.getFirstFivePorpular = exports.filterVendorBytag = exports.getVendorEvent = exports.getHomeEvents = exports.getProfile = exports.onlineLanlogUser = exports.onlineLanlogVendors = exports.addNewCard = exports.reactivateSubscription = exports.cancelSubscription = exports.createSubscription = exports.updateProfile = exports.updateToken = exports.createProfile = exports.updateLocation = exports.apiIndex = void 0;
+exports.createEvent = exports.sendTestEmailCon = exports.deleteEvent = exports.getEvent = exports.updateEvent = exports.updateMenu = exports.createMenu = exports.deleteMenu = exports.getHomeDetails = exports.getAllCategories = exports.getMenu = exports.vendorEvent = exports.vendorMenu = exports.fetchRate = exports.rateProfile = exports.updateLanLog = exports.getLanLog = exports.getVendorProfile = exports.getVendorOrder = exports.getMainVendorProfile = exports.getVendorProfileV2 = exports.getVendorByTag = exports.getVendorUserProfile = exports.getUser = exports.getCategories = exports.getReviews = exports.getFirstFivePorpular = exports.filterVendorBytag = exports.getVendorEvent = exports.getHomeEvents = exports.getProfile = exports.onlineLanlogUser = exports.onlineLanlogVendors = exports.addNewCard = exports.reactivateSubscription = exports.cancelSubscription = exports.createSubscription = exports.updateProfile = exports.updateToken = exports.createProfile = exports.updateLocation = exports.apiIndex = void 0;
 const utility_1 = require("../helpers/utility");
 const LanLog_1 = require("../models/LanLog");
 const Profile_1 = require("../models/Profile");
@@ -381,26 +381,6 @@ const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     return (0, utility_1.successResponse)(res, "Fetched Successfully", user);
 });
 exports.getUser = getUser;
-const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.user;
-    const user = yield Users_1.Users.findOne({
-        where: { id },
-    });
-    const profile = yield Profile_1.Profile.findOne({
-        where: { userId: user === null || user === void 0 ? void 0 : user.id },
-    });
-    if (profile) {
-        yield profile.destroy();
-        yield user.destroy();
-    }
-    else {
-        yield user.destroy();
-    }
-    return res.status(200).send({
-        message: "Fetched Successfully",
-    });
-});
-exports.deleteUser = deleteUser;
 const getVendorUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _b;
     const { id, lan, log } = req.query;
@@ -414,7 +394,7 @@ const getVendorUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, fun
                 where: {
                     type: Users_1.UserType.VENDOR,
                 },
-                attributes: ["createdAt", "updatedAt", "email", "type"],
+                attributes: ["createdAt", "updatedAt", "email", "type", "subscription_id", "customer_id"],
             },
             { model: Profile_1.Profile },
         ],

@@ -443,24 +443,6 @@ export const getUser = async (req: Request, res: Response) => {
   return successResponse(res, "Fetched Successfully", user);
 };
 
-export const deleteUser = async (req: Request, res: Response) => {
-  const { id } = req.user;
-  const user = await Users.findOne({
-    where: { id },
-  });
-  const profile = await Profile.findOne({
-    where: { userId: user?.id },
-  });
-  if (profile) {
-    await profile.destroy();
-    await user.destroy();
-  } else {
-    await user.destroy();
-  }
-  return res.status(200).send({
-    message: "Fetched Successfully",
-  });
-};
 
 export const getVendorUserProfile = async (req: Request, res: Response) => {
   const { id, lan, log } = req.query;
@@ -474,7 +456,7 @@ export const getVendorUserProfile = async (req: Request, res: Response) => {
         where: {
           type: UserType.VENDOR,
         },
-        attributes: ["createdAt", "updatedAt", "email", "type"],
+        attributes: ["createdAt", "updatedAt", "email", "type", "subscription_id", "customer_id"],
       },
       { model: Profile },
     ],

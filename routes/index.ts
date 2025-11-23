@@ -7,7 +7,6 @@ import {
   createMenu,
   createSubscription,
   deleteMenu,
-  deleteUser,
   fetchRate,
   getAllCategories,
   getHomeEvents,
@@ -70,7 +69,7 @@ routes.post("/createsubscription", createSubscription);
 routes.get("/currentvendorslanlog", onlineLanlogVendors);
 routes.get("/currentuserlanlog", onlineLanlogUser);
 routes.get("/user", getUser);
-routes.delete("/user", deleteUser);
+// routes.delete("/user", deleteUser);
 routes.get("/all-categories", getAllCategories);
 routes.get("/profile", getVendorProfile);
 routes.get("/profileV2", getVendorProfileV2);

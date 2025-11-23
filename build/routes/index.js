@@ -15,7 +15,7 @@ routes.post("/createsubscription", controllers_1.createSubscription);
 routes.get("/currentvendorslanlog", controllers_1.onlineLanlogVendors);
 routes.get("/currentuserlanlog", controllers_1.onlineLanlogUser);
 routes.get("/user", controllers_1.getUser);
-routes.delete("/user", controllers_1.deleteUser);
+// routes.delete("/user", deleteUser);
 routes.get("/all-categories", controllers_1.getAllCategories);
 routes.get("/profile", controllers_1.getVendorProfile);
 routes.get("/profileV2", controllers_1.getVendorProfileV2);
