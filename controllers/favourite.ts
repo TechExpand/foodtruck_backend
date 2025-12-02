@@ -35,6 +35,7 @@ import { Rating } from "../models/Rate";
 import { ProfileViews } from "../models/ProfileViews";
 import { Notification, NotificationType } from '../models/Notification';
 import { AllTag } from "../models/Alltags";
+import logger from "../services/logger";
 
 const cloudinary = require("cloudinary").v2;
 const stripe = new Stripe(config.STRIPE_SK, {
@@ -97,8 +98,6 @@ export const getNotifications = async (req: Request, res: Response) => {
     where: { userId: id },
    
   });
-  console.log(id)
-  console.log(notification)
   return successResponse(res, "Fetched Successfully", notification);
 };
 
@@ -117,6 +116,7 @@ export const getOrderV2 = async (req: Request, res: Response) => {
 };
 
 export const notifyOrder = async (req: Request, res: Response) => {
+  try{
   const { status, orderid } = req.query;
 
   const order = await Order.findOne({
@@ -168,10 +168,14 @@ export const notifyOrder = async (req: Request, res: Response) => {
       )
     );
     return successResponse(res, "Fetched Successfully", order);
+  }}catch(error:any){
+     logger.error(error)
+     return errorResponse(res, "Error Processing Request");
   }
 };
 
 export const confirmOrderV2 = async (req: Request, res: Response) => {
+  try{
   const { orderid, rate, comment } = req.body;
   const order = await OrderV2.findOne({
     where: { id: orderid },
@@ -223,9 +227,14 @@ export const confirmOrderV2 = async (req: Request, res: Response) => {
   } else {
     return successResponse(res, "Fetched Successfully", order);
   }
+  }catch(error:any){
+     logger.error(error)
+     return errorResponse(res, "Error Processing Request");
+  }
 };
 
 export const cancelOrderV2 = async (req: Request, res: Response) => {
+  try{
   const { orderid, status } = req.body;
   const order = await OrderV2.findOne({
     where: { id: orderid },
@@ -258,9 +267,14 @@ export const cancelOrderV2 = async (req: Request, res: Response) => {
   } else {
     return successResponse(res, "Fetched Successfully", order);
   }
+  }catch(error:any){
+     logger.error(error)
+     return errorResponse(res, "Error Processing Request");
+  }
 };
 
 export const notifyOrderV2 = async (req: Request, res: Response) => {
+  try{
   const { status, orderid } = req.body;
 
   const order = await OrderV2.findOne({
@@ -341,6 +355,10 @@ export const notifyOrderV2 = async (req: Request, res: Response) => {
     );
     return successResponse(res, "Fetched Successfully", order);
   }
+  }catch(error:any){
+     logger.error(error)
+     return errorResponse(res, "Error Processing Request");
+  }
 };
 
 export const postFavourite = async (req: Request, res: Response) => {
@@ -377,6 +395,7 @@ export const postFavourite = async (req: Request, res: Response) => {
 };
 
 export const postOrder = async (req: Request, res: Response) => {
+  try{
   let { profileId, menuId, extras } = req.body;
   let { id } = req.user;
   let profile = await Profile.findOne({ where: { id: profileId } });
@@ -407,9 +426,15 @@ export const postOrder = async (req: Request, res: Response) => {
     extras: extras,
   });
   return successResponse(res, "Order Added Successfully");
+  }catch(error:any){
+     logger.error(error)
+     return errorResponse(res, "Error Processing Request");
+  }
 };
 
+
 export const postOrderV2 = async (req: Request, res: Response) => {
+  try{
   const { profileId, menus, phone, note, total } = req.body;
   const { id } = req.user;
 
@@ -460,6 +485,10 @@ export const postOrderV2 = async (req: Request, res: Response) => {
   );
   console.log(`${user?.email}`);
   return successResponse(res, "Order Added Successfully");
+  }catch(error:any){
+     logger.error(error)
+     return errorResponse(res, "Error Processing Request");
+  }
 };
 
 export const getp = async (req: Request, res: Response) => {
