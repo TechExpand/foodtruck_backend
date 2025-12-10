@@ -35,6 +35,7 @@ const Rate_1 = require("../models/Rate");
 const ProfileViews_1 = require("../models/ProfileViews");
 const Notification_1 = require("../models/Notification");
 const Alltags_1 = require("../models/Alltags");
+const logger_1 = __importDefault(require("../services/logger"));
 const cloudinary = require("cloudinary").v2;
 const stripe = new stripe_1.default(configSetup_1.default.STRIPE_SK, {
     apiVersion: "2023-08-16",
@@ -85,8 +86,6 @@ const getNotifications = (req, res) => __awaiter(void 0, void 0, void 0, functio
     const notification = yield Notification_1.Notification.findAll({
         where: { userId: id },
     });
-    console.log(id);
-    console.log(notification);
     return (0, utility_1.successResponse)(res, "Fetched Successfully", notification);
 });
 exports.getNotifications = getNotifications;
@@ -105,158 +104,182 @@ const getOrderV2 = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 exports.getOrderV2 = getOrderV2;
 const notifyOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { status, orderid } = req.query;
-    const order = yield Order_1.Order.findOne({
-        where: { id: orderid },
-        include: [{ model: Profile_1.Profile }, { model: Menus_1.Menu }, { model: Users_1.Users }],
-    });
-    const userData = yield Users_1.Users.findOne({ where: { id: order === null || order === void 0 ? void 0 : order.userId } });
-    if (!order)
-        return (0, utility_1.errorResponse)(res, "Not Found");
-    if (status == "PENDING") {
-        yield Notification_1.Notification.create({
-            title: `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
-            userId: order.profile.userId,
-            description: `pick up your meal at ${order.profile.dataValues.business_name}`,
-            type: Notification_1.NotificationType.ORDER
+    try {
+        const { status, orderid } = req.query;
+        const order = yield Order_1.Order.findOne({
+            where: { id: orderid },
+            include: [{ model: Profile_1.Profile }, { model: Menus_1.Menu }, { model: Users_1.Users }],
         });
-        yield order.update({ status: "COMPLETED" });
-        yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), `pick up your meal at ${order.profile.dataValues.business_name}`);
-        yield (0, sms_1.sendEmailResend)(`${userData === null || userData === void 0 ? void 0 : userData.email}`, `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), (0, template_1.templateEmail)(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`));
-        return (0, utility_1.successResponse)(res, "Fetched Successfully", order);
+        const userData = yield Users_1.Users.findOne({ where: { id: order === null || order === void 0 ? void 0 : order.userId } });
+        if (!order)
+            return (0, utility_1.errorResponse)(res, "Not Found");
+        if (status == "PENDING") {
+            yield Notification_1.Notification.create({
+                title: `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
+                userId: order.profile.userId,
+                description: `pick up your meal at ${order.profile.dataValues.business_name}`,
+                type: Notification_1.NotificationType.ORDER
+            });
+            yield order.update({ status: "COMPLETED" });
+            yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), `pick up your meal at ${order.profile.dataValues.business_name}`);
+            yield (0, sms_1.sendEmailResend)(`${userData === null || userData === void 0 ? void 0 : userData.email}`, `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), (0, template_1.templateEmail)(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`));
+            return (0, utility_1.successResponse)(res, "Fetched Successfully", order);
+        }
+        else {
+            yield Notification_1.Notification.create({
+                userId: order === null || order === void 0 ? void 0 : order.userId,
+                title: `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
+                description: `pick up your meal at ${order.profile.dataValues.business_name}`,
+                type: Notification_1.NotificationType.ORDER
+            });
+            yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), `pick up your meal at ${order.profile.dataValues.business_name}`);
+            yield (0, sms_1.sendEmailResend)(`${userData.email}`, `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), (0, template_1.templateEmail)(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`));
+            return (0, utility_1.successResponse)(res, "Fetched Successfully", order);
+        }
     }
-    else {
-        yield Notification_1.Notification.create({
-            userId: order === null || order === void 0 ? void 0 : order.userId,
-            title: `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
-            description: `pick up your meal at ${order.profile.dataValues.business_name}`,
-            type: Notification_1.NotificationType.ORDER
-        });
-        yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), `pick up your meal at ${order.profile.dataValues.business_name}`);
-        yield (0, sms_1.sendEmailResend)(`${userData.email}`, `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), (0, template_1.templateEmail)(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`));
-        return (0, utility_1.successResponse)(res, "Fetched Successfully", order);
+    catch (error) {
+        logger_1.default.error(error);
+        return (0, utility_1.errorResponse)(res, "Error Processing Request");
     }
 });
 exports.notifyOrder = notifyOrder;
 const confirmOrderV2 = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { orderid, rate, comment } = req.body;
-    const order = yield OrderV2_1.OrderV2.findOne({
-        where: { id: orderid },
-        include: [{ model: Profile_1.Profile }, { model: Users_1.Users }],
-    });
-    const userData = yield Users_1.Users.findOne({
-        where: { id: order === null || order === void 0 ? void 0 : order.profile.userId },
-    });
-    const profile = yield Profile_1.Profile.findOne({ where: { id: order === null || order === void 0 ? void 0 : order.profileId } });
-    if (!order)
-        return (0, utility_1.errorResponse)(res, "No Found");
-    if (!profile)
-        return (0, utility_1.errorResponse)(res, "No Found");
-    if (!userData)
-        return (0, utility_1.errorResponse)(res, "No Found");
-    if (order.status == "CONFIRM_COMPLETION") {
-        yield order.update({ status: "COMPLETED" });
-        yield Rate_1.Rating.create({
-            profileId: order === null || order === void 0 ? void 0 : order.profileId,
-            rate,
-            comment,
-            truckId: order === null || order === void 0 ? void 0 : order.profile.userId,
-            userId: order.userId,
+    try {
+        const { orderid, rate, comment } = req.body;
+        const order = yield OrderV2_1.OrderV2.findOne({
+            where: { id: orderid },
+            include: [{ model: Profile_1.Profile }, { model: Users_1.Users }],
         });
-        yield (profile === null || profile === void 0 ? void 0 : profile.update({
-            totalRate: (order === null || order === void 0 ? void 0 : order.profile.totalRate) + 1,
-            meanRate: (order === null || order === void 0 ? void 0 : order.profile.meanRate) + Number(rate),
-            rate: ((order === null || order === void 0 ? void 0 : order.profile.meanRate) + Number(rate)) /
-                ((order === null || order === void 0 ? void 0 : order.profile.totalRate) + 1),
-        }));
-        yield Notification_1.Notification.create({
-            userId: order === null || order === void 0 ? void 0 : order.profile.userId,
-            title: `ORDER HAS BEEN CONFIRM`,
-            description: `congratulations order has been confirmed by ${order.user.username}`,
-            type: Notification_1.NotificationType.NORMAL
+        const userData = yield Users_1.Users.findOne({
+            where: { id: order === null || order === void 0 ? void 0 : order.profile.userId },
         });
-        yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `ORDER HAS BEEN CONFIRM`, `congratulations order has been confirmed by ${order.user.username}`);
-        yield (0, sms_1.sendEmailResend)(`${userData === null || userData === void 0 ? void 0 : userData.email}`, `ORDER HAS BEEN CONFIRM`, (0, template_1.templateEmail)(`${userData.email}`, `congratulations order has been confirmed by ${order.user.username}`));
-        return (0, utility_1.successResponse)(res, "Fetched Successfully", order);
+        const profile = yield Profile_1.Profile.findOne({ where: { id: order === null || order === void 0 ? void 0 : order.profileId } });
+        if (!order)
+            return (0, utility_1.errorResponse)(res, "No Found");
+        if (!profile)
+            return (0, utility_1.errorResponse)(res, "No Found");
+        if (!userData)
+            return (0, utility_1.errorResponse)(res, "No Found");
+        if (order.status == "CONFIRM_COMPLETION") {
+            yield order.update({ status: "COMPLETED" });
+            yield Rate_1.Rating.create({
+                profileId: order === null || order === void 0 ? void 0 : order.profileId,
+                rate,
+                comment,
+                truckId: order === null || order === void 0 ? void 0 : order.profile.userId,
+                userId: order.userId,
+            });
+            yield (profile === null || profile === void 0 ? void 0 : profile.update({
+                totalRate: (order === null || order === void 0 ? void 0 : order.profile.totalRate) + 1,
+                meanRate: (order === null || order === void 0 ? void 0 : order.profile.meanRate) + Number(rate),
+                rate: ((order === null || order === void 0 ? void 0 : order.profile.meanRate) + Number(rate)) /
+                    ((order === null || order === void 0 ? void 0 : order.profile.totalRate) + 1),
+            }));
+            yield Notification_1.Notification.create({
+                userId: order === null || order === void 0 ? void 0 : order.profile.userId,
+                title: `ORDER HAS BEEN CONFIRM`,
+                description: `congratulations order has been confirmed by ${order.user.username}`,
+                type: Notification_1.NotificationType.NORMAL
+            });
+            yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `ORDER HAS BEEN CONFIRM`, `congratulations order has been confirmed by ${order.user.username}`);
+            yield (0, sms_1.sendEmailResend)(`${userData === null || userData === void 0 ? void 0 : userData.email}`, `ORDER HAS BEEN CONFIRM`, (0, template_1.templateEmail)(`${userData.email}`, `congratulations order has been confirmed by ${order.user.username}`));
+            return (0, utility_1.successResponse)(res, "Fetched Successfully", order);
+        }
+        else {
+            return (0, utility_1.successResponse)(res, "Fetched Successfully", order);
+        }
     }
-    else {
-        return (0, utility_1.successResponse)(res, "Fetched Successfully", order);
+    catch (error) {
+        logger_1.default.error(error);
+        return (0, utility_1.errorResponse)(res, "Error Processing Request");
     }
 });
 exports.confirmOrderV2 = confirmOrderV2;
 const cancelOrderV2 = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { orderid, status } = req.body;
-    const order = yield OrderV2_1.OrderV2.findOne({
-        where: { id: orderid },
-        include: [{ model: Profile_1.Profile }, { model: Users_1.Users }],
-    });
-    const userData = yield Users_1.Users.findOne({ where: { id: order === null || order === void 0 ? void 0 : order.userId } });
-    if (!order)
-        return (0, utility_1.errorResponse)(res, "No Found");
-    if (status == "CANCELED") {
-        yield order.update({ status: "CANCELED" });
-        yield Notification_1.Notification.create({
-            userId: order === null || order === void 0 ? void 0 : order.userId,
-            title: `YOUR ORDER HAS BEEN CANCELED`,
-            description: `unfortunately your order has been canceled by ${order.profile.dataValues.business_name}`,
-            type: Notification_1.NotificationType.ORDER
+    try {
+        const { orderid, status } = req.body;
+        const order = yield OrderV2_1.OrderV2.findOne({
+            where: { id: orderid },
+            include: [{ model: Profile_1.Profile }, { model: Users_1.Users }],
         });
-        yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `YOUR ORDER HAS BEEN CANCELED`, `unfortunately your order has been canceled by ${order.profile.dataValues.business_name}`);
-        yield (0, sms_1.sendEmailResend)(`${userData === null || userData === void 0 ? void 0 : userData.email}`, `YOUR ORDER HAS BEEN CANCELED`, (0, template_1.templateEmail)(`${userData.email}`, `unfortunately your order has been canceled by ${order.profile.dataValues.business_name}`));
-        return (0, utility_1.successResponse)(res, "Fetched Successfully", order);
+        const userData = yield Users_1.Users.findOne({ where: { id: order === null || order === void 0 ? void 0 : order.userId } });
+        if (!order)
+            return (0, utility_1.errorResponse)(res, "No Found");
+        if (status == "CANCELED") {
+            yield order.update({ status: "CANCELED" });
+            yield Notification_1.Notification.create({
+                userId: order === null || order === void 0 ? void 0 : order.userId,
+                title: `YOUR ORDER HAS BEEN CANCELED`,
+                description: `unfortunately your order has been canceled by ${order.profile.dataValues.business_name}`,
+                type: Notification_1.NotificationType.ORDER
+            });
+            yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `YOUR ORDER HAS BEEN CANCELED`, `unfortunately your order has been canceled by ${order.profile.dataValues.business_name}`);
+            yield (0, sms_1.sendEmailResend)(`${userData === null || userData === void 0 ? void 0 : userData.email}`, `YOUR ORDER HAS BEEN CANCELED`, (0, template_1.templateEmail)(`${userData.email}`, `unfortunately your order has been canceled by ${order.profile.dataValues.business_name}`));
+            return (0, utility_1.successResponse)(res, "Fetched Successfully", order);
+        }
+        else {
+            return (0, utility_1.successResponse)(res, "Fetched Successfully", order);
+        }
     }
-    else {
-        return (0, utility_1.successResponse)(res, "Fetched Successfully", order);
+    catch (error) {
+        logger_1.default.error(error);
+        return (0, utility_1.errorResponse)(res, "Error Processing Request");
     }
 });
 exports.cancelOrderV2 = cancelOrderV2;
 const notifyOrderV2 = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { status, orderid } = req.body;
-    const order = yield OrderV2_1.OrderV2.findOne({
-        where: { id: orderid },
-        include: [
-            { model: Profile_1.Profile },
-            //     { model: Menu },
-            { model: Users_1.Users },
-        ],
-    });
-    const userData = yield Users_1.Users.findOne({ where: { id: order === null || order === void 0 ? void 0 : order.userId } });
-    if (!order)
-        return (0, utility_1.errorResponse)(res, "No Found");
-    if (status == "PROCESSING") {
-        yield order.update({ status: "CONFIRM_COMPLETION" });
-        yield Notification_1.Notification.create({
-            userId: order === null || order === void 0 ? void 0 : order.userId,
-            title: `YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
-            description: `pick up your meal at ${order.profile.dataValues.business_name}`,
-            type: Notification_1.NotificationType.ORDER
+    try {
+        const { status, orderid } = req.body;
+        const order = yield OrderV2_1.OrderV2.findOne({
+            where: { id: orderid },
+            include: [
+                { model: Profile_1.Profile },
+                //     { model: Menu },
+                { model: Users_1.Users },
+            ],
         });
-        yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `YOUR ORDER IS READY FOR PICKUP`.toUpperCase(), `pick up your meal at ${order.profile.dataValues.business_name}`);
-        yield (0, sms_1.sendEmailResend)(`${userData === null || userData === void 0 ? void 0 : userData.email}`, `YOUR ORDER IS READY FOR PICKUP`.toUpperCase(), (0, template_1.templateEmail)(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`));
-        return (0, utility_1.successResponse)(res, "Fetched Successfully", order);
+        const userData = yield Users_1.Users.findOne({ where: { id: order === null || order === void 0 ? void 0 : order.userId } });
+        if (!order)
+            return (0, utility_1.errorResponse)(res, "No Found");
+        if (status == "PROCESSING") {
+            yield order.update({ status: "CONFIRM_COMPLETION" });
+            yield Notification_1.Notification.create({
+                userId: order === null || order === void 0 ? void 0 : order.userId,
+                title: `YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
+                description: `pick up your meal at ${order.profile.dataValues.business_name}`,
+                type: Notification_1.NotificationType.ORDER
+            });
+            yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `YOUR ORDER IS READY FOR PICKUP`.toUpperCase(), `pick up your meal at ${order.profile.dataValues.business_name}`);
+            yield (0, sms_1.sendEmailResend)(`${userData === null || userData === void 0 ? void 0 : userData.email}`, `YOUR ORDER IS READY FOR PICKUP`.toUpperCase(), (0, template_1.templateEmail)(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`));
+            return (0, utility_1.successResponse)(res, "Fetched Successfully", order);
+        }
+        else if (status == "PENDING") {
+            yield Notification_1.Notification.create({
+                userId: order === null || order === void 0 ? void 0 : order.userId,
+                title: `Payment Received by ${order.profile.dataValues.business_name}: YOUR ORDER IS CURRENTLY BEING PROCESSED`,
+                description: `your meal will be ready soon`,
+                type: Notification_1.NotificationType.ORDER
+            });
+            yield order.update({ status: "PROCESSING" });
+            yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `Payment Received by ${order.profile.dataValues.business_name}: YOUR ORDER IS CURRENTLY BEING PROCESSED`, `your meal will be ready soon`);
+            yield (0, sms_1.sendEmailResend)(`${userData === null || userData === void 0 ? void 0 : userData.email}`, `Payment Received by ${order.profile.dataValues.business_name}: YOUR ORDER IS CURRENTLY BEING PROCESSED`, (0, template_1.templateEmail)(`${userData.email}`, `your meal will be ready soon`));
+            return (0, utility_1.successResponse)(res, "Fetched Successfully", order);
+        }
+        else if (status == "CONFIRM_COMPLETION" || status == "COMPLETED") {
+            yield Notification_1.Notification.create({
+                userId: order === null || order === void 0 ? void 0 : order.userId,
+                title: `REMINDER: YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
+                description: `pick up your meal at ${order.profile.dataValues.business_name}`,
+                type: Notification_1.NotificationType.ORDER
+            });
+            yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `REMINDER: YOUR ORDER IS READY FOR PICKUP`.toUpperCase(), `pick up your meal at ${order.profile.dataValues.business_name}`);
+            yield (0, sms_1.sendEmailResend)(`${userData.email}`, `REMINDER: YOUR ORDER IS READY FOR PICKUP`.toUpperCase(), (0, template_1.templateEmail)(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`));
+            return (0, utility_1.successResponse)(res, "Fetched Successfully", order);
+        }
     }
-    else if (status == "PENDING") {
-        yield Notification_1.Notification.create({
-            userId: order === null || order === void 0 ? void 0 : order.userId,
-            title: `Payment Received by ${order.profile.dataValues.business_name}: YOUR ORDER IS CURRENTLY BEING PROCESSED`,
-            description: `your meal will be ready soon`,
-            type: Notification_1.NotificationType.ORDER
-        });
-        yield order.update({ status: "PROCESSING" });
-        yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `Payment Received by ${order.profile.dataValues.business_name}: YOUR ORDER IS CURRENTLY BEING PROCESSED`, `your meal will be ready soon`);
-        yield (0, sms_1.sendEmailResend)(`${userData === null || userData === void 0 ? void 0 : userData.email}`, `Payment Received by ${order.profile.dataValues.business_name}: YOUR ORDER IS CURRENTLY BEING PROCESSED`, (0, template_1.templateEmail)(`${userData.email}`, `your meal will be ready soon`));
-        return (0, utility_1.successResponse)(res, "Fetched Successfully", order);
-    }
-    else if (status == "CONFIRM_COMPLETION" || status == "COMPLETED") {
-        yield Notification_1.Notification.create({
-            userId: order === null || order === void 0 ? void 0 : order.userId,
-            title: `REMINDER: YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
-            description: `pick up your meal at ${order.profile.dataValues.business_name}`,
-            type: Notification_1.NotificationType.ORDER
-        });
-        yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `REMINDER: YOUR ORDER IS READY FOR PICKUP`.toUpperCase(), `pick up your meal at ${order.profile.dataValues.business_name}`);
-        yield (0, sms_1.sendEmailResend)(`${userData.email}`, `REMINDER: YOUR ORDER IS READY FOR PICKUP`.toUpperCase(), (0, template_1.templateEmail)(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`));
-        return (0, utility_1.successResponse)(res, "Fetched Successfully", order);
+    catch (error) {
+        logger_1.default.error(error);
+        return (0, utility_1.errorResponse)(res, "Error Processing Request");
     }
 });
 exports.notifyOrderV2 = notifyOrderV2;
@@ -290,62 +313,74 @@ const postFavourite = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 });
 exports.postFavourite = postFavourite;
 const postOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let { profileId, menuId, extras } = req.body;
-    let { id } = req.user;
-    let profile = yield Profile_1.Profile.findOne({ where: { id: profileId } });
-    let user = yield Users_1.Users.findOne({ where: { id: profile === null || profile === void 0 ? void 0 : profile.userId } });
-    yield Notification_1.Notification.create({
-        userId: user === null || user === void 0 ? void 0 : user.id,
-        title: `Foodtruck.express`.toUpperCase(),
-        description: "You have recieved an order, please process the pending order.",
-        type: Notification_1.NotificationType.ORDER
-    });
-    (0, notification_1.sendToken)(user === null || user === void 0 ? void 0 : user.id, `Foodtruck.express`.toUpperCase(), "You have recieved an order, please process the pending order.");
-    (0, sms_1.sendEmailResend)(`${user === null || user === void 0 ? void 0 : user.email}`, "Foodtruck.express".toUpperCase(), (0, template_1.templateEmail)(`${user === null || user === void 0 ? void 0 : user.email}`, "You have recieved an order, please process the pending order."));
-    const order = yield Order_1.Order.create({
-        profileId: profileId,
-        userId: id,
-        menuId,
-        extras: extras,
-    });
-    return (0, utility_1.successResponse)(res, "Order Added Successfully");
+    try {
+        let { profileId, menuId, extras } = req.body;
+        let { id } = req.user;
+        let profile = yield Profile_1.Profile.findOne({ where: { id: profileId } });
+        let user = yield Users_1.Users.findOne({ where: { id: profile === null || profile === void 0 ? void 0 : profile.userId } });
+        yield Notification_1.Notification.create({
+            userId: user === null || user === void 0 ? void 0 : user.id,
+            title: `Foodtruck.express`.toUpperCase(),
+            description: "You have recieved an order, please process the pending order.",
+            type: Notification_1.NotificationType.ORDER
+        });
+        (0, notification_1.sendToken)(user === null || user === void 0 ? void 0 : user.id, `Foodtruck.express`.toUpperCase(), "You have recieved an order, please process the pending order.");
+        (0, sms_1.sendEmailResend)(`${user === null || user === void 0 ? void 0 : user.email}`, "Foodtruck.express".toUpperCase(), (0, template_1.templateEmail)(`${user === null || user === void 0 ? void 0 : user.email}`, "You have recieved an order, please process the pending order."));
+        const order = yield Order_1.Order.create({
+            profileId: profileId,
+            userId: id,
+            menuId,
+            extras: extras,
+        });
+        return (0, utility_1.successResponse)(res, "Order Added Successfully");
+    }
+    catch (error) {
+        logger_1.default.error(error);
+        return (0, utility_1.errorResponse)(res, "Error Processing Request");
+    }
 });
 exports.postOrder = postOrder;
 const postOrderV2 = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { profileId, menus, phone, note, total } = req.body;
-    const { id } = req.user;
-    if (!menus) {
-        menus = [
-            {
-                menuId: 1,
-                extras: [{ name: "ketchup", price: 100 }],
-            },
-        ];
+    try {
+        const { profileId, menus, phone, note, total } = req.body;
+        const { id } = req.user;
+        if (!menus) {
+            menus = [
+                {
+                    menuId: 1,
+                    extras: [{ name: "ketchup", price: 100 }],
+                },
+            ];
+        }
+        const tempMenu = [];
+        const order = yield OrderV2_1.OrderV2.create({
+            profileId: profileId,
+            userId: id,
+            phone,
+            note,
+            total,
+        });
+        for (var value of menus) {
+            tempMenu.push(Object.assign({ userId: id, order: order.id }, value));
+        }
+        yield CartProduct_1.CartProduct.bulkCreate(tempMenu);
+        const profile = yield Profile_1.Profile.findOne({ where: { id: profileId } });
+        const user = yield Users_1.Users.findOne({ where: { id: profile === null || profile === void 0 ? void 0 : profile.userId } });
+        yield Notification_1.Notification.create({
+            userId: user === null || user === void 0 ? void 0 : user.id,
+            title: `Foodtruck.express`.toUpperCase(),
+            description: "You have recieved an order, please process the pending order.",
+            type: Notification_1.NotificationType.NORMAL
+        });
+        (0, notification_1.sendToken)(user === null || user === void 0 ? void 0 : user.id, `Foodtruck.express`.toUpperCase(), "You have recieved an order, please process the pending order.");
+        (0, sms_1.sendEmailResend)(`${user === null || user === void 0 ? void 0 : user.email}`, "Foodtruck.express".toUpperCase(), (0, template_1.templateEmail)(`${user === null || user === void 0 ? void 0 : user.email}`, "You have recieved an order, please process the pending order."));
+        console.log(`${user === null || user === void 0 ? void 0 : user.email}`);
+        return (0, utility_1.successResponse)(res, "Order Added Successfully");
     }
-    const tempMenu = [];
-    const order = yield OrderV2_1.OrderV2.create({
-        profileId: profileId,
-        userId: id,
-        phone,
-        note,
-        total,
-    });
-    for (var value of menus) {
-        tempMenu.push(Object.assign({ userId: id, order: order.id }, value));
+    catch (error) {
+        logger_1.default.error(error);
+        return (0, utility_1.errorResponse)(res, "Error Processing Request");
     }
-    yield CartProduct_1.CartProduct.bulkCreate(tempMenu);
-    const profile = yield Profile_1.Profile.findOne({ where: { id: profileId } });
-    const user = yield Users_1.Users.findOne({ where: { id: profile === null || profile === void 0 ? void 0 : profile.userId } });
-    yield Notification_1.Notification.create({
-        userId: user === null || user === void 0 ? void 0 : user.id,
-        title: `Foodtruck.express`.toUpperCase(),
-        description: "You have recieved an order, please process the pending order.",
-        type: Notification_1.NotificationType.NORMAL
-    });
-    (0, notification_1.sendToken)(user === null || user === void 0 ? void 0 : user.id, `Foodtruck.express`.toUpperCase(), "You have recieved an order, please process the pending order.");
-    (0, sms_1.sendEmailResend)(`${user === null || user === void 0 ? void 0 : user.email}`, "Foodtruck.express".toUpperCase(), (0, template_1.templateEmail)(`${user === null || user === void 0 ? void 0 : user.email}`, "You have recieved an order, please process the pending order."));
-    console.log(`${user === null || user === void 0 ? void 0 : user.email}`);
-    return (0, utility_1.successResponse)(res, "Order Added Successfully");
 });
 exports.postOrderV2 = postOrderV2;
 const getp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {

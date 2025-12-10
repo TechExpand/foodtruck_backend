@@ -36,6 +36,7 @@ const Rate_1 = require("../models/Rate");
 const OrderV2_1 = require("../models/OrderV2");
 const ProfileViews_1 = require("../models/ProfileViews");
 const FeaturedEventTrucks_1 = require("../models/FeaturedEventTrucks");
+const logger_1 = __importDefault(require("../services/logger"));
 const cloudinary = require("cloudinary").v2;
 const stripe = new stripe_1.default(configSetup_1.default.STRIPE_SK, {
     apiVersion: "2023-08-16",
@@ -493,8 +494,10 @@ const getMainVendorProfile = (req, res) => __awaiter(void 0, void 0, void 0, fun
             status: result.status,
             dueDate: (0, utility_1.formatStripeTimestamp)(result.current_period_end),
         };
+        logger_1.default.info('Subscription retrieved successfully:', subscription);
     }
     catch (error) {
+        logger_1.default.error(error);
         subscription = { status: "No Subscription", dueDate: "" };
     }
     return (0, utility_1.successResponse)(res, "Profile Fetched", { profile, subscription });

@@ -34,6 +34,7 @@ import { OrderV2 } from "../models/OrderV2";
 import { successResponse } from "../helpers/utility";
 import { ProfileViews } from "../models/ProfileViews";
 import { FeaturedEventTrucks } from "../models/FeaturedEventTrucks";
+import logger from "../services/logger";
 
 const cloudinary = require("cloudinary").v2;
 const stripe = new Stripe(config.STRIPE_SK, {
@@ -582,7 +583,9 @@ export const getMainVendorProfile = async (req: Request, res: Response) => {
       status: result.status,
       dueDate: formatStripeTimestamp(result.current_period_end),
     };
+    logger.info('Subscription retrieved successfully:', subscription);
   } catch (error) {
+    logger.error(error);
     subscription = { status: "No Subscription", dueDate: "" };
   }
   return successResponse(res, "Profile Fetched", { profile, subscription });
