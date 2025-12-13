@@ -33,7 +33,7 @@ import { CartProduct } from "../models/CartProduct";
 import { OrderV2 } from "../models/OrderV2";
 import { Rating } from "../models/Rate";
 import { ProfileViews } from "../models/ProfileViews";
-import { Notification, NotificationType } from '../models/Notification';
+import { Notification, NotificationType } from "../models/Notification";
 import { AllTag } from "../models/Alltags";
 import logger from "../services/logger";
 
@@ -69,13 +69,13 @@ export const getFavourite = async (req: Request, res: Response) => {
 
 export const getTags = async (req: Request, res: Response) => {
   const specialized_tags = await SpecialTag.findAll();
-   const all_tags = await AllTag.findAll();
-   let tags = []
-   for(let value of all_tags){
-     if(specialized_tags.find((tag) => tag.tagId === value.id)) continue;
-     tags.push(value)
-   }
-   return successResponse(res, "Fetched Successfully", tags);
+  const all_tags = await AllTag.findAll();
+  let tags = [];
+  for (let value of all_tags) {
+    if (specialized_tags.find((tag) => tag.tagId === value.id)) continue;
+    tags.push(value);
+  }
+  return successResponse(res, "Fetched Successfully", tags);
 };
 
 export const getOrder = async (req: Request, res: Response) => {
@@ -91,12 +91,10 @@ export const getOrder = async (req: Request, res: Response) => {
   return successResponse(res, "Fetched Successfully", order);
 };
 
-
 export const getNotifications = async (req: Request, res: Response) => {
   const { id } = req.user;
   const notification = await Notification.findAll({
     where: { userId: id },
-   
   });
   return successResponse(res, "Fetched Successfully", notification);
 };
@@ -116,248 +114,246 @@ export const getOrderV2 = async (req: Request, res: Response) => {
 };
 
 export const notifyOrder = async (req: Request, res: Response) => {
-  try{
-  const { status, orderid } = req.query;
+  try {
+    const { status, orderid } = req.query;
 
-  const order = await Order.findOne({
-    where: { id: orderid },
-    include: [{ model: Profile }, { model: Menu }, { model: Users }],
-  });
-  const userData = await Users.findOne({ where: { id: order?.userId } });
-  if (!order) return errorResponse(res, "Not Found");
-  if (status == "PENDING") {
-    await Notification.create({
-    title: `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
-    userId: order.profile.userId,
-    description:  `pick up your meal at ${order.profile.dataValues.business_name}`,
-    type: NotificationType.ORDER
-  })
-    await order.update({ status: "COMPLETED" });
-    await sendToken(
-      userData?.id,
-      `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
-      `pick up your meal at ${order.profile.dataValues.business_name}`
-    );
-    await sendEmailResend(
-      `${userData?.email}`,
-      `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
-      templateEmail(
-        `${userData.email}`,
-        `pick up your meal at ${order.profile.dataValues.business_name}`
-      )
-    );
-    return successResponse(res, "Fetched Successfully", order);
-  } else {
+    const order = await Order.findOne({
+      where: { id: orderid },
+      include: [{ model: Profile }, { model: Menu }, { model: Users }],
+    });
+    const userData = await Users.findOne({ where: { id: order?.userId } });
+    if (!order) return errorResponse(res, "Not Found");
+    if (status == "PENDING") {
       await Notification.create({
-    userId: order?.userId,
-    title:     `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
-    description:  `pick up your meal at ${order.profile.dataValues.business_name}`,
-    type: NotificationType.ORDER
-  })
-    await sendToken(
-      userData?.id,
-      `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
-      `pick up your meal at ${order.profile.dataValues.business_name}`
-    );
-    await sendEmailResend(
-      `${userData.email}`,
-      `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
-      templateEmail(
-        `${userData.email}`,
+        title:
+          `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
+        userId: order.profile.userId,
+        description: `pick up your meal at ${order.profile.dataValues.business_name}`,
+        type: NotificationType.ORDER,
+      });
+      await order.update({ status: "COMPLETED" });
+      await sendToken(
+        userData?.id,
+        `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
         `pick up your meal at ${order.profile.dataValues.business_name}`
-      )
-    );
-    return successResponse(res, "Fetched Successfully", order);
-  }}catch(error:any){
-     logger.error(error)
-     return errorResponse(res, "Error Processing Request");
+      );
+      await sendEmailResend(
+        `${userData?.email}`,
+        `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
+        templateEmail(
+          `${userData.email}`,
+          `pick up your meal at ${order.profile.dataValues.business_name}`
+        )
+      );
+      return successResponse(res, "Fetched Successfully", order);
+    } else {
+      await Notification.create({
+        userId: order?.userId,
+        title:
+          `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
+        description: `pick up your meal at ${order.profile.dataValues.business_name}`,
+        type: NotificationType.ORDER,
+      });
+      await sendToken(
+        userData?.id,
+        `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
+        `pick up your meal at ${order.profile.dataValues.business_name}`
+      );
+      await sendEmailResend(
+        `${userData.email}`,
+        `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
+        templateEmail(
+          `${userData.email}`,
+          `pick up your meal at ${order.profile.dataValues.business_name}`
+        )
+      );
+      return successResponse(res, "Fetched Successfully", order);
+    }
+  } catch (error: any) {
+    logger.error(error);
+    return errorResponse(res, "Error Processing Request");
   }
 };
 
 export const confirmOrderV2 = async (req: Request, res: Response) => {
-  try{
-  const { orderid, rate, comment } = req.body;
-  const order = await OrderV2.findOne({
-    where: { id: orderid },
-    include: [{ model: Profile }, { model: Users }],
-  });
-  const userData = await Users.findOne({
-    where: { id: order?.profile.userId },
-  });
-  const profile = await Profile.findOne({ where: { id: order?.profileId } });
-  if (!order) return errorResponse(res, "No Found");
-  if (!profile) return errorResponse(res, "No Found");
-  if (!userData) return errorResponse(res, "No Found");
-  if (order.status == "CONFIRM_COMPLETION") {
-    await order.update({ status: "COMPLETED" });
-    await Rating.create({
-      profileId: order?.profileId,
-      rate,
-      comment,
-      truckId: order?.profile.userId,
-      userId: order.userId,
+  try {
+    const { orderid, rate, comment } = req.body;
+    const order = await OrderV2.findOne({
+      where: { id: orderid },
+      include: [{ model: Profile }, { model: Users }],
     });
-    await profile?.update({
-      totalRate: order?.profile.totalRate + 1,
-      meanRate: order?.profile.meanRate + Number(rate),
-      rate:
-        (order?.profile.meanRate + Number(rate)) /
-        (order?.profile.totalRate + 1),
+    const userData = await Users.findOne({
+      where: { id: order?.profile.userId },
     });
-          await Notification.create({
-    userId: order?.profile.userId,
-    title:    `ORDER HAS BEEN CONFIRM`,
-    description:  `congratulations order has been confirmed by ${order.user.username}`,
-    type: NotificationType.NORMAL
-  })
-    await sendToken(
-      userData?.id,
-      `ORDER HAS BEEN CONFIRM`,
-      `congratulations order has been confirmed by ${order.user.username}`
-    );
-    await sendEmailResend(
-      `${userData?.email}`,
-      `ORDER HAS BEEN CONFIRM`,
-      templateEmail(
-        `${userData.email}`,
+    const profile = await Profile.findOne({ where: { id: order?.profileId } });
+    if (!order) return errorResponse(res, "No Found");
+    if (!profile) return errorResponse(res, "No Found");
+    if (!userData) return errorResponse(res, "No Found");
+    if (order.status == "CONFIRM_COMPLETION") {
+      await order.update({ status: "COMPLETED" });
+      await Rating.create({
+        profileId: order?.profileId,
+        rate,
+        comment,
+        truckId: order?.profile.userId,
+        userId: order.userId,
+      });
+      await profile?.update({
+        totalRate: order?.profile.totalRate + 1,
+        meanRate: order?.profile.meanRate + Number(rate),
+        rate:
+          (order?.profile.meanRate + Number(rate)) /
+          (order?.profile.totalRate + 1),
+      });
+      await Notification.create({
+        userId: order?.profile.userId,
+        title: `ORDER HAS BEEN CONFIRM`,
+        description: `congratulations order has been confirmed by ${order.user.username}`,
+        type: NotificationType.NORMAL,
+      });
+      await sendToken(
+        userData?.id,
+        `ORDER HAS BEEN CONFIRM`,
         `congratulations order has been confirmed by ${order.user.username}`
-      )
-    );
-    return successResponse(res, "Fetched Successfully", order);
-  } else {
-    return successResponse(res, "Fetched Successfully", order);
-  }
-  }catch(error:any){
-     logger.error(error)
-     return errorResponse(res, "Error Processing Request");
+      );
+      await sendEmailResend(
+        `${userData?.email}`,
+        `ORDER HAS BEEN CONFIRM`,
+        templateEmail(
+          `${userData.email}`,
+          `congratulations order has been confirmed by ${order.user.username}`
+        )
+      );
+      return successResponse(res, "Fetched Successfully", order);
+    } else {
+      return successResponse(res, "Fetched Successfully", order);
+    }
+  } catch (error: any) {
+    logger.error(error);
+    return errorResponse(res, "Error Processing Request");
   }
 };
 
 export const cancelOrderV2 = async (req: Request, res: Response) => {
-  try{
-  const { orderid, status } = req.body;
-  const order = await OrderV2.findOne({
-    where: { id: orderid },
-    include: [{ model: Profile }, { model: Users }],
-  });
-  const userData = await Users.findOne({ where: { id: order?.userId } });
-  if (!order) return errorResponse(res, "No Found");
-  if (status == "CANCELED") {
-    await order.update({ status: "CANCELED" });
-          await Notification.create({
-    userId: order?.userId,
-    title:    `YOUR ORDER HAS BEEN CANCELED`,
-    description: `unfortunately your order has been canceled by ${order.profile.dataValues.business_name}`,
-    type: NotificationType.ORDER
-  })
-    await sendToken(
-      userData?.id,
-      `YOUR ORDER HAS BEEN CANCELED`,
-      `unfortunately your order has been canceled by ${order.profile.dataValues.business_name}`
-    );
-    await sendEmailResend(
-      `${userData?.email}`,
-      `YOUR ORDER HAS BEEN CANCELED`,
-      templateEmail(
-        `${userData.email}`,
+  try {
+    const { orderid, status } = req.body;
+    const order = await OrderV2.findOne({
+      where: { id: orderid },
+      include: [{ model: Profile }, { model: Users }],
+    });
+    const userData = await Users.findOne({ where: { id: order?.userId } });
+    if (!order) return errorResponse(res, "No Found");
+    if (status == "CANCELED") {
+      await order.update({ status: "CANCELED" });
+      await Notification.create({
+        userId: order?.userId,
+        title: `YOUR ORDER HAS BEEN CANCELED`,
+        description: `unfortunately your order has been canceled by ${order.profile.dataValues.business_name}`,
+        type: NotificationType.ORDER,
+      });
+      await sendToken(
+        userData?.id,
+        `YOUR ORDER HAS BEEN CANCELED`,
         `unfortunately your order has been canceled by ${order.profile.dataValues.business_name}`
-      )
-    );
-    return successResponse(res, "Fetched Successfully", order);
-  } else {
-    return successResponse(res, "Fetched Successfully", order);
-  }
-  }catch(error:any){
-     logger.error(error)
-     return errorResponse(res, "Error Processing Request");
+      );
+      await sendEmailResend(
+        `${userData?.email}`,
+        `YOUR ORDER HAS BEEN CANCELED`,
+        templateEmail(
+          `${userData.email}`,
+          `unfortunately your order has been canceled by ${order.profile.dataValues.business_name}`
+        )
+      );
+      return successResponse(res, "Fetched Successfully", order);
+    } else {
+      return successResponse(res, "Fetched Successfully", order);
+    }
+  } catch (error: any) {
+    logger.error(error);
+    return errorResponse(res, "Error Processing Request");
   }
 };
 
 export const notifyOrderV2 = async (req: Request, res: Response) => {
-  try{
-  const { status, orderid } = req.body;
+  try {
+    const { status, orderid } = req.body;
 
-  const order = await OrderV2.findOne({
-    where: { id: orderid },
-    include: [
-      { model: Profile },
-      //     { model: Menu },
-      { model: Users },
-    ],
-  });
-  const userData = await Users.findOne({ where: { id: order?.userId } });
-  if (!order) return errorResponse(res, "No Found");
-  if (status == "PROCESSING") {
-    await order.update({ status: "CONFIRM_COMPLETION" });
-             await Notification.create({
-    userId: order?.userId,
-    title:  `YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
-    description:  `pick up your meal at ${order.profile.dataValues.business_name}`,
-    type: NotificationType.ORDER
-  })
-    await sendToken(
-      userData?.id,
-      `YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
-      `pick up your meal at ${order.profile.dataValues.business_name}`
-    );
-    await sendEmailResend(
-      `${userData?.email}`,
-      `YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
-      templateEmail(
-        `${userData.email}`,
+    const order = await OrderV2.findOne({
+      where: { id: orderid },
+      include: [
+        { model: Profile },
+        //     { model: Menu },
+        { model: Users },
+      ],
+    });
+    const userData = await Users.findOne({ where: { id: order?.userId } });
+    if (!order) return errorResponse(res, "No Found");
+    if (status == "PROCESSING") {
+      await order.update({ status: "CONFIRM_COMPLETION" });
+      await Notification.create({
+        userId: order?.userId,
+        title: `YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
+        description: `pick up your meal at ${order.profile.dataValues.business_name}`,
+        type: NotificationType.ORDER,
+      });
+      await sendToken(
+        userData?.id,
+        `YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
         `pick up your meal at ${order.profile.dataValues.business_name}`
-      )
-    );
-    return successResponse(res, "Fetched Successfully", order);
-  } 
-    else if(status == "PENDING") {
-    await Notification.create({
-    userId: order?.userId,
-    title: `Payment Received by ${order.profile.dataValues.business_name}: YOUR ORDER IS CURRENTLY BEING PROCESSED`,
-    description: `your meal will be ready soon`,
-    type: NotificationType.ORDER
-  })
-    await order.update({ status: "PROCESSING" });
-    await sendToken(
-      userData?.id,
-      `Payment Received by ${order.profile.dataValues.business_name}: YOUR ORDER IS CURRENTLY BEING PROCESSED`,
-      `your meal will be ready soon`
-    );
-    await sendEmailResend(
-      `${userData?.email}`,
-      `Payment Received by ${order.profile.dataValues.business_name}: YOUR ORDER IS CURRENTLY BEING PROCESSED`,
-      templateEmail(
-        `${userData.email}`,
+      );
+      await sendEmailResend(
+        `${userData?.email}`,
+        `YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
+        templateEmail(
+          `${userData.email}`,
+          `pick up your meal at ${order.profile.dataValues.business_name}`
+        )
+      );
+      return successResponse(res, "Fetched Successfully", order);
+    } else if (status == "PENDING") {
+      await Notification.create({
+        userId: order?.userId,
+        title: `Payment Received by ${order.profile.dataValues.business_name}: YOUR ORDER IS CURRENTLY BEING PROCESSED`,
+        description: `your meal will be ready soon`,
+        type: NotificationType.ORDER,
+      });
+      await order.update({ status: "PROCESSING" });
+      await sendToken(
+        userData?.id,
+        `Payment Received by ${order.profile.dataValues.business_name}: YOUR ORDER IS CURRENTLY BEING PROCESSED`,
         `your meal will be ready soon`
-      )
-    );
-    return successResponse(res, "Fetched Successfully", order);
-  }
-  else if(status == "CONFIRM_COMPLETION" || status == "COMPLETED") {
-                 await Notification.create({
-    userId: order?.userId,
-    title:   `REMINDER: YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
-    description:  `pick up your meal at ${order.profile.dataValues.business_name}`,
-    type: NotificationType.ORDER
-  })
-    await sendToken(
-      userData?.id,
-      `REMINDER: YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
-      `pick up your meal at ${order.profile.dataValues.business_name}`
-    );
-    await sendEmailResend(
-      `${userData.email}`,
-      `REMINDER: YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
-      templateEmail(
-        `${userData.email}`,
+      );
+      await sendEmailResend(
+        `${userData?.email}`,
+        `Payment Received by ${order.profile.dataValues.business_name}: YOUR ORDER IS CURRENTLY BEING PROCESSED`,
+        templateEmail(`${userData.email}`, `your meal will be ready soon`)
+      );
+      return successResponse(res, "Fetched Successfully", order);
+    } else if (status == "CONFIRM_COMPLETION" || status == "COMPLETED") {
+      await Notification.create({
+        userId: order?.userId,
+        title: `REMINDER: YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
+        description: `pick up your meal at ${order.profile.dataValues.business_name}`,
+        type: NotificationType.ORDER,
+      });
+      await sendToken(
+        userData?.id,
+        `REMINDER: YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
         `pick up your meal at ${order.profile.dataValues.business_name}`
-      )
-    );
-    return successResponse(res, "Fetched Successfully", order);
-  }
-  }catch(error:any){
-     logger.error(error)
-     return errorResponse(res, "Error Processing Request");
+      );
+      await sendEmailResend(
+        `${userData.email}`,
+        `REMINDER: YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
+        templateEmail(
+          `${userData.email}`,
+          `pick up your meal at ${order.profile.dataValues.business_name}`
+        )
+      );
+      return successResponse(res, "Fetched Successfully", order);
+    }
+  } catch (error: any) {
+    logger.error(error);
+    return errorResponse(res, "Error Processing Request");
   }
 };
 
@@ -379,12 +375,12 @@ export const postFavourite = async (req: Request, res: Response) => {
       { model: Users },
     ],
   });
-                await Notification.create({
-    userId:  truckUser?.id,
-    title:     `Foodtruck.express`.toUpperCase(),
-    description:   `Hey ${profile?.business_name}, Customers are adding your truck to their favorites list on foodtruck.express, subscribe to get more attention.`,
-    type: NotificationType.NORMAL
-  })
+  await Notification.create({
+    userId: truckUser?.id,
+    title: `Foodtruck.express`.toUpperCase(),
+    description: `Hey ${profile?.business_name}, Customers are adding your truck to their favorites list on foodtruck.express, subscribe to get more attention.`,
+    type: NotificationType.NORMAL,
+  });
   sendToken(
     truckUser?.id,
     `Foodtruck.express`.toUpperCase(),
@@ -395,99 +391,100 @@ export const postFavourite = async (req: Request, res: Response) => {
 };
 
 export const postOrder = async (req: Request, res: Response) => {
-  try{
-  let { profileId, menuId, extras } = req.body;
-  let { id } = req.user;
-  let profile = await Profile.findOne({ where: { id: profileId } });
-  let user = await Users.findOne({ where: { id: profile?.userId } });
-  await Notification.create({
-    userId: user?.id,
-    title: `Foodtruck.express`.toUpperCase(),
-    description: "You have recieved an order, please process the pending order.",
-    type: NotificationType.ORDER
-  })
-  sendToken(
-    user?.id,
-    `Foodtruck.express`.toUpperCase(),
-    "You have recieved an order, please process the pending order."
-  );
-  sendEmailResend(
-    `${user?.email}`,
-    "Foodtruck.express".toUpperCase(),
-    templateEmail(
-      `${user?.email}`,
+  try {
+    let { profileId, menuId, extras } = req.body;
+    let { id } = req.user;
+    let profile = await Profile.findOne({ where: { id: profileId } });
+    let user = await Users.findOne({ where: { id: profile?.userId } });
+    await Notification.create({
+      userId: user?.id,
+      title: `Foodtruck.express`.toUpperCase(),
+      description:
+        "You have recieved an order, please process the pending order.",
+      type: NotificationType.ORDER,
+    });
+    sendToken(
+      user?.id,
+      `Foodtruck.express`.toUpperCase(),
       "You have recieved an order, please process the pending order."
-    )
-  );
-  const order = await Order.create({
-    profileId: profileId,
-    userId: id,
-    menuId,
-    extras: extras,
-  });
-  return successResponse(res, "Order Added Successfully");
-  }catch(error:any){
-     logger.error(error)
-     return errorResponse(res, "Error Processing Request");
+    );
+    sendEmailResend(
+      `${user?.email}`,
+      "Foodtruck.express".toUpperCase(),
+      templateEmail(
+        `${user?.email}`,
+        "You have recieved an order, please process the pending order."
+      )
+    );
+    const order = await Order.create({
+      profileId: profileId,
+      userId: id,
+      menuId,
+      extras: extras,
+    });
+    return successResponse(res, "Order Added Successfully");
+  } catch (error: any) {
+    logger.error(error);
+    return errorResponse(res, "Error Processing Request");
   }
 };
 
-
 export const postOrderV2 = async (req: Request, res: Response) => {
-  try{
-  const { profileId, menus, phone, note, total } = req.body;
-  const { id } = req.user;
+  try {
+    const { profileId, menus, phone, note, total } = req.body;
+    const { id } = req.user;
 
-  if (!menus) {
-    menus = [
-      {
-        menuId: 1,
-        extras: [{ name: "ketchup", price: 100 }],
-      },
-    ];
-  }
-  const tempMenu: any[] = [];
-  const order = await OrderV2.create({
-    profileId: profileId,
-    userId: id,
-    phone,
-    note,
-    total,
-  });
-  for (var value of menus) {
-    tempMenu.push({
+    if (!menus) {
+      menus = [
+        {
+          menuId: 1,
+          extras: [{ name: "ketchup", price: 100 }],
+        },
+      ];
+    }
+    const tempMenu: any[] = [];
+    const order = await OrderV2.create({
+      profileId: profileId,
       userId: id,
-      order: order.id,
-      ...value,
+      phone,
+      note,
+      total,
     });
-  }
-  await CartProduct.bulkCreate(tempMenu);
-  const profile = await Profile.findOne({ where: { id: profileId } });
-  const user = await Users.findOne({ where: { id: profile?.userId } });
-                await Notification.create({
-    userId:   user?.id,
-    title:      `Foodtruck.express`.toUpperCase(),
-    description:   "You have recieved an order, please process the pending order.",
-    type: NotificationType.NORMAL
-  })
-  sendToken(
-    user?.id,
-    `Foodtruck.express`.toUpperCase(),
-    "You have recieved an order, please process the pending order."
-  );
-  sendEmailResend(
-    `${user?.email}`,
-    "Foodtruck.express".toUpperCase(),
-    templateEmail(
-      `${user?.email}`,
+    for (var value of menus) {
+      tempMenu.push({
+        userId: id,
+        order: order.id,
+        ...value,
+      });
+    }
+    await CartProduct.bulkCreate(tempMenu);
+    const profile = await Profile.findOne({ where: { id: profileId } });
+    const user = await Users.findOne({ where: { id: profile?.userId } });
+    await Notification.create({
+      userId: user?.id,
+      title: `Foodtruck.express`.toUpperCase(),
+      description:
+        "You have recieved an order, please process the pending order.",
+      type: NotificationType.NORMAL,
+    });
+    sendToken(
+      user?.id,
+      `Foodtruck.express`.toUpperCase(),
       "You have recieved an order, please process the pending order."
-    )
-  );
-  console.log(`${user?.email}`);
-  return successResponse(res, "Order Added Successfully");
-  }catch(error:any){
-     logger.error(error)
-     return errorResponse(res, "Error Processing Request");
+    );
+    sendEmailResend(
+      `${user?.email}`,
+      "Foodtruck.express".toUpperCase(),
+      templateEmail(
+        `${user?.email}`,
+        "You have recieved an order, please process the pending order."
+      )
+    );
+    console.log(`${user?.email}`);
+    return successResponse(res, "Order Added Successfully");
+  } catch (error: any) {
+    logger.error(error);
+    return errorResponse(res, "Error Processing Request");
   }
 };
 

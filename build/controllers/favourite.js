@@ -118,7 +118,7 @@ const notifyOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 title: `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
                 userId: order.profile.userId,
                 description: `pick up your meal at ${order.profile.dataValues.business_name}`,
-                type: Notification_1.NotificationType.ORDER
+                type: Notification_1.NotificationType.ORDER,
             });
             yield order.update({ status: "COMPLETED" });
             yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), `pick up your meal at ${order.profile.dataValues.business_name}`);
@@ -130,7 +130,7 @@ const notifyOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 userId: order === null || order === void 0 ? void 0 : order.userId,
                 title: `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(),
                 description: `pick up your meal at ${order.profile.dataValues.business_name}`,
-                type: Notification_1.NotificationType.ORDER
+                type: Notification_1.NotificationType.ORDER,
             });
             yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), `pick up your meal at ${order.profile.dataValues.business_name}`);
             yield (0, sms_1.sendEmailResend)(`${userData.email}`, `REMINDER: ${order.menu.dataValues.menu_title} IS READY FOR PICKUP`.toUpperCase(), (0, template_1.templateEmail)(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`));
@@ -179,7 +179,7 @@ const confirmOrderV2 = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 userId: order === null || order === void 0 ? void 0 : order.profile.userId,
                 title: `ORDER HAS BEEN CONFIRM`,
                 description: `congratulations order has been confirmed by ${order.user.username}`,
-                type: Notification_1.NotificationType.NORMAL
+                type: Notification_1.NotificationType.NORMAL,
             });
             yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `ORDER HAS BEEN CONFIRM`, `congratulations order has been confirmed by ${order.user.username}`);
             yield (0, sms_1.sendEmailResend)(`${userData === null || userData === void 0 ? void 0 : userData.email}`, `ORDER HAS BEEN CONFIRM`, (0, template_1.templateEmail)(`${userData.email}`, `congratulations order has been confirmed by ${order.user.username}`));
@@ -211,7 +211,7 @@ const cancelOrderV2 = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 userId: order === null || order === void 0 ? void 0 : order.userId,
                 title: `YOUR ORDER HAS BEEN CANCELED`,
                 description: `unfortunately your order has been canceled by ${order.profile.dataValues.business_name}`,
-                type: Notification_1.NotificationType.ORDER
+                type: Notification_1.NotificationType.ORDER,
             });
             yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `YOUR ORDER HAS BEEN CANCELED`, `unfortunately your order has been canceled by ${order.profile.dataValues.business_name}`);
             yield (0, sms_1.sendEmailResend)(`${userData === null || userData === void 0 ? void 0 : userData.email}`, `YOUR ORDER HAS BEEN CANCELED`, (0, template_1.templateEmail)(`${userData.email}`, `unfortunately your order has been canceled by ${order.profile.dataValues.business_name}`));
@@ -247,7 +247,7 @@ const notifyOrderV2 = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 userId: order === null || order === void 0 ? void 0 : order.userId,
                 title: `YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
                 description: `pick up your meal at ${order.profile.dataValues.business_name}`,
-                type: Notification_1.NotificationType.ORDER
+                type: Notification_1.NotificationType.ORDER,
             });
             yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `YOUR ORDER IS READY FOR PICKUP`.toUpperCase(), `pick up your meal at ${order.profile.dataValues.business_name}`);
             yield (0, sms_1.sendEmailResend)(`${userData === null || userData === void 0 ? void 0 : userData.email}`, `YOUR ORDER IS READY FOR PICKUP`.toUpperCase(), (0, template_1.templateEmail)(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`));
@@ -258,7 +258,7 @@ const notifyOrderV2 = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 userId: order === null || order === void 0 ? void 0 : order.userId,
                 title: `Payment Received by ${order.profile.dataValues.business_name}: YOUR ORDER IS CURRENTLY BEING PROCESSED`,
                 description: `your meal will be ready soon`,
-                type: Notification_1.NotificationType.ORDER
+                type: Notification_1.NotificationType.ORDER,
             });
             yield order.update({ status: "PROCESSING" });
             yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `Payment Received by ${order.profile.dataValues.business_name}: YOUR ORDER IS CURRENTLY BEING PROCESSED`, `your meal will be ready soon`);
@@ -270,7 +270,7 @@ const notifyOrderV2 = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 userId: order === null || order === void 0 ? void 0 : order.userId,
                 title: `REMINDER: YOUR ORDER IS READY FOR PICKUP`.toUpperCase(),
                 description: `pick up your meal at ${order.profile.dataValues.business_name}`,
-                type: Notification_1.NotificationType.ORDER
+                type: Notification_1.NotificationType.ORDER,
             });
             yield (0, notification_1.sendToken)(userData === null || userData === void 0 ? void 0 : userData.id, `REMINDER: YOUR ORDER IS READY FOR PICKUP`.toUpperCase(), `pick up your meal at ${order.profile.dataValues.business_name}`);
             yield (0, sms_1.sendEmailResend)(`${userData.email}`, `REMINDER: YOUR ORDER IS READY FOR PICKUP`.toUpperCase(), (0, template_1.templateEmail)(`${userData.email}`, `pick up your meal at ${order.profile.dataValues.business_name}`));
@@ -306,7 +306,7 @@ const postFavourite = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         userId: truckUser === null || truckUser === void 0 ? void 0 : truckUser.id,
         title: `Foodtruck.express`.toUpperCase(),
         description: `Hey ${profile === null || profile === void 0 ? void 0 : profile.business_name}, Customers are adding your truck to their favorites list on foodtruck.express, subscribe to get more attention.`,
-        type: Notification_1.NotificationType.NORMAL
+        type: Notification_1.NotificationType.NORMAL,
     });
     (0, notification_1.sendToken)(truckUser === null || truckUser === void 0 ? void 0 : truckUser.id, `Foodtruck.express`.toUpperCase(), `Hey ${profile === null || profile === void 0 ? void 0 : profile.business_name}, Customers are adding your truck to their favorites list on foodtruck.express, subscribe to get more attention.`);
     return (0, utility_1.successResponse)(res, "Added Successfully", favourite);
@@ -322,7 +322,7 @@ const postOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             userId: user === null || user === void 0 ? void 0 : user.id,
             title: `Foodtruck.express`.toUpperCase(),
             description: "You have recieved an order, please process the pending order.",
-            type: Notification_1.NotificationType.ORDER
+            type: Notification_1.NotificationType.ORDER,
         });
         (0, notification_1.sendToken)(user === null || user === void 0 ? void 0 : user.id, `Foodtruck.express`.toUpperCase(), "You have recieved an order, please process the pending order.");
         (0, sms_1.sendEmailResend)(`${user === null || user === void 0 ? void 0 : user.email}`, "Foodtruck.express".toUpperCase(), (0, template_1.templateEmail)(`${user === null || user === void 0 ? void 0 : user.email}`, "You have recieved an order, please process the pending order."));
@@ -370,7 +370,7 @@ const postOrderV2 = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             userId: user === null || user === void 0 ? void 0 : user.id,
             title: `Foodtruck.express`.toUpperCase(),
             description: "You have recieved an order, please process the pending order.",
-            type: Notification_1.NotificationType.NORMAL
+            type: Notification_1.NotificationType.NORMAL,
         });
         (0, notification_1.sendToken)(user === null || user === void 0 ? void 0 : user.id, `Foodtruck.express`.toUpperCase(), "You have recieved an order, please process the pending order.");
         (0, sms_1.sendEmailResend)(`${user === null || user === void 0 ? void 0 : user.email}`, "Foodtruck.express".toUpperCase(), (0, template_1.templateEmail)(`${user === null || user === void 0 ? void 0 : user.email}`, "You have recieved an order, please process the pending order."));

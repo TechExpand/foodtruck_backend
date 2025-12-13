@@ -71,43 +71,42 @@ export const createProfile = async (req: Request, res: Response) => {
     closeTime,
     openingTime,
   } = req.body;
-  try{
-  let { id } = req.user;
-  const user = await Users.findOne({ where: { id } });
-  const lanlog = await LanLog.findOne({ where: { userId: id } });
-  const profileExist = await Profile.findOne({ where: { userId: id } });
+  try {
+    let { id } = req.user;
+    const user = await Users.findOne({ where: { id } });
+    const lanlog = await LanLog.findOne({ where: { userId: id } });
+    const profileExist = await Profile.findOne({ where: { userId: id } });
 
-  if (profileExist){
-    return errorResponse(res, "Profile Already Exist");
-  }
-  const location = await LanLog.create({
-    Lan: lan,
-    Log: log,
-    address,
-    online: true,
-    userId: id,
-    type: UserType.VENDOR,
-  });
+    if (profileExist) {
+      return errorResponse(res, "Profile Already Exist");
+    }
+    const location = await LanLog.create({
+      Lan: lan,
+      Log: log,
+      address,
+      online: true,
+      userId: id,
+      type: UserType.VENDOR,
+    });
 
-  const profile = await Profile.create({
-    business_name,
-    unique_detail,
-    detail,
-    phone,
-    lanlogId: location!.id,
-    userId: id,
-    days,
-    closeTime,
-    openingTime,
-    pro_pic,
-    tag,
-  });
-  return successResponse(res, "Created Successfully", profile);
+    const profile = await Profile.create({
+      business_name,
+      unique_detail,
+      detail,
+      phone,
+      lanlogId: location!.id,
+      userId: id,
+      days,
+      closeTime,
+      openingTime,
+      pro_pic,
+      tag,
+    });
+    return successResponse(res, "Created Successfully", profile);
   } catch (error) {
     return errorResponse(res, "Failed to Create Profile");
   }
 };
-
 
 export const updateToken = async (req: Request, res: Response) => {
   let { id } = req.user;
@@ -136,20 +135,41 @@ export const updateProfile = async (req: Request, res: Response) => {
 };
 
 export const createSubscription = async (req: Request, res: Response) => {
-  let { paymentMethodId } = req.body;
-  let { id } = req.user;
+  const { paymentMethodId } = req.body;
+  const { id } = req.user;
+
   try {
     const user = await Users.findOne({ where: { id } });
     const profile = await Profile.findOne({ where: { userId: user?.id } });
-    const customer = await stripe.customers.create({
-      email: user!.email,
-      payment_method: paymentMethodId,
+
+    let customerId = user?.customer_id;
+
+    // ✅ If customer does NOT exist → create
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email: user!.email,
+      });
+
+      customerId = customer.id;
+
+      await user?.update({ customer_id: customerId });
+    }
+
+    // ✅ Attach payment method to existing customer
+    await stripe.paymentMethods.attach(paymentMethodId, {
+      customer: customerId,
+    });
+
+    // ✅ Update default payment method
+    await stripe.customers.update(customerId, {
       invoice_settings: {
         default_payment_method: paymentMethodId,
       },
     });
+
+    // ✅ Create subscription
     const subscription = await stripe.subscriptions.create({
-      customer: String(customer.id),
+      customer: customerId,
       items: [
         {
           price: config.PRICE_ID,
@@ -169,20 +189,96 @@ export const createSubscription = async (req: Request, res: Response) => {
       expand: ["latest_invoice.payment_intent"],
       trial_period_days: 1,
     });
-    await user?.update({
-      customer_id: customer.id,
-      subscription_id: subscription.id,
-    });
+
+    await user?.update({ subscription_id: subscription.id });
     await profile?.update({ subcription_id: subscription.id });
-    if (subscription.latest_invoice.payment_intent) {
-      return successResponse(res, "Subscribe Successfully");
-    } else {
-      return successResponse(res, "Subscribe Successfully");
-    }
-  } catch (e) {
+
+    return successResponse(res, "Subscribed successfully");
+  } catch (e: any) {
     return errorResponse(res, e.message);
   }
 };
+
+// export const createSubscription = async (req: Request, res: Response) => {
+//   const { paymentMethodId } = req.body;
+//   const { id } = req.user;
+
+//   try {
+//     const user = await Users.findOne({ where: { id } });
+
+//     if (!user) {
+//       logger.info("User not found with id:", id);
+//       return errorResponse(res, "User not found");
+//     }
+//     const profile = await Profile.findOne({ where: { userId: user?.id } });
+
+//     // 1. Ensure customer exists
+//     let customerId = user.customer_id;
+
+//     if (!customerId) {
+//       logger.info("Creating new Stripe customer for user:", user.id);
+//       const customer = await stripe.customers.create({
+//         email: user.email,
+//         name: user.fullname,
+//       });
+
+//       customerId = customer.id;
+//       await user.update({ customer_id: customerId });
+//     }
+
+//     // 2. Attach payment method to customer
+//     await stripe.paymentMethods.attach(paymentMethodId, {
+//       customer: customerId,
+//     });
+
+//     // 3. Set as default payment method
+//     await stripe.customers.update(customerId, {
+//       invoice_settings: {
+//         default_payment_method: paymentMethodId,
+//       },
+//     });
+
+//     // 4. Create Subscription (charges instantly)
+//     const subscription = await stripe.subscriptions.create({
+//       customer: customerId,
+//       items: [{ price: config.PRICE_ID }],
+//       default_payment_method: paymentMethodId,
+//       payment_behavior: "default_incomplete", // important
+//       expand: ["latest_invoice.payment_intent"],
+//     });
+
+//     const paymentIntent = subscription.latest_invoice
+//       ?.payment_intent as Stripe.PaymentIntent;
+
+//     if (!paymentIntent) {
+//       logger.info(
+//         "Payment initialization failed for subscription:",
+//         subscription.id
+//       );
+//       return errorResponse(res, "Payment initialization failed");
+//     }
+
+//     // 5. Confirm the payment instantly
+//     const confirmedIntent = await stripe.paymentIntents.confirm(
+//       paymentIntent.id
+//     );
+
+//     if (confirmedIntent.status === "succeeded") {
+//       logger.info("Payment succeeded for subscription:", subscription.id);
+//       await user.update({
+//         subscription_id: subscription.id,
+//       });
+//       await profile?.update({ subcription_id: subscription.id });
+
+//       return successResponse(res, "Subscription created and charged instantly");
+//     }
+
+//     return errorResponse(res, "Payment failed or requires further action");
+//   } catch (e: any) {
+//     logger.error(e);
+//     return errorResponse(res, e.message);
+//   }
+// };
 
 export const cancelSubscription = async (req: Request, res: Response) => {
   let { id } = req.user;
@@ -346,8 +442,8 @@ export const getProfile = async (req: Request, res: Response) => {
 
 export const getHomeEvents = async (req: Request, res: Response) => {
   const currentDate = new Date();
-  const {lan, log} = req.query;
-  let event = []
+  const { lan, log } = req.query;
+  let event = [];
   const eventFound = await Events.findAll({
     where: {
       event_date: {
@@ -371,29 +467,28 @@ export const getHomeEvents = async (req: Request, res: Response) => {
       },
     ],
   });
-   
-  for(let value of eventFound){
-    let distance_list = []
-     for(let vendor of value.featured){
 
-         const distance = getDistanceFromLatLonInKm(
-      Number(vendor.dataValues.profile.dataValues.lanlog.dataValues.Lan),
-      Number(vendor.dataValues.profile.dataValues.lanlog.dataValues.Log),
-      Number(lan),
-      Number(log)
-    );
-     distance_list.push({
-          ...vendor.dataValues.profile.dataValues.lanlog.dataValues,
-          user: vendor.dataValues.profile.dataValues.user.dataValues,
-          profile: vendor.dataValues.profile.dataValues,
-          distance,
-          time: estimateCarCityTimeRange(distance),
-        });
-        distance_list.sort(
-          (a, b) => parseFloat(a.distance) - parseFloat(b.distance)
-        );
-     }
-    event.push({...value.dataValues, featured: distance_list})
+  for (let value of eventFound) {
+    let distance_list = [];
+    for (let vendor of value.featured) {
+      const distance = getDistanceFromLatLonInKm(
+        Number(vendor.dataValues.profile.dataValues.lanlog.dataValues.Lan),
+        Number(vendor.dataValues.profile.dataValues.lanlog.dataValues.Log),
+        Number(lan),
+        Number(log)
+      );
+      distance_list.push({
+        ...vendor.dataValues.profile.dataValues.lanlog.dataValues,
+        user: vendor.dataValues.profile.dataValues.user.dataValues,
+        profile: vendor.dataValues.profile.dataValues,
+        distance,
+        time: estimateCarCityTimeRange(distance),
+      });
+      distance_list.sort(
+        (a, b) => parseFloat(a.distance) - parseFloat(b.distance)
+      );
+    }
+    event.push({ ...value.dataValues, featured: distance_list });
   }
   return successResponse(res, "Fetched Successfully", event);
 };
@@ -444,7 +539,6 @@ export const getUser = async (req: Request, res: Response) => {
   return successResponse(res, "Fetched Successfully", user);
 };
 
-
 export const getVendorUserProfile = async (req: Request, res: Response) => {
   const { id, lan, log } = req.query;
   const vendor = await LanLog.findOne({
@@ -457,7 +551,14 @@ export const getVendorUserProfile = async (req: Request, res: Response) => {
         where: {
           type: UserType.VENDOR,
         },
-        attributes: ["createdAt", "updatedAt", "email", "type", "subscription_id", "customer_id"],
+        attributes: [
+          "createdAt",
+          "updatedAt",
+          "email",
+          "type",
+          "subscription_id",
+          "customer_id",
+        ],
       },
       { model: Profile },
     ],
@@ -485,7 +586,7 @@ export const getVendorUserProfile = async (req: Request, res: Response) => {
     ...vendor?.dataValues,
     distance,
     time: estimateCarCityTimeRange(distance),
-    subscription
+    subscription,
   });
 };
 
@@ -583,7 +684,7 @@ export const getMainVendorProfile = async (req: Request, res: Response) => {
       status: result.status,
       dueDate: formatStripeTimestamp(result.current_period_end),
     };
-    logger.info('Subscription retrieved successfully:', subscription);
+    logger.info("Subscription retrieved successfully:", subscription);
   } catch (error) {
     logger.error(error);
     subscription = { status: "No Subscription", dueDate: "" };
@@ -646,11 +747,16 @@ export const getLanLog = async (req: Request, res: Response) => {
 };
 
 export const updateLanLog = async (req: Request, res: Response) => {
-  const { online } = req.body;
-  const { id } = req.user;
-  const lanlog = await LanLog.findOne({ where: { userId: id } });
-  await lanlog?.update({ online });
-  return successResponse(res, "Fetched Successfully");
+  try {
+    const { online } = req.body;
+    const { id } = req.user;
+    const lanlog = await LanLog.findOne({ where: { userId: id } });
+    await lanlog?.update({ online });
+    return successResponse(res, "Fetched Successfully");
+  } catch (error) {
+    logger.error(error);
+    return errorResponse(res, "Failed to update lanlog");
+  }
 };
 
 export const rateProfile = async (req: Request, res: Response) => {

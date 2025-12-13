@@ -120,20 +120,33 @@ const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 });
 exports.updateProfile = updateProfile;
 const createSubscription = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let { paymentMethodId } = req.body;
-    let { id } = req.user;
+    const { paymentMethodId } = req.body;
+    const { id } = req.user;
     try {
         const user = yield Users_1.Users.findOne({ where: { id } });
         const profile = yield Profile_1.Profile.findOne({ where: { userId: user === null || user === void 0 ? void 0 : user.id } });
-        const customer = yield stripe.customers.create({
-            email: user.email,
-            payment_method: paymentMethodId,
+        let customerId = user === null || user === void 0 ? void 0 : user.customer_id;
+        // ✅ If customer does NOT exist → create
+        if (!customerId) {
+            const customer = yield stripe.customers.create({
+                email: user.email,
+            });
+            customerId = customer.id;
+            yield (user === null || user === void 0 ? void 0 : user.update({ customer_id: customerId }));
+        }
+        // ✅ Attach payment method to existing customer
+        yield stripe.paymentMethods.attach(paymentMethodId, {
+            customer: customerId,
+        });
+        // ✅ Update default payment method
+        yield stripe.customers.update(customerId, {
             invoice_settings: {
                 default_payment_method: paymentMethodId,
             },
         });
+        // ✅ Create subscription
         const subscription = yield stripe.subscriptions.create({
-            customer: String(customer.id),
+            customer: customerId,
             items: [
                 {
                     price: configSetup_1.default.PRICE_ID,
@@ -153,23 +166,81 @@ const createSubscription = (req, res) => __awaiter(void 0, void 0, void 0, funct
             expand: ["latest_invoice.payment_intent"],
             trial_period_days: 1,
         });
-        yield (user === null || user === void 0 ? void 0 : user.update({
-            customer_id: customer.id,
-            subscription_id: subscription.id,
-        }));
+        yield (user === null || user === void 0 ? void 0 : user.update({ subscription_id: subscription.id }));
         yield (profile === null || profile === void 0 ? void 0 : profile.update({ subcription_id: subscription.id }));
-        if (subscription.latest_invoice.payment_intent) {
-            return (0, utility_1.successResponse)(res, "Subscribe Successfully");
-        }
-        else {
-            return (0, utility_1.successResponse)(res, "Subscribe Successfully");
-        }
+        return (0, utility_1.successResponse)(res, "Subscribed successfully");
     }
     catch (e) {
         return (0, utility_1.errorResponse)(res, e.message);
     }
 });
 exports.createSubscription = createSubscription;
+// export const createSubscription = async (req: Request, res: Response) => {
+//   const { paymentMethodId } = req.body;
+//   const { id } = req.user;
+//   try {
+//     const user = await Users.findOne({ where: { id } });
+//     if (!user) {
+//       logger.info("User not found with id:", id);
+//       return errorResponse(res, "User not found");
+//     }
+//     const profile = await Profile.findOne({ where: { userId: user?.id } });
+//     // 1. Ensure customer exists
+//     let customerId = user.customer_id;
+//     if (!customerId) {
+//       logger.info("Creating new Stripe customer for user:", user.id);
+//       const customer = await stripe.customers.create({
+//         email: user.email,
+//         name: user.fullname,
+//       });
+//       customerId = customer.id;
+//       await user.update({ customer_id: customerId });
+//     }
+//     // 2. Attach payment method to customer
+//     await stripe.paymentMethods.attach(paymentMethodId, {
+//       customer: customerId,
+//     });
+//     // 3. Set as default payment method
+//     await stripe.customers.update(customerId, {
+//       invoice_settings: {
+//         default_payment_method: paymentMethodId,
+//       },
+//     });
+//     // 4. Create Subscription (charges instantly)
+//     const subscription = await stripe.subscriptions.create({
+//       customer: customerId,
+//       items: [{ price: config.PRICE_ID }],
+//       default_payment_method: paymentMethodId,
+//       payment_behavior: "default_incomplete", // important
+//       expand: ["latest_invoice.payment_intent"],
+//     });
+//     const paymentIntent = subscription.latest_invoice
+//       ?.payment_intent as Stripe.PaymentIntent;
+//     if (!paymentIntent) {
+//       logger.info(
+//         "Payment initialization failed for subscription:",
+//         subscription.id
+//       );
+//       return errorResponse(res, "Payment initialization failed");
+//     }
+//     // 5. Confirm the payment instantly
+//     const confirmedIntent = await stripe.paymentIntents.confirm(
+//       paymentIntent.id
+//     );
+//     if (confirmedIntent.status === "succeeded") {
+//       logger.info("Payment succeeded for subscription:", subscription.id);
+//       await user.update({
+//         subscription_id: subscription.id,
+//       });
+//       await profile?.update({ subcription_id: subscription.id });
+//       return successResponse(res, "Subscription created and charged instantly");
+//     }
+//     return errorResponse(res, "Payment failed or requires further action");
+//   } catch (e: any) {
+//     logger.error(e);
+//     return errorResponse(res, e.message);
+//   }
+// };
 const cancelSubscription = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let { id } = req.user;
     const user = yield Users_1.Users.findOne({ where: { id } });
@@ -395,7 +466,14 @@ const getVendorUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, fun
                 where: {
                     type: Users_1.UserType.VENDOR,
                 },
-                attributes: ["createdAt", "updatedAt", "email", "type", "subscription_id", "customer_id"],
+                attributes: [
+                    "createdAt",
+                    "updatedAt",
+                    "email",
+                    "type",
+                    "subscription_id",
+                    "customer_id",
+                ],
             },
             { model: Profile_1.Profile },
         ],
@@ -494,7 +572,7 @@ const getMainVendorProfile = (req, res) => __awaiter(void 0, void 0, void 0, fun
             status: result.status,
             dueDate: (0, utility_1.formatStripeTimestamp)(result.current_period_end),
         };
-        logger_1.default.info('Subscription retrieved successfully:', subscription);
+        logger_1.default.info("Subscription retrieved successfully:", subscription);
     }
     catch (error) {
         logger_1.default.error(error);
@@ -557,11 +635,17 @@ const getLanLog = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.getLanLog = getLanLog;
 const updateLanLog = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { online } = req.body;
-    const { id } = req.user;
-    const lanlog = yield LanLog_1.LanLog.findOne({ where: { userId: id } });
-    yield (lanlog === null || lanlog === void 0 ? void 0 : lanlog.update({ online }));
-    return (0, utility_1.successResponse)(res, "Fetched Successfully");
+    try {
+        const { online } = req.body;
+        const { id } = req.user;
+        const lanlog = yield LanLog_1.LanLog.findOne({ where: { userId: id } });
+        yield (lanlog === null || lanlog === void 0 ? void 0 : lanlog.update({ online }));
+        return (0, utility_1.successResponse)(res, "Fetched Successfully");
+    }
+    catch (error) {
+        logger_1.default.error(error);
+        return (0, utility_1.errorResponse)(res, "Failed to update lanlog");
+    }
 });
 exports.updateLanLog = updateLanLog;
 const rateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
