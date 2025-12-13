@@ -639,6 +639,7 @@ const updateLanLog = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         const { online } = req.body;
         const { id } = req.user;
         const lanlog = yield LanLog_1.LanLog.findOne({ where: { userId: id } });
+        logger_1.default.info(`Updating lanlog for user ID: ${id} with online status: ${online} ${lanlog.id}`);
         yield (lanlog === null || lanlog === void 0 ? void 0 : lanlog.update({ online }));
         return (0, utility_1.successResponse)(res, "Fetched Successfully");
     }

@@ -750,7 +750,9 @@ export const updateLanLog = async (req: Request, res: Response) => {
   try {
     const { online } = req.body;
     const { id } = req.user;
+  
     const lanlog = await LanLog.findOne({ where: { userId: id } });
+    logger.info(`Updating lanlog for user ID: ${id} with online status: ${online} ${lanlog.id}`);
     await lanlog?.update({ online });
     return successResponse(res, "Fetched Successfully");
   } catch (error) {
