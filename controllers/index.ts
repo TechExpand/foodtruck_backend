@@ -42,6 +42,26 @@ const stripe = new Stripe(config.STRIPE_SK, {
   apiVersion: "2023-08-16",
 });
 
+/**
+ * For a profile with PROMO_ subscription_id, returns whether the trial period is still active
+ * and the expiration date. Returns null if not a promo subscription or redemption not found.
+ */
+export async function getPromoSubscriptionStatus(
+  profileId: number,
+  subscriptionId: string
+): Promise<{ active: boolean; expiresAt: Date | null } | null> {
+  if (!subscriptionId?.startsWith?.("PROMO_")) return null;
+  const promoCodeId = parseInt(subscriptionId.replace("PROMO_", ""), 10);
+  if (isNaN(promoCodeId)) return null;
+  const redemption = await PromoCodeRedemption.findOne({
+    where: { profile_id: profileId, promo_code_id: promoCodeId },
+  });
+  if (!redemption?.subscription_expires_at) return null;
+  const now = new Date();
+  const expiresAt = new Date(redemption.subscription_expires_at);
+  return { active: expiresAt > now, expiresAt };
+}
+
 export const apiIndex = async (req: Request, res: Response) =>
   successResponse(res, "API Working!");
 
@@ -268,11 +288,16 @@ export const redeemPromo = async (req: Request, res: Response) => {
       if (updated === 0) {
         throw new Error("Concurrent redemption");
       }
+      const trialDays = promoCode.trial_days ?? 30;
+      const subscriptionExpiresAt = new Date(now);
+      subscriptionExpiresAt.setDate(subscriptionExpiresAt.getDate() + trialDays);
+
       await PromoCodeRedemption.create(
         {
           promo_code_id: promoCode.id,
           profile_id: profile.id,
           redeemed_at: now,
+          subscription_expires_at: subscriptionExpiresAt,
         },
         { transaction: t }
       );
@@ -488,7 +513,15 @@ export const onlineLanlogUser = async (req: Request, res: Response) => {
 
   try {
     if (user?.subscription_id?.startsWith?.("PROMO_")) {
-      let distance_list: any[] = [];
+      const profile = await Profile.findOne({ where: { userId: user.id } });
+      const promoStatus =
+        profile &&
+        (await getPromoSubscriptionStatus(
+          profile.id,
+          user.subscription_id
+        ));
+      if (promoStatus?.active) {
+        let distance_list: any[] = [];
       const lanlog = await LanLog.findAll({
         where: { type: UserType.USER },
         include: [
@@ -522,6 +555,8 @@ export const onlineLanlogUser = async (req: Request, res: Response) => {
       return res
         .status(200)
         .send({ message: "Fetched Successfully", users: distance_list });
+      }
+      // Promo expired or no profile – fall through to require subscription
     }
     const subscription = await stripe.subscriptions.retrieve(
       user?.subscription_id
@@ -827,7 +862,30 @@ export const getMainVendorProfile = async (req: Request, res: Response) => {
   });
   let subscription: unknown;
   if (profile?.user?.subscription_id?.startsWith?.("PROMO_")) {
-    subscription = { status: "active", dueDate: "" };
+    const promoStatus = await getPromoSubscriptionStatus(
+      profile.id,
+      profile.user.subscription_id
+    );
+    if (promoStatus?.active && promoStatus.expiresAt) {
+      subscription = {
+        status: "active",
+        dueDate: formatStripeTimestamp(
+          Math.floor(promoStatus.expiresAt.getTime() / 1000)
+        ),
+      };
+    } else if (promoStatus) {
+      subscription = {
+        status: "expired",
+        dueDate:
+          promoStatus.expiresAt != null
+            ? formatStripeTimestamp(
+                Math.floor(promoStatus.expiresAt.getTime() / 1000)
+              )
+            : "",
+      };
+    } else {
+      subscription = { status: "No Subscription", dueDate: "" };
+    }
   } else {
   try {
     const result = await stripe.subscriptions.retrieve(
@@ -943,71 +1001,79 @@ export const fetchRate = async (req: Request, res: Response) => {
 
 export const vendorMenu = async (req: Request, res: Response) => {
   const { id } = req.query;
+  const user = await Users.findOne({ where: { id } });
+  const profile = await Profile.findOne({ where: { userId: id } });
   const menu = await Menu.findAll({
     where: { userId: id },
     include: [{ model: Extra }],
   });
-  return successResponse(res, "Fetched Successfully", menu);
-  // stripe.subscriptions.retrieve(user?.subscription_id).then(
-  //     function (subscription_status) {
-  //         if (subscription_status.status == 'active' || subscription_status.status == 'trialing') {
 
-  //             return res.status(200).send({
-  //                 message: "Fetched Successfully",
-  //                 menu
-  //             })
-  //         } else {
-  //             sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
-  //                 `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`
-  //             );
-  //             sendEmailResend(`${user?.email}`,
-  //                 "Foodtruck.express".toUpperCase(),
-  //                 templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`))
-  //             return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
-  //         }
-  //     },
-  //     function (err) {
-  //         if (err instanceof Stripe.errors.StripeError) {
-  //             // Break down err based on err.type
+  if (user?.subscription_id?.startsWith?.("PROMO_") && profile) {
+    const promoStatus = await getPromoSubscriptionStatus(
+      profile.id,
+      user.subscription_id
+    );
+    if (!promoStatus?.active) {
+      return res.status(200).send({
+        message: "VENDOR MENU IS UNAVAILABLE",
+        status: false,
+      });
+    }
+    return successResponse(res, "Fetched Successfully", menu);
+  }
 
-  //             sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
-  //                 `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`
-  //             );
-  //             sendEmailResend(`${user?.email}`,
-  //                 "Foodtruck.express".toUpperCase(),
-  //                 templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`))
+  if (!user?.subscription_id) {
+    return res.status(200).send({
+      message: "VENDOR MENU IS UNAVAILABLE",
+      status: false,
+    });
+  }
 
-  //             console.log(err.type)
-  //             return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
-  //         } else {
-
-  //             // ...
-  //             sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
-  //                 `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`
-  //             );
-  //             sendEmailResend(`${user?.email}`,
-  //                 "Foodtruck.express".toUpperCase(),
-  //                 templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`))
-  //             console.log(err)
-  //             return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
-  //         }
-  //     }
-  // );
+  try {
+    const subscription = await stripe.subscriptions.retrieve(
+      user.subscription_id
+    );
+    if (
+      subscription.status === "active" ||
+      subscription.status === "trialing"
+    ) {
+      return successResponse(res, "Fetched Successfully", menu);
+    }
+  } catch (_) {
+    // Stripe error or no subscription
+  }
+  return res.status(200).send({
+    message: "VENDOR MENU IS UNAVAILABLE",
+    status: false,
+  });
 };
 
 export const vendorEvent = async (req: Request, res: Response) => {
   const { id } = req.query;
   const user = await Users.findOne({ where: { id } });
+  const profile = await Profile.findOne({ where: { userId: id } });
   const event = await Events.findAll({
     where: { userId: id },
     include: [{ model: Users, include: [{ model: Profile }] }],
   });
-  if (user?.subscription_id?.startsWith?.("PROMO_")) {
+
+  if (user?.subscription_id?.startsWith?.("PROMO_") && profile) {
+    const promoStatus = await getPromoSubscriptionStatus(
+      profile.id,
+      user.subscription_id
+    );
+    if (!promoStatus?.active) {
+      return res.status(200).send({
+        message: "VENDOR EVENT IS UNAVAILABLE",
+        status: false,
+      });
+    }
     return res.status(200).send({
       message: "Fetched Successfully",
       event,
     });
   }
+
   const subscription_status = await stripe.subscriptions
     .retrieve(user?.subscription_id)
     .then(

@@ -36,6 +36,7 @@ import { ProfileViews } from "../models/ProfileViews";
 import { Notification, NotificationType } from "../models/Notification";
 import { AllTag } from "../models/Alltags";
 import logger from "../services/logger";
+import { getPromoSubscriptionStatus } from "./index";
 
 const cloudinary = require("cloudinary").v2;
 const stripe = new Stripe(config.STRIPE_SK, {
@@ -544,6 +545,53 @@ export const search = async (req: Request, res: Response) => {
 };
 
 export const getDashboardStats = async (req: Request, res: Response) => {
+  const profileId = req.query.profileId;
+  if (!profileId) {
+    return errorResponse(res, "profileId is required");
+  }
+
+  const profile = await Profile.findOne({
+    where: { id: profileId },
+    include: [{ model: Users }],
+  });
+  if (!profile?.user) {
+    return errorResponse(res, "Profile not found");
+  }
+
+  const subId = profile.user.subscription_id;
+  if (subId?.startsWith?.("PROMO_")) {
+    const promoStatus = await getPromoSubscriptionStatus(
+      profile.id,
+      subId
+    );
+    if (!promoStatus?.active) {
+      return res.status(403).send({
+        message: "Analytics are only available during your active subscription period.",
+        status: false,
+      });
+    }
+  } else if (subId) {
+    try {
+      const sub = await stripe.subscriptions.retrieve(subId);
+      if (sub.status !== "active" && sub.status !== "trialing") {
+        return res.status(403).send({
+          message: "Analytics are only available with an active subscription.",
+          status: false,
+        });
+      }
+    } catch (_) {
+      return res.status(403).send({
+        message: "Analytics are only available with an active subscription.",
+        status: false,
+      });
+    }
+  } else {
+    return res.status(403).send({
+      message: "Analytics are only available with an active subscription.",
+      status: false,
+    });
+  }
+
   const today = new Date();
   const startToday = startOfDay(today);
   const endToday = endOfDay(today);

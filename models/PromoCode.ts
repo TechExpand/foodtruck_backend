@@ -23,6 +23,12 @@ export class PromoCode extends Model {
 	@Column(DataType.DATE)
 	expires_at!: Date | null;
 
+	/** Number of days the granted subscription is valid (trial period). Default 30. */
+	@AllowNull(false)
+	@Default(30)
+	@Column(DataType.INTEGER)
+	trial_days!: number;
+
 	@HasMany(() => PromoCodeRedemption, { onDelete: 'CASCADE' })
 	redemptions!: PromoCodeRedemption[];
 }
@@ -43,6 +49,11 @@ export class PromoCodeRedemption extends Model {
 	@AllowNull(false)
 	@Column(DataType.DATE)
 	redeemed_at!: Date;
+
+	/** When the promo-granted subscription period ends (redeemed_at + promo trial_days). */
+	@AllowNull(true)
+	@Column(DataType.DATE)
+	subscription_expires_at!: Date | null;
 
 	@BelongsTo(() => PromoCode, { onDelete: 'CASCADE' })
 	promoCode!: PromoCode;
