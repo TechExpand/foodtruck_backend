@@ -1,6 +1,6 @@
 // Import packages
 import { Router } from 'express';
-import { apiIndex, cancelSubscription, createEvent, createMenu, createSubscription, deleteMenu, deleteUser, fetchRate, getAllTags, getFirstFiveEvents, getFirstFivePorpular, getHomeDetails, getLanLog, getMenu, getProfile, getSubscription, getTags, getUser, getVendorEvent, getVendorProfile, getVendorProfileV2, onlineLanlogUser, onlineLanlogVendors, rateProfile, sendTestEmailCon, updateEvent, updateLanLog, updateMenu, updateProfile, updateToken, vendorEvent, vendorMenu } from '../controllers';
+import { apiIndex, cancelSubscription, createEvent, createMenu, createSubscription, deleteMenu, deleteUser, fetchRate, getAllTags, getFirstFiveEvents, getFirstFivePorpular, getHomeDetails, getLanLog, getMenu, getProfile, getSubscription, getTags, getUser, getVendorEvent, getVendorProfile, getVendorProfileV2, onlineLanlogUser, onlineLanlogVendors, rateProfile, redeemPromo, sendTestEmailCon, updateEvent, updateLanLog, updateMenu, updateProfile, updateToken, vendorEvent, vendorMenu } from '../controllers';
 import { uploads } from '../helpers/upload';
 import { deleteFavourite, getFavourite, getOrder, getOrderV2, getp, notifyOrder, notifyOrderV2, postFavourite, postOrder, postOrderV2, search } from '../controllers/favourite';
 
@@ -14,6 +14,7 @@ API CALL START
 // INDEX ROUTE TO SHOW API IS WORKING FINE.
 routes.get('/', apiIndex);
 routes.get('/createsubscription', createSubscription);
+routes.post('/redeem-promo', redeemPromo);
 routes.get('/currentvendorslanlog', onlineLanlogVendors);
 routes.get('/currentuserlanlog', onlineLanlogUser);
 routes.get('/user', getUser);
