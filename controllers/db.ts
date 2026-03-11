@@ -24,6 +24,7 @@ import { OrderV2 } from '../models/OrderV2';
 import { ProfileViews } from '../models/ProfileViews';
 import { Notification } from '../models/Notification';
 import { FeaturedEventTrucks } from '../models/FeaturedEventTrucks';
+import { PromoCode, PromoCodeRedemption } from '../models/PromoCode';
 
 
 
@@ -55,7 +56,9 @@ const sequelize = new Sequelize(config.DBNAME, config.DBUSERNAME, config.DBPASSW
 		Events,
 		Profile,
 		Tag,
-		ProfileViews
+		ProfileViews,
+		PromoCode,
+		PromoCodeRedemption
 	],
 });
 

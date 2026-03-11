@@ -34,6 +34,7 @@ import { OrderV2 } from "../models/OrderV2";
 import { successResponse } from "../helpers/utility";
 import { ProfileViews } from "../models/ProfileViews";
 import { FeaturedEventTrucks } from "../models/FeaturedEventTrucks";
+import { PromoCode, PromoCodeRedemption } from "../models/PromoCode";
 import logger from "../services/logger";
 
 const cloudinary = require("cloudinary").v2;
@@ -199,6 +200,112 @@ export const createSubscription = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Redeem a promo code for the current vendor. Validates code, enforces one redemption per vendor per code,
+ * and in a transaction: increments used_count, creates redemption row, sets profile.subcription_id to PROMO sentinel.
+ */
+export const redeemPromo = async (req: Request, res: Response) => {
+  const { id } = req.user;
+  const rawCode = req.body?.code;
+  if (!rawCode || typeof rawCode !== "string") {
+    return res.status(400).send({ status: false, message: "Code is required" });
+  }
+  const code = String(rawCode).trim().toUpperCase();
+  if (!code) {
+    return res.status(400).send({ status: false, message: "Code is required" });
+  }
+
+  try {
+    const user = await Users.findOne({ where: { id } });
+    const profile = await Profile.findOne({ where: { userId: user?.id } });
+    if (!user || !profile) {
+      return res.status(400).send({
+        status: false,
+        message: "Vendor profile not found",
+      });
+    }
+
+    const promoCode = await PromoCode.findOne({ where: { code } });
+    if (!promoCode) {
+      return res
+        .status(200)
+        .send({ status: false, message: "Invalid or expired code" });
+    }
+    const now = new Date();
+    if (promoCode.expires_at && new Date(promoCode.expires_at) < now) {
+      return res
+        .status(200)
+        .send({ status: false, message: "Code has expired" });
+    }
+    if (promoCode.used_count >= promoCode.max_uses) {
+      return res.status(200).send({
+        status: false,
+        message: "Maximum uses reached for this code",
+      });
+    }
+
+    const existing = await PromoCodeRedemption.findOne({
+      where: { promo_code_id: promoCode.id, profile_id: profile.id },
+    });
+    if (existing) {
+      return res.status(200).send({
+        status: false,
+        message: "You have already used this code",
+      });
+    }
+
+    await sequelize.transaction(async (t) => {
+      const [updated] = await PromoCode.update(
+        { used_count: promoCode.used_count + 1 },
+        {
+          where: {
+            id: promoCode.id,
+            used_count: promoCode.used_count,
+          },
+          transaction: t,
+        }
+      );
+      if (updated === 0) {
+        throw new Error("Concurrent redemption");
+      }
+      await PromoCodeRedemption.create(
+        {
+          promo_code_id: promoCode.id,
+          profile_id: profile.id,
+          redeemed_at: now,
+        },
+        { transaction: t }
+      );
+      const subcriptionId = "PROMO_" + promoCode.id;
+      await profile.update(
+        { subcription_id: subcriptionId },
+        { transaction: t }
+      );
+      await user.update(
+        { subscription_id: subcriptionId },
+        { transaction: t }
+      );
+    });
+
+    return res.status(200).send({
+      status: true,
+      message:
+        "Promo code applied. Your subscription is now active.",
+    });
+  } catch (e: any) {
+    if (e?.message === "Concurrent redemption") {
+      return res.status(200).send({
+        status: false,
+        message: "This code is no longer available",
+      });
+    }
+    console.error("redeemPromo error:", e?.message || e);
+    return res
+      .status(500)
+      .send({ status: false, message: "Failed to redeem code" });
+  }
+};
+
 // export const createSubscription = async (req: Request, res: Response) => {
 //   const { paymentMethodId } = req.body;
 //   const { id } = req.user;
@@ -283,6 +390,14 @@ export const createSubscription = async (req: Request, res: Response) => {
 export const cancelSubscription = async (req: Request, res: Response) => {
   let { id } = req.user;
   const user = await Users.findOne({ where: { id } });
+  if (user?.subscription_id?.startsWith?.("PROMO_")) {
+    return res
+      .status(200)
+      .send({
+        message: "Promo subscription is active; no cancellation needed.",
+        status: "active",
+      });
+  }
   const subscription = await stripe.subscriptions.cancel(user!.subscription_id);
   const status = await stripe.subscriptions.retrieve(user!.subscription_id);
   return successResponse(res, "Canceled Successfully");
@@ -372,6 +487,42 @@ export const onlineLanlogUser = async (req: Request, res: Response) => {
   const user = await Users.findOne({ where: { id } });
 
   try {
+    if (user?.subscription_id?.startsWith?.("PROMO_")) {
+      let distance_list: any[] = [];
+      const lanlog = await LanLog.findAll({
+        where: { type: UserType.USER },
+        include: [
+          {
+            model: Users,
+            where: { type: UserType.USER },
+            attributes: ["createdAt", "updatedAt", "email", "type"],
+          },
+        ],
+      });
+      for (let u of lanlog) {
+        const distance = getDistanceFromLatLonInKm(
+          Number(u.Lan),
+          Number(u.Log),
+          Number(lan),
+          Number(log)
+        );
+        if (distance <= Number(15)) {
+          if (u.dataValues.user.dataValues.type == UserType.USER) {
+            distance_list.push({
+              ...u.dataValues,
+              user: u.dataValues.user.dataValues,
+              distance,
+            });
+            distance_list.sort(
+              (a, b) => parseFloat(a.distance) - parseFloat(b.distance)
+            );
+          }
+        }
+      }
+      return res
+        .status(200)
+        .send({ message: "Fetched Successfully", users: distance_list });
+    }
     const subscription = await stripe.subscriptions.retrieve(
       user?.subscription_id
     );
@@ -380,7 +531,6 @@ export const onlineLanlogUser = async (req: Request, res: Response) => {
       const lanlog = await LanLog.findAll({
         where: {
           type: UserType.USER,
-          // online: true
         },
         include: [
           {
@@ -676,6 +826,9 @@ export const getMainVendorProfile = async (req: Request, res: Response) => {
     ],
   });
   let subscription: unknown;
+  if (profile?.user?.subscription_id?.startsWith?.("PROMO_")) {
+    subscription = { status: "active", dueDate: "" };
+  } else {
   try {
     const result = await stripe.subscriptions.retrieve(
       profile?.user.subscription_id
@@ -688,6 +841,7 @@ export const getMainVendorProfile = async (req: Request, res: Response) => {
   } catch (error) {
     logger.error(error);
     subscription = { status: "No Subscription", dueDate: "" };
+  }
   }
   return successResponse(res, "Profile Fetched", { profile, subscription });
 };
@@ -848,7 +1002,12 @@ export const vendorEvent = async (req: Request, res: Response) => {
     where: { userId: id },
     include: [{ model: Users, include: [{ model: Profile }] }],
   });
-  console.log(user?.subscription_id);
+  if (user?.subscription_id?.startsWith?.("PROMO_")) {
+    return res.status(200).send({
+      message: "Fetched Successfully",
+      event,
+    });
+  }
   const subscription_status = await stripe.subscriptions
     .retrieve(user?.subscription_id)
     .then(

@@ -27,6 +27,7 @@ import {
   onlineLanlogVendors,
   rateProfile,
   reactivateSubscription,
+  redeemPromo,
   sendTestEmailCon,
   updateEvent,
   updateLanLog,
@@ -66,6 +67,7 @@ API CALL START
 // INDEX ROUTE TO SHOW API IS WORKING FINE.
 routes.get("/", apiIndex);
 routes.post("/createsubscription", createSubscription);
+routes.post("/redeem-promo", redeemPromo);
 routes.get("/currentvendorslanlog", onlineLanlogVendors);
 routes.get("/currentuserlanlog", onlineLanlogUser);
 routes.get("/user", getUser);
