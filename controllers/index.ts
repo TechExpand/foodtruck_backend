@@ -748,7 +748,12 @@ export const getVendorUserProfile = async (req: Request, res: Response) => {
       { model: Profile },
     ],
   });
-  await ProfileViews.create({ profileId: vendor?.profile.id, userId: id });
+  if (!vendor) {
+    return errorResponse(res, "Vendor not found");
+  }
+  if (vendor?.profile?.id != null) {
+    await ProfileViews.create({ profileId: vendor.profile.id, userId: id });
+  }
   const distance = getDistanceFromLatLonInKm(
     Number(vendor.Lan),
     Number(vendor.Log),
@@ -756,16 +761,40 @@ export const getVendorUserProfile = async (req: Request, res: Response) => {
     Number(log)
   );
   let subscription: unknown;
-  try {
-    const result = await stripe.subscriptions.retrieve(
-      vendor?.user?.subscription_id
+  if (vendor?.user?.subscription_id?.startsWith?.("PROMO_") && vendor?.profile?.id) {
+    const promoStatus = await getPromoSubscriptionStatus(
+      vendor.profile.id,
+      vendor.user.subscription_id
     );
-    subscription = {
-      status: result.status,
-      dueDate: formatStripeTimestamp(result.current_period_end),
-    };
-  } catch (error) {
-    subscription = { status: "No Subscription", dueDate: "" };
+    if (promoStatus?.active && promoStatus.expiresAt) {
+      subscription = {
+        status: "active",
+        dueDate: formatStripeTimestamp(
+          Math.floor(promoStatus.expiresAt.getTime() / 1000)
+        ),
+      };
+    } else if (promoStatus?.expiresAt) {
+      subscription = {
+        status: "expired",
+        dueDate: formatStripeTimestamp(
+          Math.floor(promoStatus.expiresAt.getTime() / 1000)
+        ),
+      };
+    } else {
+      subscription = { status: "No Subscription", dueDate: "" };
+    }
+  } else {
+    try {
+      const result = await stripe.subscriptions.retrieve(
+        vendor?.user?.subscription_id
+      );
+      subscription = {
+        status: result.status,
+        dueDate: formatStripeTimestamp(result.current_period_end),
+      };
+    } catch (error) {
+      subscription = { status: "No Subscription", dueDate: "" };
+    }
   }
   return successResponse(res, "Profile Fetched", {
     ...vendor?.dataValues,
