@@ -40,6 +40,14 @@ import {
 } from "../controllers";
 import { uploads } from "../helpers/upload";
 import {
+  createBeacon,
+  joinBeacon,
+  getNearbyBeacons,
+  claimBeacon,
+  getActiveBeaconsForVendor,
+  getBeaconById,
+} from '../controllers/beacon';
+import {
   confirmOrderV2,
   cancelOrderV2,
   deleteFavourite,
@@ -121,5 +129,13 @@ routes.get("/notifications", getNotifications);
 routes.get("/dashboard-stats", getDashboardStats)
 
 routes.post("/sendTest", sendTestEmailCon);
+
+// Hunger Beacon routes
+routes.post("/beacon", createBeacon);
+routes.post("/beacon/join", joinBeacon);
+routes.get("/beacon", getNearbyBeacons);
+routes.post("/beacon/claim", claimBeacon);
+routes.get("/beacon/vendor", getActiveBeaconsForVendor);
+routes.get("/beacon/:id", getBeaconById);  // wildcard last
 
 export default routes;

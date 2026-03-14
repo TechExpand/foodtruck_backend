@@ -5,6 +5,7 @@ import { AllTag } from '../models/Alltags';
 import { Events } from '../models/Event';
 import { FeaturedEventTrucks } from '../models/FeaturedEventTrucks';
 import { SpecialTag } from '../models/SpecialTag';
+import { PromoCode, PromoCodeRedemption } from '../models/PromoCode';
 import { handleResponse } from '../helpers/utility';
 
 export class AdminController {
@@ -471,6 +472,54 @@ export class AdminController {
             return handleResponse(res, 200, true, 'Special tags retrieved', specialTags);
         } catch (error) {
             return handleResponse(res, 500, false, 'Error fetching special tags');
+        }
+    }
+
+    // Get all promo codes with redemption counts
+    static async getPromoCodes(req: Request, res: Response) {
+        try {
+            const codes = await PromoCode.findAll({
+                include: [{ model: PromoCodeRedemption }],
+                order: [['createdAt', 'DESC']],
+            });
+            return res.json({ success: true, data: { promoCodes: codes } });
+        } catch (error) {
+            console.error('Error fetching promo codes:', error);
+            return res.json({ success: false, message: 'Error fetching promo codes' });
+        }
+    }
+
+    // Create a new promo code
+    static async createPromoCode(req: Request, res: Response) {
+        try {
+            const { code, trial_days, max_uses, expires_at } = req.body;
+            if (!code || !trial_days) {
+                return res.json({ success: false, message: 'code and trial_days are required' });
+            }
+            const promo = await PromoCode.create({
+                code: String(code).toUpperCase().trim(),
+                trial_days: Number(trial_days),
+                max_uses: max_uses ? Number(max_uses) : 1,
+                expires_at: expires_at || null,
+            });
+            return res.json({ success: true, data: promo });
+        } catch (error: any) {
+            console.error('Error creating promo code:', error);
+            const msg = error?.name === 'SequelizeUniqueConstraintError'
+                ? 'A promo code with that value already exists'
+                : 'Error creating promo code';
+            return res.json({ success: false, message: msg });
+        }
+    }
+
+    // Delete a promo code by id
+    static async deletePromoCode(req: Request, res: Response) {
+        try {
+            await PromoCode.destroy({ where: { id: req.params.id } });
+            return res.json({ success: true });
+        } catch (error) {
+            console.error('Error deleting promo code:', error);
+            return res.json({ success: false, message: 'Error deleting promo code' });
         }
     }
 

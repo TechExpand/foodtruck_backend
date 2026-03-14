@@ -31,4 +31,9 @@ router.delete('/events/:eventId/vendors/:profileId', AdminController.removeVendo
 // Special Tags Routes
 router.get('/special-tags', AdminController.getAllSpecialTags);
 
+// Promo Code Management Routes
+router.get('/promo-codes', AdminController.getPromoCodes);
+router.post('/promo-codes', AdminController.createPromoCode);
+router.delete('/promo-codes/:id', AdminController.deletePromoCode);
+
 export default router; 
