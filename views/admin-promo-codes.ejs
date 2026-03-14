@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FTE Admin | Promo Codes</title>
+  <link rel="icon" href="images/truckmarkerBlue.png" type="image/png">
+
+  <!--plugins-->
+  <link href="plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="plugins/metismenu/metisMenu.min.css">
+  <link rel="stylesheet" type="text/css" href="plugins/metismenu/mm-vertical.css">
+  <link rel="stylesheet" type="text/css" href="plugins/simplebar/css/simplebar.css">
+  <!--bootstrap css-->
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined" rel="stylesheet">
+  <!--main css-->
+  <link href="/css/bootstrap-extended.css" rel="stylesheet">
+  <link href="/sass/main.css" rel="stylesheet">
+  <link href="/sass/dark-theme.css" rel="stylesheet">
+  <link href="/sass/semi-dark.css" rel="stylesheet">
+  <link href="/sass/bordered-theme.css" rel="stylesheet">
+  <link href="/sass/responsive.css" rel="stylesheet">
+  <!-- DataTables CSS -->
+  <link href="plugins/datatable/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+  <!--start header-->
+  <header class="top-header">
+    <nav class="navbar navbar-expand align-items-center gap-4">
+      <div class="btn-toggle">
+        <a href="javascript:;"><i class="material-icons-outlined">menu</i></a>
+      </div>
+      <div class="search-bar flex-grow-1">
+        <div class="position-relative">
+          <input class="form-control rounded-5 px-5 search-control d-lg-block d-none" type="text" placeholder="Search promo codes..." id="promoSearch">
+          <span class="material-icons-outlined position-absolute d-lg-block d-none ms-3 translate-middle-y start-0 top-50">search</span>
+        </div>
+      </div>
+      <ul class="navbar-nav gap-1 nav-right-links align-items-center">
+        <li class="nav-item">
+          <a class="nav-link" href="/admin-vendors"><i class="material-icons-outlined">people</i> Vendors</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/admin-tags"><i class="material-icons-outlined">local_offer</i> Tags</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/admin-events"><i class="material-icons-outlined">event</i> Events</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+  <!--end header-->
+
+  <!--start sidebar-->
+  <aside class="sidebar-wrapper" data-simplebar="true">
+    <div class="sidebar-header">
+      <div>
+        <img src="/images/top-logo.png" class="logo-icon" alt="logo icon" width="120">
+      </div>
+      <div>
+        <h4 class="logo-text">FTE Admin</h4>
+      </div>
+      <div class="toggle-icon ms-auto">
+        <i class="material-icons-outlined">menu</i>
+      </div>
+    </div>
+    <ul class="metismenu" id="menu">
+      <li>
+        <a href="/admin-vendors" class="has-arrow">
+          <div class="parent-icon"><i class="material-icons-outlined">people</i></div>
+          <div class="menu-title">Vendor Management</div>
+        </a>
+      </li>
+      <li>
+        <a href="/admin-tags" class="has-arrow">
+          <div class="parent-icon"><i class="material-icons-outlined">local_offer</i></div>
+          <div class="menu-title">Tag Management</div>
+        </a>
+      </li>
+      <li>
+        <a href="/admin-events" class="has-arrow">
+          <div class="parent-icon"><i class="material-icons-outlined">event</i></div>
+          <div class="menu-title">Event Management</div>
+        </a>
+      </li>
+      <li class="active">
+        <a href="/admin-promo-codes" class="has-arrow">
+          <div class="parent-icon"><i class="material-icons-outlined">confirmation_number</i></div>
+          <div class="menu-title">Promo Codes</div>
+        </a>
+      </li>
+    </ul>
+  </aside>
+  <!--end sidebar-->
+
+  <!--start page wrapper -->
+  <div class="page-wrapper">
+    <div class="page-content">
+      <!--breadcrumb-->
+      <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">Promo Code Management</div>
+        <div class="ps-3">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 p-0">
+              <li class="breadcrumb-item"><a href="javascript:;"><i class="material-icons-outlined">home</i></a></li>
+              <li class="breadcrumb-item active" aria-current="page">Promo Codes</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+      <!--end breadcrumb-->
+
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div>
+              <h5 class="mb-0">Promo Codes</h5>
+              <p class="mb-0 text-secondary">Create and manage vendor promo / trial codes</p>
+            </div>
+            <div class="ms-auto">
+              <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#addPromoModal">
+                <i class="material-icons-outlined">add</i> Add Promo Code
+              </button>
+              <button class="btn btn-primary" onclick="loadPromoCodes()">
+                <i class="material-icons-outlined">refresh</i> Refresh
+              </button>
+            </div>
+          </div>
+          <hr>
+          <div class="table-responsive">
+            <table id="promoTable" class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Code</th>
+                  <th>Trial Days</th>
+                  <th>Max Uses</th>
+                  <th>Used / Max</th>
+                  <th>Expires</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="promoTableBody">
+                <!-- Promo codes loaded here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--end page wrapper -->
+
+  <!-- Add Promo Code Modal -->
+  <div class="modal fade" id="addPromoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add Promo Code</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="promoCode" class="form-label">Code <span class="text-danger">*</span></label>
+            <input type="text" class="form-control text-uppercase" id="promoCode" placeholder="e.g. LAUNCH50" oninput="this.value=this.value.toUpperCase()">
+          </div>
+          <div class="mb-3">
+            <label for="trialDays" class="form-label">Trial Days <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" id="trialDays" value="30" min="1" max="365">
+          </div>
+          <div class="mb-3">
+            <label for="maxUses" class="form-label">Max Uses</label>
+            <input type="number" class="form-control" id="maxUses" value="1" min="1">
+          </div>
+          <div class="mb-3">
+            <label for="expiresAt" class="form-label">Expires At (optional)</label>
+            <input type="datetime-local" class="form-control" id="expiresAt">
+          </div>
+          <div id="promoFormError" class="alert alert-danger d-none"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-success" onclick="createPromoCode()">Create Code</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="/js/bootstrap.bundle.min.js"></script>
+  <!--plugins-->
+  <script src="plugins/perfect-scrollbar/js/perfect-scrollbar.js"></script>
+  <script src="plugins/metismenu/metisMenu.min.js"></script>
+  <script src="plugins/simplebar/js/simplebar.min.js"></script>
+  <!-- DataTables JS -->
+  <script src="plugins/datatable/js/jquery.dataTables.min.js"></script>
+  <script src="plugins/datatable/js/dataTables.bootstrap5.min.js"></script>
+
+  <script>
+    let promoTable;
+
+    $(document).ready(function () {
+      promoTable = $('#promoTable').DataTable({
+        pageLength: 25,
+        order: [[0, 'desc']],
+        columnDefs: [{ targets: -1, orderable: false }]
+      });
+      loadPromoCodes();
+    });
+
+    async function loadPromoCodes() {
+      try {
+        const res = await fetch('/admin/promo-codes');
+        const data = await res.json();
+        if (data.success) {
+          displayPromoCodes(data.data.promoCodes);
+        } else {
+          alert('Error loading promo codes: ' + data.message);
+        }
+      } catch (err) {
+        console.error('Error loading promo codes:', err);
+        alert('Failed to load promo codes');
+      }
+    }
+
+    function displayPromoCodes(codes) {
+      if (promoTable) promoTable.destroy();
+
+      const tbody = document.getElementById('promoTableBody');
+      tbody.innerHTML = '';
+
+      codes.forEach(c => {
+        const usedCount = c.redemptions ? c.redemptions.length : c.used_count;
+        const expires = c.expires_at ? new Date(c.expires_at).toLocaleDateString() : '—';
+        const created = new Date(c.createdAt).toLocaleDateString();
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${c.id}</td>
+          <td><span class="badge bg-secondary font-monospace fs-6">${c.code}</span></td>
+          <td>${c.trial_days}</td>
+          <td>${c.max_uses}</td>
+          <td>
+            <span class="${usedCount >= c.max_uses ? 'text-danger fw-bold' : ''}">${usedCount} / ${c.max_uses}</span>
+          </td>
+          <td>${expires}</td>
+          <td>${created}</td>
+          <td>
+            <button class="btn btn-sm btn-danger" onclick="deletePromoCode(${c.id}, '${c.code}')">
+              <i class="material-icons-outlined" style="font-size:16px">delete</i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      promoTable = $('#promoTable').DataTable({
+        pageLength: 25,
+        order: [[0, 'desc']],
+        columnDefs: [{ targets: -1, orderable: false }]
+      });
+    }
+
+    async function createPromoCode() {
+      const code      = document.getElementById('promoCode').value.trim().toUpperCase();
+      const trialDays = parseInt(document.getElementById('trialDays').value, 10);
+      const maxUses   = parseInt(document.getElementById('maxUses').value, 10) || 1;
+      const expiresAt = document.getElementById('expiresAt').value || null;
+      const errDiv    = document.getElementById('promoFormError');
+
+      errDiv.classList.add('d-none');
+
+      if (!code) { errDiv.textContent = 'Code is required.'; errDiv.classList.remove('d-none'); return; }
+      if (!trialDays || trialDays < 1) { errDiv.textContent = 'Trial days must be at least 1.'; errDiv.classList.remove('d-none'); return; }
+
+      try {
+        const res = await fetch('/admin/promo-codes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, trial_days: trialDays, max_uses: maxUses, expires_at: expiresAt }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          bootstrap.Modal.getInstance(document.getElementById('addPromoModal')).hide();
+          document.getElementById('promoCode').value = '';
+          document.getElementById('trialDays').value = '30';
+          document.getElementById('maxUses').value = '1';
+          document.getElementById('expiresAt').value = '';
+          loadPromoCodes();
+        } else {
+          errDiv.textContent = data.message || 'Failed to create promo code.';
+          errDiv.classList.remove('d-none');
+        }
+      } catch (err) {
+        errDiv.textContent = 'Network error. Please try again.';
+        errDiv.classList.remove('d-none');
+      }
+    }
+
+    async function deletePromoCode(id, code) {
+      if (!confirm(`Delete promo code "${code}"? This cannot be undone.`)) return;
+      try {
+        const res = await fetch(`/admin/promo-codes/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          loadPromoCodes();
+        } else {
+          alert('Failed to delete: ' + (data.message || 'Unknown error'));
+        }
+      } catch (err) {
+        alert('Network error deleting promo code.');
+      }
+    }
+  </script>
+
+</body>
+</html>

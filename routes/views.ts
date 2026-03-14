@@ -8,6 +8,7 @@ const router = Router();
 router.get('/admin-vendors', ViewsController.adminVendors);
 router.get('/admin-tags', ViewsController.adminTags);
 router.get('/admin-events', ViewsController.adminEvents);
+router.get('/admin-promo-codes', ViewsController.adminPromoCodes);
 
 // Dashboard (password protected)
 router.get('/', requirePassword, ViewsController.dashboard);

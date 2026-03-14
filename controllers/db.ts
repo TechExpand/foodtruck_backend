@@ -25,6 +25,8 @@ import { ProfileViews } from '../models/ProfileViews';
 import { Notification } from '../models/Notification';
 import { FeaturedEventTrucks } from '../models/FeaturedEventTrucks';
 import { PromoCode, PromoCodeRedemption } from '../models/PromoCode';
+import { Beacon } from '../models/Beacon';
+import { BeaconParticipant } from '../models/BeaconParticipant';
 
 
 
@@ -58,7 +60,9 @@ const sequelize = new Sequelize(config.DBNAME, config.DBUSERNAME, config.DBPASSW
 		Tag,
 		ProfileViews,
 		PromoCode,
-		PromoCodeRedemption
+		PromoCodeRedemption,
+		Beacon,
+		BeaconParticipant,
 	],
 });
 

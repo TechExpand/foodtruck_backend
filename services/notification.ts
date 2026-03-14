@@ -11,9 +11,9 @@ admin.initializeApp({
 
 
 
-export const sendToken = async (id:number, title: string, body: string) => {
+export const sendToken = async (id:number, title: string, body: string, type?: string) => {
    const user = await Users.findOne({ where: {id}});
-   
+
         const message = {
           notification: {
             title,
@@ -21,7 +21,8 @@ export const sendToken = async (id:number, title: string, body: string) => {
           },
           data: {
             score: '850',
-            time: '2:45'
+            time: '2:45',
+            ...(type ? { type } : {}),
           },
           token: user?.fcmToken,
         };
