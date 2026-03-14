@@ -488,7 +488,7 @@ export const onlineLanlogVendors = async (req: Request, res: Response) => {
     );
     // 15
 
-    if (distance <= Number(1500000000)) {
+    if (distance <= Number(15)) {
       if (vendor.dataValues.user.dataValues.type == UserType.VENDOR) {
         distance_list.push({
           ...vendor.dataValues,
