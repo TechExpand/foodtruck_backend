@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createEvent = exports.sendTestEmailCon = exports.deleteEvent = exports.getEvent = exports.updateEvent = exports.updateMenu = exports.createMenu = exports.deleteMenu = exports.getHomeDetails = exports.getAllCategories = exports.getMenu = exports.vendorEvent = exports.vendorMenu = exports.fetchRate = exports.rateProfile = exports.updateLanLog = exports.getLanLog = exports.getVendorProfile = exports.getVendorOrder = exports.getMainVendorProfile = exports.getVendorProfileV2 = exports.getVendorByTag = exports.getVendorUserProfile = exports.getUser = exports.getCategories = exports.getReviews = exports.getFirstFivePorpular = exports.filterVendorBytag = exports.getVendorEvent = exports.getHomeEvents = exports.getProfile = exports.onlineLanlogUser = exports.onlineLanlogVendors = exports.addNewCard = exports.reactivateSubscription = exports.cancelSubscription = exports.createSubscription = exports.updateProfile = exports.updateToken = exports.createProfile = exports.updateLocation = exports.apiIndex = void 0;
+exports.createEvent = exports.sendTestEmailCon = exports.deleteEvent = exports.getEvent = exports.updateEvent = exports.updateMenu = exports.createMenu = exports.deleteMenu = exports.getHomeDetails = exports.getAllCategories = exports.getMenu = exports.vendorEvent = exports.vendorMenu = exports.fetchRate = exports.rateProfile = exports.updateLanLog = exports.getLanLog = exports.getVendorProfile = exports.getVendorOrder = exports.getMainVendorProfile = exports.getVendorProfileV2 = exports.getVendorByTag = exports.getVendorUserProfile = exports.getUser = exports.getCategories = exports.getReviews = exports.getFirstFivePorpular = exports.filterVendorBytag = exports.getVendorEvent = exports.getHomeEvents = exports.getProfile = exports.onlineLanlogUser = exports.onlineLanlogVendors = exports.addNewCard = exports.reactivateSubscription = exports.cancelSubscription = exports.redeemPromo = exports.createSubscription = exports.updateProfile = exports.updateToken = exports.createProfile = exports.updateLocation = exports.apiIndex = exports.getPromoSubscriptionStatus = void 0;
 const utility_1 = require("../helpers/utility");
 const LanLog_1 = require("../models/LanLog");
 const Profile_1 = require("../models/Profile");
@@ -28,6 +28,7 @@ const Tag_1 = require("../models/Tag");
 const SpecialTag_1 = require("../models/SpecialTag");
 const Alltags_1 = require("../models/Alltags");
 const sequelize_1 = require("sequelize");
+const db_1 = require("./db");
 const Order_1 = require("../models/Order");
 const Extras_1 = require("../models/Extras");
 const sms_1 = require("../services/sms");
@@ -36,11 +37,35 @@ const Rate_1 = require("../models/Rate");
 const OrderV2_1 = require("../models/OrderV2");
 const ProfileViews_1 = require("../models/ProfileViews");
 const FeaturedEventTrucks_1 = require("../models/FeaturedEventTrucks");
+const PromoCode_1 = require("../models/PromoCode");
 const logger_1 = __importDefault(require("../services/logger"));
 const cloudinary = require("cloudinary").v2;
 const stripe = new stripe_1.default(configSetup_1.default.STRIPE_SK, {
     apiVersion: "2023-08-16",
 });
+/**
+ * For a profile with PROMO_ subscription_id, returns whether the trial period is still active
+ * and the expiration date. Returns null if not a promo subscription or redemption not found.
+ */
+function getPromoSubscriptionStatus(profileId, subscriptionId) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!((_a = subscriptionId === null || subscriptionId === void 0 ? void 0 : subscriptionId.startsWith) === null || _a === void 0 ? void 0 : _a.call(subscriptionId, "PROMO_")))
+            return null;
+        const promoCodeId = parseInt(subscriptionId.replace("PROMO_", ""), 10);
+        if (isNaN(promoCodeId))
+            return null;
+        const redemption = yield PromoCode_1.PromoCodeRedemption.findOne({
+            where: { profile_id: profileId, promo_code_id: promoCodeId },
+        });
+        if (!(redemption === null || redemption === void 0 ? void 0 : redemption.subscription_expires_at))
+            return null;
+        const now = new Date();
+        const expiresAt = new Date(redemption.subscription_expires_at);
+        return { active: expiresAt > now, expiresAt };
+    });
+}
+exports.getPromoSubscriptionStatus = getPromoSubscriptionStatus;
 const apiIndex = (req, res) => __awaiter(void 0, void 0, void 0, function* () { return (0, utility_1.successResponse)(res, "API Working!"); });
 exports.apiIndex = apiIndex;
 const updateLocation = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -175,6 +200,101 @@ const createSubscription = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.createSubscription = createSubscription;
+/**
+ * Redeem a promo code for the current vendor. Validates code, enforces one redemption per vendor per code,
+ * and in a transaction: increments used_count, creates redemption row, sets profile.subcription_id to PROMO sentinel.
+ */
+const redeemPromo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const { id } = req.user;
+    const rawCode = (_a = req.body) === null || _a === void 0 ? void 0 : _a.code;
+    if (!rawCode || typeof rawCode !== "string") {
+        return res.status(400).send({ status: false, message: "Code is required" });
+    }
+    const code = String(rawCode).trim().toUpperCase();
+    if (!code) {
+        return res.status(400).send({ status: false, message: "Code is required" });
+    }
+    try {
+        const user = yield Users_1.Users.findOne({ where: { id } });
+        const profile = yield Profile_1.Profile.findOne({ where: { userId: user === null || user === void 0 ? void 0 : user.id } });
+        if (!user || !profile) {
+            return res.status(400).send({
+                status: false,
+                message: "Vendor profile not found",
+            });
+        }
+        const promoCode = yield PromoCode_1.PromoCode.findOne({ where: { code } });
+        if (!promoCode) {
+            return res
+                .status(200)
+                .send({ status: false, message: "Invalid or expired code" });
+        }
+        const now = new Date();
+        if (promoCode.expires_at && new Date(promoCode.expires_at) < now) {
+            return res
+                .status(200)
+                .send({ status: false, message: "Code has expired" });
+        }
+        if (promoCode.used_count >= promoCode.max_uses) {
+            return res.status(200).send({
+                status: false,
+                message: "Maximum uses reached for this code",
+            });
+        }
+        const existing = yield PromoCode_1.PromoCodeRedemption.findOne({
+            where: { promo_code_id: promoCode.id, profile_id: profile.id },
+        });
+        if (existing) {
+            return res.status(200).send({
+                status: false,
+                message: "You have already used this code",
+            });
+        }
+        yield db_1.sequelize.transaction((t) => __awaiter(void 0, void 0, void 0, function* () {
+            var _b;
+            const [updated] = yield PromoCode_1.PromoCode.update({ used_count: promoCode.used_count + 1 }, {
+                where: {
+                    id: promoCode.id,
+                    used_count: promoCode.used_count,
+                },
+                transaction: t,
+            });
+            if (updated === 0) {
+                throw new Error("Concurrent redemption");
+            }
+            const trialDays = (_b = promoCode.trial_days) !== null && _b !== void 0 ? _b : 30;
+            const subscriptionExpiresAt = new Date(now);
+            subscriptionExpiresAt.setDate(subscriptionExpiresAt.getDate() + trialDays);
+            yield PromoCode_1.PromoCodeRedemption.create({
+                promo_code_id: promoCode.id,
+                profile_id: profile.id,
+                redeemed_at: now,
+                subscription_expires_at: subscriptionExpiresAt,
+            }, { transaction: t });
+            const subcriptionId = "PROMO_" + promoCode.id;
+            yield profile.update({ subcription_id: subcriptionId }, { transaction: t });
+            yield user.update({ subscription_id: subcriptionId }, { transaction: t });
+        }));
+        return res.status(200).send({
+            status: true,
+            message: "Promo code applied. Your subscription is now active.",
+        });
+    }
+    catch (e) {
+        if ((e === null || e === void 0 ? void 0 : e.message) === "Concurrent redemption") {
+            return res.status(200).send({
+                status: false,
+                message: "This code is no longer available",
+            });
+        }
+        console.error("redeemPromo error:", (e === null || e === void 0 ? void 0 : e.message) || e);
+        return res
+            .status(500)
+            .send({ status: false, message: "Failed to redeem code" });
+    }
+});
+exports.redeemPromo = redeemPromo;
 // export const createSubscription = async (req: Request, res: Response) => {
 //   const { paymentMethodId } = req.body;
 //   const { id } = req.user;
@@ -242,8 +362,17 @@ exports.createSubscription = createSubscription;
 //   }
 // };
 const cancelSubscription = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _c, _d;
     let { id } = req.user;
     const user = yield Users_1.Users.findOne({ where: { id } });
+    if ((_d = (_c = user === null || user === void 0 ? void 0 : user.subscription_id) === null || _c === void 0 ? void 0 : _c.startsWith) === null || _d === void 0 ? void 0 : _d.call(_c, "PROMO_")) {
+        return res
+            .status(200)
+            .send({
+            message: "Promo subscription is active; no cancellation needed.",
+            status: "active",
+        });
+    }
     const subscription = yield stripe.subscriptions.cancel(user.subscription_id);
     const status = yield stripe.subscriptions.retrieve(user.subscription_id);
     return (0, utility_1.successResponse)(res, "Canceled Successfully");
@@ -257,7 +386,7 @@ const reactivateSubscription = (req, res) => __awaiter(void 0, void 0, void 0, f
 });
 exports.reactivateSubscription = reactivateSubscription;
 const addNewCard = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _e;
     let { card_number, expiry_month, expiry_year, cvc } = req.body;
     let { id } = req.user;
     const user = yield Users_1.Users.findOne({ where: { id } });
@@ -274,7 +403,7 @@ const addNewCard = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     yield stripe.paymentMethods.attach(paymentMethod.id, {
         customer: user.customer_id,
     });
-    yield (user === null || user === void 0 ? void 0 : user.update({ token_id: token.id, card_id: (_a = token.card) === null || _a === void 0 ? void 0 : _a.id }));
+    yield (user === null || user === void 0 ? void 0 : user.update({ token_id: token.id, card_id: (_e = token.card) === null || _e === void 0 ? void 0 : _e.id }));
     return (0, utility_1.successResponse)(res, "Added Successfully");
 });
 exports.addNewCard = addNewCard;
@@ -301,7 +430,7 @@ const onlineLanlogVendors = (req, res) => __awaiter(void 0, void 0, void 0, func
     for (let vendor of lanlog) {
         const distance = (0, utility_1.getDistanceFromLatLonInKm)(Number(vendor.Lan), Number(vendor.Log), Number(lan), Number(log));
         // 15
-        if (distance <= Number(1500000000)) {
+        if (distance <= Number(15)) {
             if (vendor.dataValues.user.dataValues.type == Users_1.UserType.VENDOR) {
                 distance_list.push(Object.assign(Object.assign({}, vendor.dataValues), { user: vendor.dataValues.user.dataValues, profile: vendor.dataValues.profile.dataValues, distance, time: (0, utility_1.estimateCarCityTimeRange)(distance) }));
                 distance_list.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
@@ -312,17 +441,48 @@ const onlineLanlogVendors = (req, res) => __awaiter(void 0, void 0, void 0, func
 });
 exports.onlineLanlogVendors = onlineLanlogVendors;
 const onlineLanlogUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _f, _g;
     const { lan, log, range_value } = req.query;
     const { id } = req.user;
     const user = yield Users_1.Users.findOne({ where: { id } });
     try {
+        if ((_g = (_f = user === null || user === void 0 ? void 0 : user.subscription_id) === null || _f === void 0 ? void 0 : _f.startsWith) === null || _g === void 0 ? void 0 : _g.call(_f, "PROMO_")) {
+            const profile = yield Profile_1.Profile.findOne({ where: { userId: user.id } });
+            const promoStatus = profile &&
+                (yield getPromoSubscriptionStatus(profile.id, user.subscription_id));
+            if (promoStatus === null || promoStatus === void 0 ? void 0 : promoStatus.active) {
+                let distance_list = [];
+                const lanlog = yield LanLog_1.LanLog.findAll({
+                    where: { type: Users_1.UserType.USER },
+                    include: [
+                        {
+                            model: Users_1.Users,
+                            where: { type: Users_1.UserType.USER },
+                            attributes: ["createdAt", "updatedAt", "email", "type"],
+                        },
+                    ],
+                });
+                for (let u of lanlog) {
+                    const distance = (0, utility_1.getDistanceFromLatLonInKm)(Number(u.Lan), Number(u.Log), Number(lan), Number(log));
+                    if (distance <= Number(15)) {
+                        if (u.dataValues.user.dataValues.type == Users_1.UserType.USER) {
+                            distance_list.push(Object.assign(Object.assign({}, u.dataValues), { user: u.dataValues.user.dataValues, distance }));
+                            distance_list.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+                        }
+                    }
+                }
+                return res
+                    .status(200)
+                    .send({ message: "Fetched Successfully", users: distance_list });
+            }
+            // Promo expired or no profile – fall through to require subscription
+        }
         const subscription = yield stripe.subscriptions.retrieve(user === null || user === void 0 ? void 0 : user.subscription_id);
         if (subscription.status == "active" || subscription.status == "trialing") {
             let distance_list = [];
             const lanlog = yield LanLog_1.LanLog.findAll({
                 where: {
                     type: Users_1.UserType.USER,
-                    // online: true
                 },
                 include: [
                     {
@@ -454,7 +614,7 @@ const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.getUser = getUser;
 const getVendorUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _b;
+    var _h, _j, _k, _l, _m, _o;
     const { id, lan, log } = req.query;
     const vendor = yield LanLog_1.LanLog.findOne({
         where: {
@@ -478,18 +638,43 @@ const getVendorUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, fun
             { model: Profile_1.Profile },
         ],
     });
-    yield ProfileViews_1.ProfileViews.create({ profileId: vendor === null || vendor === void 0 ? void 0 : vendor.profile.id, userId: id });
+    if (!vendor) {
+        return (0, utility_1.errorResponse)(res, "Vendor not found");
+    }
+    if (((_h = vendor === null || vendor === void 0 ? void 0 : vendor.profile) === null || _h === void 0 ? void 0 : _h.id) != null) {
+        yield ProfileViews_1.ProfileViews.create({ profileId: vendor.profile.id, userId: id });
+    }
     const distance = (0, utility_1.getDistanceFromLatLonInKm)(Number(vendor.Lan), Number(vendor.Log), Number(lan), Number(log));
     let subscription;
-    try {
-        const result = yield stripe.subscriptions.retrieve((_b = vendor === null || vendor === void 0 ? void 0 : vendor.user) === null || _b === void 0 ? void 0 : _b.subscription_id);
-        subscription = {
-            status: result.status,
-            dueDate: (0, utility_1.formatStripeTimestamp)(result.current_period_end),
-        };
+    if (((_l = (_k = (_j = vendor === null || vendor === void 0 ? void 0 : vendor.user) === null || _j === void 0 ? void 0 : _j.subscription_id) === null || _k === void 0 ? void 0 : _k.startsWith) === null || _l === void 0 ? void 0 : _l.call(_k, "PROMO_")) && ((_m = vendor === null || vendor === void 0 ? void 0 : vendor.profile) === null || _m === void 0 ? void 0 : _m.id)) {
+        const promoStatus = yield getPromoSubscriptionStatus(vendor.profile.id, vendor.user.subscription_id);
+        if ((promoStatus === null || promoStatus === void 0 ? void 0 : promoStatus.active) && promoStatus.expiresAt) {
+            subscription = {
+                status: "active",
+                dueDate: (0, utility_1.formatStripeTimestamp)(Math.floor(promoStatus.expiresAt.getTime() / 1000)),
+            };
+        }
+        else if (promoStatus === null || promoStatus === void 0 ? void 0 : promoStatus.expiresAt) {
+            subscription = {
+                status: "expired",
+                dueDate: (0, utility_1.formatStripeTimestamp)(Math.floor(promoStatus.expiresAt.getTime() / 1000)),
+            };
+        }
+        else {
+            subscription = { status: "No Subscription", dueDate: "" };
+        }
     }
-    catch (error) {
-        subscription = { status: "No Subscription", dueDate: "" };
+    else {
+        try {
+            const result = yield stripe.subscriptions.retrieve((_o = vendor === null || vendor === void 0 ? void 0 : vendor.user) === null || _o === void 0 ? void 0 : _o.subscription_id);
+            subscription = {
+                status: result.status,
+                dueDate: (0, utility_1.formatStripeTimestamp)(result.current_period_end),
+            };
+        }
+        catch (error) {
+            subscription = { status: "No Subscription", dueDate: "" };
+        }
     }
     return (0, utility_1.successResponse)(res, "Profile Fetched", Object.assign(Object.assign({}, vendor === null || vendor === void 0 ? void 0 : vendor.dataValues), { distance, time: (0, utility_1.estimateCarCityTimeRange)(distance), subscription }));
 });
@@ -553,6 +738,7 @@ const getVendorProfileV2 = (req, res) => __awaiter(void 0, void 0, void 0, funct
 });
 exports.getVendorProfileV2 = getVendorProfileV2;
 const getMainVendorProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _p, _q, _r;
     const { id } = req.user;
     const profile = yield Profile_1.Profile.findOne({
         where: {
@@ -566,17 +752,39 @@ const getMainVendorProfile = (req, res) => __awaiter(void 0, void 0, void 0, fun
         ],
     });
     let subscription;
-    try {
-        const result = yield stripe.subscriptions.retrieve(profile === null || profile === void 0 ? void 0 : profile.user.subscription_id);
-        subscription = {
-            status: result.status,
-            dueDate: (0, utility_1.formatStripeTimestamp)(result.current_period_end),
-        };
-        logger_1.default.info("Subscription retrieved successfully:", subscription);
+    if ((_r = (_q = (_p = profile === null || profile === void 0 ? void 0 : profile.user) === null || _p === void 0 ? void 0 : _p.subscription_id) === null || _q === void 0 ? void 0 : _q.startsWith) === null || _r === void 0 ? void 0 : _r.call(_q, "PROMO_")) {
+        const promoStatus = yield getPromoSubscriptionStatus(profile.id, profile.user.subscription_id);
+        if ((promoStatus === null || promoStatus === void 0 ? void 0 : promoStatus.active) && promoStatus.expiresAt) {
+            subscription = {
+                status: "active",
+                dueDate: (0, utility_1.formatStripeTimestamp)(Math.floor(promoStatus.expiresAt.getTime() / 1000)),
+            };
+        }
+        else if (promoStatus) {
+            subscription = {
+                status: "expired",
+                dueDate: promoStatus.expiresAt != null
+                    ? (0, utility_1.formatStripeTimestamp)(Math.floor(promoStatus.expiresAt.getTime() / 1000))
+                    : "",
+            };
+        }
+        else {
+            subscription = { status: "No Subscription", dueDate: "" };
+        }
     }
-    catch (error) {
-        logger_1.default.error(error);
-        subscription = { status: "No Subscription", dueDate: "" };
+    else {
+        try {
+            const result = yield stripe.subscriptions.retrieve(profile === null || profile === void 0 ? void 0 : profile.user.subscription_id);
+            subscription = {
+                status: result.status,
+                dueDate: (0, utility_1.formatStripeTimestamp)(result.current_period_end),
+            };
+            logger_1.default.info("Subscription retrieved successfully:", subscription);
+        }
+        catch (error) {
+            logger_1.default.error(error);
+            subscription = { status: "No Subscription", dueDate: "" };
+        }
     }
     return (0, utility_1.successResponse)(res, "Profile Fetched", { profile, subscription });
 });
@@ -676,63 +884,68 @@ const fetchRate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.fetchRate = fetchRate;
 const vendorMenu = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _s, _t;
     const { id } = req.query;
+    const user = yield Users_1.Users.findOne({ where: { id } });
+    const profile = yield Profile_1.Profile.findOne({ where: { userId: id } });
     const menu = yield Menus_1.Menu.findAll({
         where: { userId: id },
         include: [{ model: Extras_1.Extra }],
     });
-    return (0, utility_1.successResponse)(res, "Fetched Successfully", menu);
-    // stripe.subscriptions.retrieve(user?.subscription_id).then(
-    //     function (subscription_status) {
-    //         if (subscription_status.status == 'active' || subscription_status.status == 'trialing') {
-    //             return res.status(200).send({
-    //                 message: "Fetched Successfully",
-    //                 menu
-    //             })
-    //         } else {
-    //             sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
-    //                 `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`
-    //             );
-    //             sendEmailResend(`${user?.email}`,
-    //                 "Foodtruck.express".toUpperCase(),
-    //                 templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`))
-    //             return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
-    //         }
-    //     },
-    //     function (err) {
-    //         if (err instanceof Stripe.errors.StripeError) {
-    //             // Break down err based on err.type
-    //             sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
-    //                 `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`
-    //             );
-    //             sendEmailResend(`${user?.email}`,
-    //                 "Foodtruck.express".toUpperCase(),
-    //                 templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`))
-    //             console.log(err.type)
-    //             return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
-    //         } else {
-    //             // ...
-    //             sendToken(user?.id, `Foodtruck.express`.toUpperCase(),
-    //                 `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`
-    //             );
-    //             sendEmailResend(`${user?.email}`,
-    //                 "Foodtruck.express".toUpperCase(),
-    //                 templateEmail(`${user?.email}`, `Hey ${profile?.business_name}, Customers are trying to view your menu on foodtruck.express, subscribe to make it available.`))
-    //             console.log(err)
-    //             return res.status(200).send({ message: "VENDOR MENU IS UNAVAILABLE", status: false })
-    //         }
-    //     }
-    // );
+    if (((_t = (_s = user === null || user === void 0 ? void 0 : user.subscription_id) === null || _s === void 0 ? void 0 : _s.startsWith) === null || _t === void 0 ? void 0 : _t.call(_s, "PROMO_")) && profile) {
+        const promoStatus = yield getPromoSubscriptionStatus(profile.id, user.subscription_id);
+        if (!(promoStatus === null || promoStatus === void 0 ? void 0 : promoStatus.active)) {
+            return res.status(200).send({
+                message: "VENDOR MENU IS UNAVAILABLE",
+                status: false,
+            });
+        }
+        return (0, utility_1.successResponse)(res, "Fetched Successfully", menu);
+    }
+    if (!(user === null || user === void 0 ? void 0 : user.subscription_id)) {
+        return res.status(200).send({
+            message: "VENDOR MENU IS UNAVAILABLE",
+            status: false,
+        });
+    }
+    try {
+        const subscription = yield stripe.subscriptions.retrieve(user.subscription_id);
+        if (subscription.status === "active" ||
+            subscription.status === "trialing") {
+            return (0, utility_1.successResponse)(res, "Fetched Successfully", menu);
+        }
+    }
+    catch (_) {
+        // Stripe error or no subscription
+    }
+    return res.status(200).send({
+        message: "VENDOR MENU IS UNAVAILABLE",
+        status: false,
+    });
 });
 exports.vendorMenu = vendorMenu;
 const vendorEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _u, _v;
     const { id } = req.query;
     const user = yield Users_1.Users.findOne({ where: { id } });
+    const profile = yield Profile_1.Profile.findOne({ where: { userId: id } });
     const event = yield Event_1.Events.findAll({
         where: { userId: id },
         include: [{ model: Users_1.Users, include: [{ model: Profile_1.Profile }] }],
     });
-    console.log(user === null || user === void 0 ? void 0 : user.subscription_id);
+    if (((_v = (_u = user === null || user === void 0 ? void 0 : user.subscription_id) === null || _u === void 0 ? void 0 : _u.startsWith) === null || _v === void 0 ? void 0 : _v.call(_u, "PROMO_")) && profile) {
+        const promoStatus = yield getPromoSubscriptionStatus(profile.id, user.subscription_id);
+        if (!(promoStatus === null || promoStatus === void 0 ? void 0 : promoStatus.active)) {
+            return res.status(200).send({
+                message: "VENDOR EVENT IS UNAVAILABLE",
+                status: false,
+            });
+        }
+        return res.status(200).send({
+            message: "Fetched Successfully",
+            event,
+        });
+    }
     const subscription_status = yield stripe.subscriptions
         .retrieve(user === null || user === void 0 ? void 0 : user.subscription_id)
         .then(function (subscription_status) {
@@ -785,7 +998,7 @@ const getAllCategories = (req, res) => __awaiter(void 0, void 0, void 0, functio
 });
 exports.getAllCategories = getAllCategories;
 const getHomeDetails = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _c, _d;
+    var _w, _x;
     const tags = yield SpecialTag_1.SpecialTag.findAll({ include: [{ model: Tag_1.Tag }] });
     const profileSecondTag = yield Profile_1.Profile.findAll({
         where: {
@@ -793,7 +1006,7 @@ const getHomeDetails = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 {
                     tag: {
                         [sequelize_1.Op.like]: "%" +
-                            `${(_c = tags[0].dataValues.tag.title) === null || _c === void 0 ? void 0 : _c.toString().toLowerCase()}` +
+                            `${(_w = tags[0].dataValues.tag.title) === null || _w === void 0 ? void 0 : _w.toString().toLowerCase()}` +
                             "%",
                     },
                 },
@@ -807,7 +1020,7 @@ const getHomeDetails = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 {
                     tag: {
                         [sequelize_1.Op.like]: "%" +
-                            `${(_d = tags[1].dataValues.tag.title) === null || _d === void 0 ? void 0 : _d.toString().toLowerCase()}` +
+                            `${(_x = tags[1].dataValues.tag.title) === null || _x === void 0 ? void 0 : _x.toString().toLowerCase()}` +
                             "%",
                     },
                 },

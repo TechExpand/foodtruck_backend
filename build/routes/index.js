@@ -12,6 +12,7 @@ API CALL START
 // INDEX ROUTE TO SHOW API IS WORKING FINE.
 routes.get("/", controllers_1.apiIndex);
 routes.post("/createsubscription", controllers_1.createSubscription);
+routes.post("/redeem-promo", controllers_1.redeemPromo);
 routes.get("/currentvendorslanlog", controllers_1.onlineLanlogVendors);
 routes.get("/currentuserlanlog", controllers_1.onlineLanlogUser);
 routes.get("/user", controllers_1.getUser);

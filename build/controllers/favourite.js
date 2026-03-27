@@ -36,6 +36,7 @@ const ProfileViews_1 = require("../models/ProfileViews");
 const Notification_1 = require("../models/Notification");
 const Alltags_1 = require("../models/Alltags");
 const logger_1 = __importDefault(require("../services/logger"));
+const index_1 = require("./index");
 const cloudinary = require("cloudinary").v2;
 const stripe = new stripe_1.default(configSetup_1.default.STRIPE_SK, {
     apiVersion: "2023-08-16",
@@ -430,6 +431,51 @@ const search = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.search = search;
 const getDashboardStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const profileId = req.query.profileId;
+    if (!profileId) {
+        return (0, utility_1.errorResponse)(res, "profileId is required");
+    }
+    const profile = yield Profile_1.Profile.findOne({
+        where: { id: profileId },
+        include: [{ model: Users_1.Users }],
+    });
+    if (!(profile === null || profile === void 0 ? void 0 : profile.user)) {
+        return (0, utility_1.errorResponse)(res, "Profile not found");
+    }
+    const subId = profile.user.subscription_id;
+    if ((_a = subId === null || subId === void 0 ? void 0 : subId.startsWith) === null || _a === void 0 ? void 0 : _a.call(subId, "PROMO_")) {
+        const promoStatus = yield (0, index_1.getPromoSubscriptionStatus)(profile.id, subId);
+        if (!(promoStatus === null || promoStatus === void 0 ? void 0 : promoStatus.active)) {
+            return res.status(403).send({
+                message: "Analytics are only available during your active subscription period.",
+                status: false,
+            });
+        }
+    }
+    else if (subId) {
+        try {
+            const sub = yield stripe.subscriptions.retrieve(subId);
+            if (sub.status !== "active" && sub.status !== "trialing") {
+                return res.status(403).send({
+                    message: "Analytics are only available with an active subscription.",
+                    status: false,
+                });
+            }
+        }
+        catch (_) {
+            return res.status(403).send({
+                message: "Analytics are only available with an active subscription.",
+                status: false,
+            });
+        }
+    }
+    else {
+        return res.status(403).send({
+            message: "Analytics are only available with an active subscription.",
+            status: false,
+        });
+    }
     const today = new Date();
     const startToday = (0, date_fns_1.startOfDay)(today);
     const endToday = (0, date_fns_1.endOfDay)(today);
