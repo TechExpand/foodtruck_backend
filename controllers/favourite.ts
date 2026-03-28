@@ -856,3 +856,43 @@ export const getDashboardStats = async (req: Request, res: Response) => {
     },
   });
 };
+
+const ALLOWED_ARCHIVE_STATUSES = ["CANCELED", "COMPLETED"];
+const MIN_OLDER_THAN_DAYS = 7;
+
+export const archiveOldOrders = async (req: Request, res: Response) => {
+  try {
+    const { profileId, olderThanDays } = req.body;
+    const { id: userId } = req.user;
+
+    if (!profileId) return errorResponse(res, "profileId is required");
+
+    // verify vendor owns this profile
+    const profile = await Profile.findOne({ where: { id: profileId, userId } });
+    if (!profile) {
+      return res.status(403).json({ message: "Forbidden: profile not owned by this vendor" });
+    }
+
+    const days = Math.max(Number(olderThanDays) || MIN_OLDER_THAN_DAYS, MIN_OLDER_THAN_DAYS);
+    const cutoffDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+
+    const [archivedCount] = await OrderV2.update(
+      { archived: true, archivedAt: new Date() },
+      {
+        where: {
+          profileId,
+          status: { [Op.in]: ALLOWED_ARCHIVE_STATUSES },
+          updatedAt: { [Op.lt]: cutoffDate },
+          archived: { [Op.ne]: true },
+        },
+      }
+    );
+
+    logger.info(`archiveOldOrders: profileId=${profileId} archivedCount=${archivedCount} olderThanDays=${days} cutoff=${cutoffDate.toISOString()}`);
+
+    return successResponse(res, "Orders archived", { archivedCount, olderThanDays: days });
+  } catch (error: any) {
+    logger.error(error);
+    return errorResponse(res, "Error Processing Request");
+  }
+};

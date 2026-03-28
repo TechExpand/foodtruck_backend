@@ -56,6 +56,7 @@ import {
   search,
   getDashboardStats,
   getNotifications,
+  archiveOldOrders,
 } from "../controllers/favourite";
 
 const routes = Router();
@@ -99,6 +100,7 @@ routes.get("/notify-order", notifyOrder);
 routes.post("/notify-orderV2", notifyOrderV2);
 routes.post("/confirm-orderV2", confirmOrderV2);
 routes.post("/cancel-orderV2", cancelOrderV2);
+routes.post("/archive-old-orders", archiveOldOrders);
 routes.post("/delete-favourite", deleteFavourite);
 routes.get("/get-tags", getTags);
 routes.get("/get-vendor-orders/:id", getVendorOrder)

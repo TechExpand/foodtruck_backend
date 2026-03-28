@@ -936,7 +936,7 @@ export const getMainVendorProfile = async (req: Request, res: Response) => {
 export const getVendorOrder = async (req: Request, res: Response) => {
   const { id } = req.params;
   const order = await OrderV2.findAll({
-    where: { profileId: id },
+    where: { profileId: id, archived: { [Op.ne]: true } },
     include: [
       { model: Profile, include: [{ model: LanLog }] },
       { model: Users },

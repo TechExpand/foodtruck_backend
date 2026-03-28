@@ -70,6 +70,15 @@ export class OrderV2 extends Model {
   @BelongsTo(() => Users, { onDelete: "CASCADE" })
   user!: Users;
 
+  @Default(false)
+  @AllowNull(false)
+  @Column(DataType.BOOLEAN)
+  archived!: boolean;
+
+  @AllowNull(true)
+  @Column(DataType.DATE)
+  archivedAt!: Date | null;
+
   @HasMany(() => CartProduct, { onDelete: "CASCADE" })
   menu!: CartProduct[];
 }
