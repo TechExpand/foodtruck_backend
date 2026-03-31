@@ -324,7 +324,7 @@ export const redeemPromo = async (req: Request, res: Response) => {
         message: "This code is no longer available",
       });
     }
-    console.error("redeemPromo error:", e?.message || e);
+    logger.error(e);
     return res
       .status(500)
       .send({ status: false, message: "Failed to redeem code" });

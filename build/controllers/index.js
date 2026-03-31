@@ -288,7 +288,7 @@ const redeemPromo = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 message: "This code is no longer available",
             });
         }
-        console.error("redeemPromo error:", (e === null || e === void 0 ? void 0 : e.message) || e);
+        logger_1.default.error(e);
         return res
             .status(500)
             .send({ status: false, message: "Failed to redeem code" });
