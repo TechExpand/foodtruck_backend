@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDashboardStats = exports.search = exports.deleteFavourite = exports.getp = exports.postOrderV2 = exports.postOrder = exports.postFavourite = exports.notifyOrderV2 = exports.cancelOrderV2 = exports.confirmOrderV2 = exports.notifyOrder = exports.getOrderV2 = exports.getNotifications = exports.getOrder = exports.getTags = exports.getFavourite = void 0;
+exports.archiveOldOrders = exports.getDashboardStats = exports.search = exports.deleteFavourite = exports.getp = exports.postOrderV2 = exports.postOrder = exports.postFavourite = exports.notifyOrderV2 = exports.cancelOrderV2 = exports.confirmOrderV2 = exports.notifyOrder = exports.getOrderV2 = exports.getNotifications = exports.getOrder = exports.getTags = exports.getFavourite = void 0;
 const utility_1 = require("../helpers/utility");
 const LanLog_1 = require("../models/LanLog");
 const Profile_1 = require("../models/Profile");
@@ -680,4 +680,36 @@ const getDashboardStats = (req, res) => __awaiter(void 0, void 0, void 0, functi
     });
 });
 exports.getDashboardStats = getDashboardStats;
+const ALLOWED_ARCHIVE_STATUSES = ["CANCELED", "COMPLETED"];
+const MIN_OLDER_THAN_DAYS = 7;
+const archiveOldOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { profileId, olderThanDays } = req.body;
+        const { id: userId } = req.user;
+        if (!profileId)
+            return (0, utility_1.errorResponse)(res, "profileId is required");
+        // verify vendor owns this profile
+        const profile = yield Profile_1.Profile.findOne({ where: { id: profileId, userId } });
+        if (!profile) {
+            return res.status(403).json({ message: "Forbidden: profile not owned by this vendor" });
+        }
+        const days = Math.max(Number(olderThanDays) || MIN_OLDER_THAN_DAYS, MIN_OLDER_THAN_DAYS);
+        const cutoffDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+        const [archivedCount] = yield OrderV2_1.OrderV2.update({ archived: true, archivedAt: new Date() }, {
+            where: {
+                profileId,
+                status: { [sequelize_1.Op.in]: ALLOWED_ARCHIVE_STATUSES },
+                updatedAt: { [sequelize_1.Op.lt]: cutoffDate },
+                archived: { [sequelize_1.Op.ne]: true },
+            },
+        });
+        logger_1.default.info(`archiveOldOrders: profileId=${profileId} archivedCount=${archivedCount} olderThanDays=${days} cutoff=${cutoffDate.toISOString()}`);
+        return (0, utility_1.successResponse)(res, "Orders archived", { archivedCount, olderThanDays: days });
+    }
+    catch (error) {
+        logger_1.default.error(error);
+        return (0, utility_1.errorResponse)(res, "Error Processing Request");
+    }
+});
+exports.archiveOldOrders = archiveOldOrders;
 //# sourceMappingURL=favourite.js.map

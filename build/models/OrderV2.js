@@ -75,6 +75,17 @@ __decorate([
     __metadata("design:type", Users_1.Users)
 ], OrderV2.prototype, "user", void 0);
 __decorate([
+    (0, sequelize_typescript_2.Default)(false),
+    (0, sequelize_typescript_1.AllowNull)(false),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.BOOLEAN),
+    __metadata("design:type", Boolean)
+], OrderV2.prototype, "archived", void 0);
+__decorate([
+    (0, sequelize_typescript_1.AllowNull)(true),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.DATE),
+    __metadata("design:type", Object)
+], OrderV2.prototype, "archivedAt", void 0);
+__decorate([
     (0, sequelize_typescript_1.HasMany)(() => CartProduct_1.CartProduct, { onDelete: "CASCADE" }),
     __metadata("design:type", Array)
 ], OrderV2.prototype, "menu", void 0);

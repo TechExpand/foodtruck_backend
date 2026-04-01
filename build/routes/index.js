@@ -43,6 +43,7 @@ routes.get("/notify-order", favourite_1.notifyOrder);
 routes.post("/notify-orderV2", favourite_1.notifyOrderV2);
 routes.post("/confirm-orderV2", favourite_1.confirmOrderV2);
 routes.post("/cancel-orderV2", favourite_1.cancelOrderV2);
+routes.post("/archive-old-orders", favourite_1.archiveOldOrders);
 routes.post("/delete-favourite", favourite_1.deleteFavourite);
 routes.get("/get-tags", favourite_1.getTags);
 routes.get("/get-vendor-orders/:id", controllers_1.getVendorOrder);

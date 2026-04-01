@@ -792,7 +792,7 @@ exports.getMainVendorProfile = getMainVendorProfile;
 const getVendorOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const order = yield OrderV2_1.OrderV2.findAll({
-        where: { profileId: id },
+        where: { profileId: id, archived: { [sequelize_1.Op.ne]: true } },
         include: [
             { model: Profile_1.Profile, include: [{ model: LanLog_1.LanLog }] },
             { model: Users_1.Users },
