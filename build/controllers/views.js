@@ -639,6 +639,21 @@ class ViewsController {
             }
         });
     }
+    static adminPromoCodes(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                res.render('admin-promo-codes', {
+                    title: 'Promo Codes - FoodTruck Express',
+                    activePage: 'admin-promo-codes',
+                    user: req.user || null
+                });
+            }
+            catch (error) {
+                console.error('Error rendering admin promo codes:', error);
+                res.status(500).render('error', { error: 'Internal Server Error' });
+            }
+        });
+    }
     // Calendar events API
     static calendarEvents(req, res) {
         return __awaiter(this, void 0, void 0, function* () {

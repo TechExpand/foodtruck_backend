@@ -16,6 +16,7 @@ const Alltags_1 = require("../models/Alltags");
 const Event_1 = require("../models/Event");
 const FeaturedEventTrucks_1 = require("../models/FeaturedEventTrucks");
 const SpecialTag_1 = require("../models/SpecialTag");
+const PromoCode_1 = require("../models/PromoCode");
 const utility_1 = require("../helpers/utility");
 class AdminController {
     // Get all vendors with their profiles
@@ -477,6 +478,60 @@ class AdminController {
             }
             catch (error) {
                 return (0, utility_1.handleResponse)(res, 500, false, 'Error fetching special tags');
+            }
+        });
+    }
+    // Get all promo codes with redemption counts
+    static getPromoCodes(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const codes = yield PromoCode_1.PromoCode.findAll({
+                    include: [{ model: PromoCode_1.PromoCodeRedemption }],
+                    order: [['createdAt', 'DESC']],
+                });
+                return res.json({ success: true, data: { promoCodes: codes } });
+            }
+            catch (error) {
+                console.error('Error fetching promo codes:', error);
+                return res.json({ success: false, message: 'Error fetching promo codes' });
+            }
+        });
+    }
+    // Create a new promo code
+    static createPromoCode(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { code, trial_days, max_uses, expires_at } = req.body;
+                if (!code || !trial_days) {
+                    return res.json({ success: false, message: 'code and trial_days are required' });
+                }
+                const promo = yield PromoCode_1.PromoCode.create({
+                    code: String(code).toUpperCase().trim(),
+                    trial_days: Number(trial_days),
+                    max_uses: max_uses ? Number(max_uses) : 1,
+                    expires_at: expires_at || null,
+                });
+                return res.json({ success: true, data: promo });
+            }
+            catch (error) {
+                console.error('Error creating promo code:', error);
+                const msg = (error === null || error === void 0 ? void 0 : error.name) === 'SequelizeUniqueConstraintError'
+                    ? 'A promo code with that value already exists'
+                    : 'Error creating promo code';
+                return res.json({ success: false, message: msg });
+            }
+        });
+    }
+    // Delete a promo code by id
+    static deletePromoCode(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield PromoCode_1.PromoCode.destroy({ where: { id: req.params.id } });
+                return res.json({ success: true });
+            }
+            catch (error) {
+                console.error('Error deleting promo code:', error);
+                return res.json({ success: false, message: 'Error deleting promo code' });
             }
         });
     }

@@ -8,6 +8,7 @@ const router = (0, express_1.Router)();
 router.get('/admin-vendors', views_1.ViewsController.adminVendors);
 router.get('/admin-tags', views_1.ViewsController.adminTags);
 router.get('/admin-events', views_1.ViewsController.adminEvents);
+router.get('/admin-promo-codes', views_1.ViewsController.adminPromoCodes);
 // Dashboard (password protected)
 router.get('/', passwordProtection_1.requirePassword, views_1.ViewsController.dashboard);
 router.post('/', passwordProtection_1.requirePassword, views_1.ViewsController.dashboard);

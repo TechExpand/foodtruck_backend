@@ -4,6 +4,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const controllers_1 = require("../controllers");
 const upload_1 = require("../helpers/upload");
+const beacon_1 = require("../controllers/beacon");
 const favourite_1 = require("../controllers/favourite");
 const routes = (0, express_1.Router)();
 /*************************************************************************
@@ -65,5 +66,12 @@ routes.get("/token", controllers_1.updateToken);
 routes.get("/notifications", favourite_1.getNotifications);
 routes.get("/dashboard-stats", favourite_1.getDashboardStats);
 routes.post("/sendTest", controllers_1.sendTestEmailCon);
+// Hunger Beacon routes
+routes.post("/beacon", beacon_1.createBeacon);
+routes.post("/beacon/join", beacon_1.joinBeacon);
+routes.get("/beacon", beacon_1.getNearbyBeacons);
+routes.post("/beacon/claim", beacon_1.claimBeacon);
+routes.get("/beacon/vendor", beacon_1.getActiveBeaconsForVendor);
+routes.get("/beacon/:id", beacon_1.getBeaconById); // wildcard last
 exports.default = routes;
 //# sourceMappingURL=index.js.map

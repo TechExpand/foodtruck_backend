@@ -26,5 +26,9 @@ router.post('/events/add-vendor', admin_1.AdminController.addVendorToEvent);
 router.delete('/events/:eventId/vendors/:profileId', admin_1.AdminController.removeVendorFromEvent);
 // Special Tags Routes
 router.get('/special-tags', admin_1.AdminController.getAllSpecialTags);
+// Promo Code Management Routes
+router.get('/promo-codes', admin_1.AdminController.getPromoCodes);
+router.post('/promo-codes', admin_1.AdminController.createPromoCode);
+router.delete('/promo-codes/:id', admin_1.AdminController.deletePromoCode);
 exports.default = router;
 //# sourceMappingURL=admin.js.map
