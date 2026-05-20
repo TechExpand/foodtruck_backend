@@ -39,6 +39,8 @@ const ProfileViews_1 = require("../models/ProfileViews");
 const Notification_1 = require("../models/Notification");
 const FeaturedEventTrucks_1 = require("../models/FeaturedEventTrucks");
 const PromoCode_1 = require("../models/PromoCode");
+const Beacon_1 = require("../models/Beacon");
+const BeaconParticipant_1 = require("../models/BeaconParticipant");
 const sequelize = new sequelize_typescript_1.Sequelize(configSetup_1.default.DBNAME, configSetup_1.default.DBUSERNAME, configSetup_1.default.DBPASSWORD, {
     host: configSetup_1.default.DBHOST,
     port: configSetup_1.default.DBPORT,
@@ -69,7 +71,9 @@ const sequelize = new sequelize_typescript_1.Sequelize(configSetup_1.default.DBN
         Tag_1.Tag,
         ProfileViews_1.ProfileViews,
         PromoCode_1.PromoCode,
-        PromoCode_1.PromoCodeRedemption
+        PromoCode_1.PromoCodeRedemption,
+        Beacon_1.Beacon,
+        BeaconParticipant_1.BeaconParticipant,
     ],
 });
 exports.sequelize = sequelize;

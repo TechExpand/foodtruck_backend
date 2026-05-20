@@ -17,17 +17,14 @@ var serviceAccount = require("../keys/key.json");
 exports.admin.initializeApp({
     credential: exports.admin.credential.cert(serviceAccount)
 });
-const sendToken = (id, title, body) => __awaiter(void 0, void 0, void 0, function* () {
+const sendToken = (id, title, body, type) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield Users_1.Users.findOne({ where: { id } });
     const message = {
         notification: {
             title,
             body
         },
-        data: {
-            score: '850',
-            time: '2:45'
-        },
+        data: Object.assign({ score: '850', time: '2:45' }, (type ? { type } : {})),
         token: user === null || user === void 0 ? void 0 : user.fcmToken,
     };
     getMessaging().send(message)
