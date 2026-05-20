@@ -9,6 +9,7 @@ router.get('/admin-vendors', ViewsController.adminVendors);
 router.get('/admin-tags', ViewsController.adminTags);
 router.get('/admin-events', ViewsController.adminEvents);
 router.get('/admin-promo-codes', ViewsController.adminPromoCodes);
+router.get('/admin-beacons', ViewsController.adminBeacons);
 
 // Dashboard (password protected)
 router.get('/', requirePassword, ViewsController.dashboard);

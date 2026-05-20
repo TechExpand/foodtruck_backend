@@ -6,6 +6,8 @@ import { Events } from '../models/Event';
 import { FeaturedEventTrucks } from '../models/FeaturedEventTrucks';
 import { SpecialTag } from '../models/SpecialTag';
 import { PromoCode, PromoCodeRedemption } from '../models/PromoCode';
+import { Beacon } from '../models/Beacon';
+import { BeaconParticipant } from '../models/BeaconParticipant';
 import { handleResponse } from '../helpers/utility';
 
 export class AdminController {
@@ -523,6 +525,42 @@ export class AdminController {
         }
     }
 
+    // List all Hunger Beacons (newest first) with creator + claimer + participant count
+    static async getBeacons(req: Request, res: Response) {
+        try {
+            const beacons = await Beacon.findAll({
+                include: [
+                    { model: Users, as: 'creator', attributes: ['id', 'email', 'username'] },
+                    { model: BeaconParticipant, attributes: ['id', 'userId'] },
+                ],
+                order: [['createdAt', 'DESC']],
+                limit: 200,
+            });
+
+            // Best-effort claimer lookup — claimedByUserId points to Users, no association on the model.
+            const claimerIds = Array.from(new Set(
+                beacons.map((b: any) => b.claimedByUserId).filter((id: any) => !!id),
+            )) as number[];
+            const claimers = claimerIds.length
+                ? await Users.findAll({ where: { id: claimerIds }, attributes: ['id', 'email', 'username'] })
+                : [];
+            const claimerById = new Map(claimers.map((u: any) => [u.id, u]));
+
+            const payload = beacons.map((b: any) => {
+                const obj = b.toJSON();
+                obj.participantCount = Array.isArray(obj.participants) ? obj.participants.length : 0;
+                delete obj.participants;
+                obj.claimer = obj.claimedByUserId ? claimerById.get(obj.claimedByUserId) || null : null;
+                return obj;
+            });
+
+            return handleResponse(res, 200, true, 'Beacons retrieved', payload);
+        } catch (error) {
+            console.error('Error fetching beacons:', error);
+            return handleResponse(res, 500, false, 'Error fetching beacons');
+        }
+    }
+
     // Render the vendor edit page
     static async renderEditVendorPage(req: Request, res: Response) {
         try {
@@ -541,9 +579,15 @@ export class AdminController {
             });
             const allTagRecords = await AllTag.findAll();
             const tagRecords = await require('../models/Tag').Tag.findAll();
-            const allTagIds = allTagRecords.map(tag => tag.id);
+            const allTagIds = allTagRecords.map((tag: any) => tag.id);
             const regularTags = tagRecords.filter((tag: any) => !allTagIds.includes(tag.id));
-            res.render('admin-vendor-edit', { vendor, specialTags, allTags: regularTags });
+            res.render('admin-vendor-edit', {
+                vendor,
+                specialTags,
+                allTags: regularTags,
+                activePage: 'admin-vendors',
+                title: 'Edit Vendor - FoodTruck Express',
+            });
         } catch (error) {
             console.error('Error rendering vendor edit page:', error);
             res.status(500).render('error', { error: 'Internal server error' });

@@ -36,4 +36,7 @@ router.get('/promo-codes', AdminController.getPromoCodes);
 router.post('/promo-codes', AdminController.createPromoCode);
 router.delete('/promo-codes/:id', AdminController.deletePromoCode);
 
-export default router; 
+// Hunger Beacon Routes
+router.get('/beacons', AdminController.getBeacons);
+
+export default router;

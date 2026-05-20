@@ -499,7 +499,7 @@ export class ViewsController {
 
             res.render('vendors', {
                 title: 'Vendors - FoodTruck Express',
-                activePage: 'vendors',
+                activePage: 'admin-vendors',
                 user: req.user || null,
                 vendors: formattedVendors,
                 allCount,
@@ -516,7 +516,7 @@ export class ViewsController {
         try {
             res.render('add-event', {
                 title: 'Add Event - FoodTruck Express',
-                activePage: 'add-event',
+                activePage: 'admin-events',
                 user: req.user || null
             });
         } catch (error) {
@@ -592,6 +592,19 @@ export class ViewsController {
             });
         } catch (error) {
             console.error('Error rendering admin promo codes:', error);
+            res.status(500).render('error', { error: 'Internal Server Error' });
+        }
+    }
+
+    static async adminBeacons(req: Request, res: Response) {
+        try {
+            res.render('admin-beacons', {
+                title: 'Hunger Beacons - FoodTruck Express',
+                activePage: 'admin-beacons',
+                user: (req as any).user || null
+            });
+        } catch (error) {
+            console.error('Error rendering admin beacons:', error);
             res.status(500).render('error', { error: 'Internal Server Error' });
         }
     }
