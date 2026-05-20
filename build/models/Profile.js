@@ -33,9 +33,9 @@ __decorate([
     __metadata("design:type", String)
 ], Profile.prototype, "business_name", void 0);
 __decorate([
-    (0, sequelize_typescript_1.Default)([]),
+    (0, sequelize_typescript_1.Default)('[]'),
     (0, sequelize_typescript_1.AllowNull)(true),
-    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.JSON),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.TEXT),
     __metadata("design:type", Object)
 ], Profile.prototype, "tag", void 0);
 __decorate([

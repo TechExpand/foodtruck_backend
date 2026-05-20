@@ -22,11 +22,15 @@ export class Profile extends Model {
 	@Column(DataType.STRING)
 	business_name!: string;
 
-	@Default([])
+	// Live column is LONGTEXT; existing rows hold mixed shapes (some valid JSON arrays,
+	// some bare bracketed CSV like "[bbq, hot dogs, popular]"). Declaring this as TEXT
+	// matches reality and lets sync({alter:true}) succeed; readers already parse the
+	// string defensively (try/catch JSON.parse with comma-split fallback).
+	@Default('[]')
 	@AllowNull(true)
-	@Column(DataType.JSON)
+	@Column(DataType.TEXT)
 	tag!: any;
-	
+
 
 	@Default([])
 	@AllowNull(true)

@@ -17,11 +17,9 @@ const configSetup_1 = __importDefault(require("../config/configSetup"));
 const utility_1 = require("../helpers/utility");
 const jsonwebtoken_1 = require("jsonwebtoken");
 const isAuthorized = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    // console.log("Authorisation middleware called", req.headers.authorization);
     //this is the url without query params
     const route = req.originalUrl.split('?').shift();
     let publicRoutes = configSetup_1.default.PUBLIC_ROUTES;
-    // console.log({ route , check1:publicRoutes.includes(route), publicRoutes})
     if (publicRoutes.includes(route) || (publicRoutes.includes(`/${route.split('/')[1]}`) && !isNaN(route.split('/')[3])))
         return next();
     let token = req.headers.authorization;
@@ -30,7 +28,15 @@ const isAuthorized = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     token = token.split(' ')[1]; // Remove Bearer from string
     if (token === 'null' || !token)
         return (0, utility_1.handleResponse)(res, 401, false, `Unauthorized request`);
-    let verified = (0, jsonwebtoken_1.verify)(token, configSetup_1.default.JWTSECRET);
+    let verified;
+    try {
+        verified = (0, jsonwebtoken_1.verify)(token, configSetup_1.default.JWTSECRET);
+    }
+    catch (err) {
+        // Malformed / expired / bad-signature tokens previously bubbled up and crashed
+        // the Passenger response (502). Always answer with 401 instead.
+        return (0, utility_1.handleResponse)(res, 401, false, `Unauthorized request`);
+    }
     if (!verified)
         return (0, utility_1.handleResponse)(res, 401, false, `Unauthorized request`);
     req.user = verified;
